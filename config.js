@@ -1,5 +1,5 @@
-require("dotenv").config() // allows to define env varibles in .env file
-const env = process.env.NODE_ENV || "development"
+require('dotenv').config() // allows to define env varibles in .env file
+const env = process.env.NODE_ENV || 'development'
 
 const config = {
   ENV: env,
@@ -8,20 +8,20 @@ const config = {
 }
 
 switch (env) {
-  case "development":
+  case 'development':
     config.PORT = parseInt(process.env.DEV_APP_PORT) || 3100
     config.MONGODB_URI =
-      process.env.DEV_MONGODB_URI || "mongodb://localhost:27017/api-template"
+      process.env.DEV_MONGODB_URI || 'mongodb://localhost:27017/api-template'
     break
 
-  case "test":
+  case 'test':
     config.PORT = parseInt(process.env.TEST_APP_PORT) || 3101
     config.MONGODB_URI =
       process.env.TEST_MONGODB_URI ||
-      "mongodb://localhost:27017/api-template-test"
+      'mongodb://localhost:27017/api-template-test'
     break
 
-  case "production":
+  case 'production':
     config.PORT = parseInt(process.env.PORT)
     config.MONGODB_URI = process.env.PROD_MONGODB_URI
     break
