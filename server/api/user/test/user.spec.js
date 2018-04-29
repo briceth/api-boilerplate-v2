@@ -1,6 +1,6 @@
 let server = require('../../../../index')
 
-var User = require('../../user/model')
+var User = require('../model')
 var factory = require('../../../utils/modelFactory')
 
 var chai = require('chai')
