@@ -1,12 +1,11 @@
-let server = require('../../../../index')
+const chai = require('chai')
+const expect = require('chai').expect
+const should = require('chai').should()
+const chaiHttp = require('chai-http')
+const server = require('../../../../index')
+const User = require('../model')
+const factory = require('../../../utils/modelFactory')
 
-var User = require('../model')
-var factory = require('../../../utils/modelFactory')
-
-var chai = require('chai')
-var expect = require('chai').expect
-var should = require('chai').should()
-var chaiHttp = require('chai-http')
 chai.use(chaiHttp)
 
 describe('GET testing secured route users/:id', function() {

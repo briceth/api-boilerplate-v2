@@ -1,5 +1,5 @@
 Arguments: 
-  /usr/local/Cellar/node/9.8.0/bin/node /usr/local/Cellar/yarn/1.5.1_1/libexec/bin/yarn.js start
+  /usr/local/Cellar/node/9.8.0/bin/node /usr/local/Cellar/yarn/1.5.1_1/libexec/bin/yarn.js test
 
 PATH: 
   ./bin:/Users/bricetessierhuort/.rbenv/shims:/usr/local/opt/rbenv/bin:/Users/bricetessierhuort/.rvm/gems/ruby-2.4.1/bin:/Users/bricetessierhuort/.rvm/gems/ruby-2.4.1@global/bin:/Users/bricetessierhuort/.rvm/rubies/ruby-2.4.1/bin:/usr/local/bin:/usr/bin:/bin:/usr/sbin:/sbin:/Users/bricetessierhuort/.rvm/bin
@@ -20,8 +20,8 @@ npm manifest:
     "description": "",
     "main": "index.js",
     "scripts": {
-      "start": "NODE_ENV=development node index.js",
-      "dev": "nodemon index.js",
+      "start": "node index.js",
+      "dev": "NODE_ENV=development nodemon index.js",
       "seed": "node data/seed.js",
       "test": "NODE_ENV=test mocha --recursive **/**.spec.js",
       "testCover": "NODE_ENV=test nyc --reporter=html --reporter=text mocha --recursive **/**.spec.js"
@@ -4037,7 +4037,7 @@ Trace:
   Error: Command failed.
   Exit code: 1
   Command: sh
-  Arguments: -c NODE_ENV=development node index.js
+  Arguments: -c NODE_ENV=test mocha --recursive **/**.spec.js
   Directory: /Users/bricetessierhuort/code/briceth/Projects/vvmt-api
   Output:
   

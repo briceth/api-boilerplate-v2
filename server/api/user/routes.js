@@ -1,6 +1,6 @@
-const config = require('../../../config')
 const express = require('express')
 const router = express.Router()
+const config = require('../../../config')
 const { handleResetPasswordErrors } = require('../../middlewares/user')
 const { checkLoggedIn } = require('../../middlewares/core')
 const controller = require('./controller')

@@ -25,4 +25,4 @@ app.all('*', (req, res) => {
 // to be put at the end
 app.use(errorHandler)
 
-module.exports = { app }
+module.exports = app

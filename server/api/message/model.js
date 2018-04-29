@@ -11,6 +11,11 @@ const messageSchema = new mongoose.Schema({
     default: false
   },
 
+  type: {
+    type: String,
+    enum: ['motivation', 'message', 'refusal']
+  },
+
   //ça sert à rien d'en avoir deux
 
   sender: { type: mongoose.Schema.Types.ObjectId, ref: 'User' },

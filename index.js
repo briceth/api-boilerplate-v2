@@ -1,4 +1,4 @@
-const { app } = require('./server/server')
+const app = require('./server/server')
 const config = require('./config')
 
 const server = app.listen(config.PORT, () => {
@@ -11,4 +11,4 @@ const server = app.listen(config.PORT, () => {
   )
 })
 
-module.exports = server // for testing
+module.exports = server // export for testing
