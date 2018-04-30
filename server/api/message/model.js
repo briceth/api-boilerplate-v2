@@ -1,6 +1,11 @@
 const mongoose = require('mongoose')
 
 const messageSchema = new mongoose.Schema({
+  title: {
+    type: String,
+    required: true
+  },
+
   content: {
     type: String,
     required: true
@@ -15,8 +20,6 @@ const messageSchema = new mongoose.Schema({
     type: String,
     enum: ['motivation', 'message', 'refusal']
   },
-
-  //ça sert à rien d'en avoir deux
 
   sender: { type: mongoose.Schema.Types.ObjectId, ref: 'User' },
 

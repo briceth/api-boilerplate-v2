@@ -40,11 +40,7 @@ const offerSchema = new mongoose.Schema({
     default: 10
   },
 
-  status: {
-    type: String,
-    enum: ['active', 'standby'],
-    default: 'active'
-  },
+  isActive: { type: Boolean, default: true },
 
   company: { type: mongoose.Schema.Types.ObjectId, ref: 'User' }
 })

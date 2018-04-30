@@ -4,7 +4,7 @@ const controller = require('./controller')
 
 router
   .route('/')
-  .get(controller.all)
+  .get(controller.getAll)
   .post(controller.create)
 
 router

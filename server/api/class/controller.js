@@ -1,23 +1,23 @@
-const Offer = require('./model')
+const Class = require('./model')
+
+exports.getAll = (req, res, next) => {
+  return Class.find({})
+    .then(docs => res.status(201).json(docs))
+    .catch(error => next(error))
+}
 
 exports.create = (req, res, next) => {
   const { body } = req
 
-  return Offer.create(body)
+  return Class.create(body)
     .then(doc => res.status(201).json(doc))
     .catch(error => next(error))
 }
 
-exports.getAll = (req, res, next) => {
-  return Offer.find({})
-    .then(doc => res.status(201).json(doc))
-    .catch(error => next(error))
-}
-
-exports.standBy = (req, res, next) => {
+exports.update = (req, res, next) => {
   const { body, id } = req
 
-  return Offer.findOneAndUpdate(id, body, { new: true })
+  return Class.findOneAndUpdate(id, body, { new: true })
     .then(doc => res.status(201).json(doc))
     .catch(error => next(error))
 }
@@ -25,7 +25,7 @@ exports.standBy = (req, res, next) => {
 exports.delete = (req, res, next) => {
   const { id } = req.body
 
-  return Offer.findOneAndRemove(id)
+  return Class.findOneAndRemove(id)
     .then(doc => res.status(201).json(doc))
     .catch(error => next(error))
 }

@@ -1,17 +1,19 @@
 const mongoose = require('mongoose')
 
 const candidatureSchema = new mongoose.Schema({
-  company: {
-    type: mongoose.Schema.Types.ObjectId,
-    ref: 'User'
-  },
-
   status: {
     type: String,
     enum: ['hiring', 'declined', 'pending']
   },
 
-  student: { type: mongoose.Schema.Types.ObjectId, ref: 'User' }
+  startsAt: { type: Date, default: Date.now },
+
+  student: { type: mongoose.Schema.Types.ObjectId, ref: 'User' },
+
+  offer: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: 'Offer'
+  }
 })
 
 module.exports = mongoose.model(
