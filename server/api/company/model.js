@@ -1,18 +1,11 @@
 const mongoose = require('mongoose')
 
 const companySchema = new mongoose.Schema({
-  address: {
-    type: String, //string ?
-    required: true
-  },
+  name: { type: String, required: true },
 
-  last_connection: String, //de l'entreprise
+  logo: String,
 
-  registration: { type: Date, default: Date.now }, // date d'inscription des entreprises
-
-  phone: String,
-
-  picture: String
+  industry: { type: String, required: true }
 })
 
 module.exports = mongoose.model('Company', companySchema, 'companies')

@@ -4,16 +4,16 @@ const Schema = mongoose.Schema
 const classSchema = new Schema({
   name: {
     type: String,
-    required: [true, 'un name est requis']
+    required: [true, 'un nom est requis']
   },
 
-  isActive: { type: Boolean, default: true },
+  is_active: { type: Boolean, default: true },
 
-  school: { type: Schema.Types.ObjectId, ref: 'User', required: true },
+  college: { type: Schema.Types.ObjectId, ref: 'User', required: true },
 
   students: [{ type: Schema.Types.ObjectId, ref: 'User' }],
 
-  reffering: { type: Schema.Types.ObjectId, ref: 'User' }
+  referent: { type: Schema.Types.ObjectId, ref: 'User' }
 })
 
 module.exports = mongoose.model('Class', classSchema, 'classes')

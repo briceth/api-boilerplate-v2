@@ -13,21 +13,19 @@ const messageSchema = new mongoose.Schema({
 
   read: {
     type: Boolean,
-    default: false
+    default: false,
+    required: true
   },
 
-  type: {
-    type: String,
-    enum: ['motivation', 'message', 'refusal']
+  sender: { type: mongoose.Schema.Types.ObjectId, ref: 'User', required: true },
+
+  recipient: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: 'User',
+    required: true
   },
 
-  sender: { type: mongoose.Schema.Types.ObjectId, ref: 'User' },
-
-  recipient: { type: mongoose.Schema.Types.ObjectId, ref: 'User' },
-
-  channel: { type: Schema.Types.ObjectId, ref: 'Channel' },
-
-  date: { type: Date, default: Date.now },
+  date: { type: Date, default: Date.now, required: true },
 
   files: [String]
 })

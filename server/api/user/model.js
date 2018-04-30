@@ -12,7 +12,7 @@ const UserSchema = new mongoose.Schema({
     createdAt: Date
   },
 
-  password: String,
+  //password: String,
 
   passwordChange: {
     valid: { type: Boolean, default: true },
@@ -22,25 +22,43 @@ const UserSchema = new mongoose.Schema({
 
   token: String, // Le token permettra d'authentifier l'utilisateur à l'aide du package `passport-http-bearer`
 
-  type: {
-    type: String,
-    enum: ['college', 'student', 'hr', 'pro', 'administrator', 'referent']
-  },
-
-  student: {
+  account: {
     first_name: String,
+
     last_name: String,
+
+    address: String,
+
+    city: String,
+
+    phone: String,
+
+    picture: String,
+
+    college_name: String,
+
+    is_active: Boolean,
+
+    diary_picture: String,
+
+    motivation_letter: String,
+
+    curriculum: String,
+
+    last_connection: String, //du pro
+
+    type: {
+      type: String,
+      enum: ['college', 'student', 'hr', 'pro', 'administrator', 'referent']
+    },
+
     class: { type: mongoose.Schema.Types.ObjectId, ref: 'Class' }, //Visualisation de tous les élèves d'une classe
     //Visualisation de tous les élèves d'un collège avec les informations principales
     //ratacher des élèves à un collège
-    college: { type: mongoose.Schema.Types.ObjectId, ref: 'User' }
-  },
+    college: { type: mongoose.Schema.Types.ObjectId, ref: 'User' },
 
-  phone: String,
-
-  picture: String,
-
-  school_name: String //nom du collège
+    company: { type: mongoose.Schema.Types.ObjectId, ref: 'Company' }
+  }
 })
 
 UserSchema.plugin(passportLocalMongoose, {

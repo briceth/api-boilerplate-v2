@@ -10,39 +10,44 @@ const offerSchema = new mongoose.Schema({
     type: String,
     required: true
   },
-  // address: {
-  //   type: String, //string ?
-  //   required: true
-  // },
-  startAt: {
-    type: Date,
-    required: true
-  },
 
-  endAt: {
-    type: Date,
-    required: true
-  },
-
-  // le métier
-  trade: {
+  address: {
     type: String,
     required: true
   },
 
-  industry: {
+  starts_at: {
+    type: Date,
+    required: true
+  },
+
+  end_at: {
+    type: Date,
+    required: true
+  },
+
+  profession: {
     type: String,
     required: true
   },
 
   number_application: {
     type: Number,
-    default: 10
+    default: 10,
+    required: true
   },
 
-  isActive: { type: Boolean, default: true },
+  is_active: { type: Boolean, default: true, required: true },
 
-  company: { type: mongoose.Schema.Types.ObjectId, ref: 'User' }
+  is_favorite: { type: Boolean, default: false, required: true },
+
+  company: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: 'Company',
+    required: true
+  },
+
+  pro: { type: mongoose.Schema.Types.ObjectId, ref: 'User', required: true }
 })
 
 module.exports = mongoose.model('Offer', offerSchema, 'offers')
