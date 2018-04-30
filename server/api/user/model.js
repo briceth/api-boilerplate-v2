@@ -1,31 +1,63 @@
-var mongoose = require('mongoose')
-var passportLocalMongoose = require('passport-local-mongoose')
+const mongoose = require('mongoose')
+const passportLocalMongoose = require('passport-local-mongoose')
 
-var UserSchema = new mongoose.Schema({
+const UserSchema = new mongoose.Schema({
   shortId: Number, // shortId is useful when seeding data, it facilitates associations
+
   email: String,
+
   emailCheck: {
     valid: { type: Boolean, default: false },
     token: String,
     createdAt: Date
   },
+
+  //password: String,
+
   passwordChange: {
     valid: { type: Boolean, default: true },
     token: String,
     createdAt: Date
   },
-  password: String,
+
   token: String, // Le token permettra d'authentifier l'utilisateur à l'aide du package `passport-http-bearer`
 
-  // Here`account` is for public information
   account: {
     first_name: String,
+
     last_name: String,
-    gender: {
+
+    address: String,
+
+    city: String,
+
+    phone: String,
+
+    picture: String,
+
+    college_name: String,
+
+    is_active: Boolean,
+
+    diary_picture: String,
+
+    motivation_letter: String,
+
+    curriculum: String,
+
+    last_connection: String, //du pro
+
+    type: {
       type: String,
-      enum: ['Male', 'Female']
+      enum: ['college', 'student', 'hr', 'pro', 'administrator', 'referent']
     },
-    description: String
+
+    class: { type: mongoose.Schema.Types.ObjectId, ref: 'Class' }, //Visualisation de tous les élèves d'une classe
+    //Visualisation de tous les élèves d'un collège avec les informations principales
+    //ratacher des élèves à un collège
+    college: { type: mongoose.Schema.Types.ObjectId, ref: 'User' },
+
+    company: { type: mongoose.Schema.Types.ObjectId, ref: 'Company' }
   }
 })
 
@@ -36,7 +68,7 @@ UserSchema.plugin(passportLocalMongoose, {
 
 // Cette méthode sera utilisée par la strategie `passport-local` pour trouver un utilisateur en fonction de son `email` et `password`
 UserSchema.statics.authenticateLocal = function() {
-  var _self = this
+  const _self = this
   return function(req, email, password, cb) {
     _self.findByUsername(email, true, function(err, user) {
       if (err) return cb(err)
@@ -51,7 +83,7 @@ UserSchema.statics.authenticateLocal = function() {
 
 // Cette méthode sera utilisée par la strategie `passport-http-bearer` pour trouver un utilisateur en fonction de son `token`
 UserSchema.statics.authenticateBearer = function() {
-  var _self = this
+  const _self = this
   return function(token, cb) {
     if (!token) {
       cb(null, false)

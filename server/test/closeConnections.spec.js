@@ -1,5 +1,5 @@
 const server = require('../../index')
-const { mongooseDisconnect } = require('../server')
+const { mongooseDisconnect } = require('../db')
 
 describe('Closing connections', function() {
   it('Closes all connections', function(done) {

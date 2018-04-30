@@ -1,13 +1,12 @@
 const passport = require('passport')
 
-const _errorHandler = function(err, req, res) {
+exports.errorHandler = function(err, req, res) {
   if (res.statusCode === 200) res.status(400)
   console.error(err)
 
   if (config.ENV === 'production') err = 'An error occurred'
   res.json({ error: err })
 }
-exports.errorHandler = _errorHandler
 
 exports.checkLoggedIn = function(req, res, next) {
   passport.authenticate('bearer', { session: false }, function(

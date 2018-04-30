@@ -10,15 +10,12 @@ const config = {
 switch (env) {
   case 'development':
     config.PORT = parseInt(process.env.DEV_APP_PORT) || 3100
-    config.MONGODB_URI =
-      process.env.DEV_MONGODB_URI || 'mongodb://localhost:27017/api-template'
+    config.MONGODB_URI = 'mongodb://localhost/api-vvmt-dev'
     break
 
   case 'test':
     config.PORT = parseInt(process.env.TEST_APP_PORT) || 3101
-    config.MONGODB_URI =
-      process.env.TEST_MONGODB_URI ||
-      'mongodb://localhost:27017/api-template-test'
+    config.MONGODB_URI = 'mongodb://localhost/api-vvmt-test'
     break
 
   case 'production':

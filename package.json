@@ -4,8 +4,8 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "start": "NODE_ENV=development node index.js",
-    "dev": "nodemon index.js",
+    "start": "node index.js",
+    "dev": "NODE_ENV=development nodemon index.js",
     "seed": "node data/seed.js",
     "test": "NODE_ENV=test mocha --recursive **/**.spec.js",
     "testCover": "NODE_ENV=test nyc --reporter=html --reporter=text mocha --recursive **/**.spec.js"

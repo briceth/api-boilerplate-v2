@@ -1,8 +1,10 @@
-var uid = require('uid2')
-var User = require('../api/user/model')
-//  options: email, token, password, emailCheckValid, emailCheckToken, emailCheckCreatedAt, name, description
-function user(options, callback) {
-  const promise = new Promise((resolve, reject) => {
+const uid = require('uid2')
+const User = require('../api/user/model')
+
+// options: email, token, password, emailCheckValid, emailCheckToken,
+//          emailCheckCreatedAt, name, description
+exports.user = (options, callback) => {
+  return new Promise((resolve, reject) => {
     const password = options.password || 'password'
     const newUser = new User({
       email: options.email || 'emailCheck@testing.com',
@@ -22,6 +24,7 @@ function user(options, callback) {
         description: options.description || 'An awesome description'
       }
     })
+
     User.register(newUser, password, function(err, user) {
       if (err) {
         if (!callback) {
@@ -38,7 +41,4 @@ function user(options, callback) {
       }
     })
   })
-  return promise
 }
-
-module.exports = { user: user }
