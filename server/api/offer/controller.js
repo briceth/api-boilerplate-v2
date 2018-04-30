@@ -14,10 +14,11 @@ exports.getAll = (req, res, next) => {
     .catch(error => next(error))
 }
 
-exports.standBy = (req, res, next) => {
-  const { body, id } = req
+exports.toggleActive = (req, res, next) => {
+  const { id } = req
+  const { is_active } = req.body
 
-  return Offer.findOneAndUpdate(id, body, { new: true })
+  return Offer.findOneAndUpdate(id, { is_active }, { new: true })
     .then(doc => res.status(201).json(doc))
     .catch(error => next(error))
 }

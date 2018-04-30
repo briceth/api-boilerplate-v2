@@ -9,7 +9,7 @@ router
 
 router
   .route('/:id')
-  .put(controller.standBy)
+  .put(controller.toggleActive)
   .delete(controller.delete)
 
 module.exports = router
