@@ -17,5 +17,3 @@ const classSchema = new Schema({
 })
 
 module.exports = mongoose.model('Class', classSchema, 'classes')
-
-//Profil Collège : Affichage des classes

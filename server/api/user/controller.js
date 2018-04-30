@@ -17,12 +17,26 @@ exports.create = (req, res, next) => {
     .catch(error => next(error))
 }
 
+exports.getAll = (req, res, next) => {
+  return User.find({})
+    .then(doc => res.status(201).json(doc))
+    .catch(error => next(error))
+}
+
 //MANQUE LA PHOTO
 exports.update = (req, res, next) => {
   const { body, id } = req
 
   return User.findOneAndUpdate(id, body, { new: true })
     .then(doc => res.status(201).json(doc))
+    .catch(error => next(error))
+}
+
+exports.getAllByType = (req, res, next) => {
+  const { type } = req.params
+
+  return User.find({ 'account.type': type })
+    .then(docs => res.status(201).json(docs))
     .catch(error => next(error))
 }
 
@@ -40,17 +54,17 @@ exports.initial_get_user = function(req, res, next) {
     .select('account')
     // .populate("account")
     .exec()
-    .then(function(user) {
+    .then(user => {
+      const { _id, account } = user
+
       if (!user) {
         res.status(404)
         return next('User not found')
       }
-      return res.json({
-        _id: user._id,
-        account: user.account
-      })
+
+      return res.json({ _id, account })
     })
-    .catch(function(err) {
+    .catch(err => {
       console.error(err.message)
       res.status(400)
       return next(err.message)

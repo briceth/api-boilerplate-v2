@@ -23,42 +23,44 @@ const UserSchema = new mongoose.Schema({
   token: String, // Le token permettra d'authentifier l'utilisateur à l'aide du package `passport-http-bearer`
 
   account: {
-    first_name: String,
+    first_name: String, // student, pro, hr, referent
 
-    last_name: String,
+    last_name: String, // student, pro, hr, referent
 
-    address: String,
+    address: String, // student, pro
 
-    city: String,
+    city: String, // college
 
-    phone: String,
+    phone: String, // college, pro, rh,
 
-    picture: String,
+    picture: String, // student
 
-    college_name: String,
+    college_name: String, // college
 
-    is_active: Boolean,
+    is_active: Boolean, // student, hr
 
-    diary_picture: String,
+    diary_picture: String, // student
 
-    motivation_letter: String,
+    motivation_letter: String, // student
 
-    curriculum: String,
+    curriculum: String, // student
 
-    last_connection: String, //du pro
+    last_connection: String, // pro
 
     type: {
       type: String,
       enum: ['college', 'student', 'hr', 'pro', 'administrator', 'referent']
-    },
+    }
+  },
 
-    class: { type: mongoose.Schema.Types.ObjectId, ref: 'Class' }, //Visualisation de tous les élèves d'une classe
-    //Visualisation de tous les élèves d'un collège avec les informations principales
-    //ratacher des élèves à un collège
-    college: { type: mongoose.Schema.Types.ObjectId, ref: 'User' },
+  // Visualisation de tous les élèves d'une classe
+  class: { type: mongoose.Schema.Types.ObjectId, ref: 'Class' }, //student, referent
 
-    company: { type: mongoose.Schema.Types.ObjectId, ref: 'Company' }
-  }
+  // Visualisation de tous les élèves d'un collège avec les informations principales
+  // ratacher des élèves à un collège
+  college: { type: mongoose.Schema.Types.ObjectId, ref: 'User' }, // student, referent
+
+  company: { type: mongoose.Schema.Types.ObjectId, ref: 'Company' } // pro, hr
 })
 
 UserSchema.plugin(passportLocalMongoose, {
@@ -88,7 +90,7 @@ UserSchema.statics.authenticateBearer = function() {
     if (!token) {
       cb(null, false)
     } else {
-      _self.findOne({ token: token }, function(err, user) {
+      _self.findOne({ token }, function(err, user) {
         if (err) return cb(err)
         if (!user) return cb(null, false)
         return cb(null, user)

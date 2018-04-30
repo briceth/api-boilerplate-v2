@@ -5,8 +5,14 @@ const { handleResetPasswordErrors } = require('../../middlewares/user')
 const { checkLoggedIn } = require('../../middlewares/core')
 const controller = require('./controller')
 
-router.route('/').post(controller.create)
+router
+  .route('/')
+  .get(controller.getAll)
+  .post(controller.create)
+
 router.route('/:id').put(controller.update)
+
+router.route('/type/:type').get(controller.getAllByType)
 
 router.route('/:id/students').get(controller.getStudentsFromCollege)
 
