@@ -12,4 +12,8 @@ router
   .put(controller.addStudent)
   .delete(controller.delete)
 
+router.route('/:id/isactive').put(controller.toggleActive)
+
+router.route('/college/:id').get(controller.getClassFromCollege)
+
 module.exports = router

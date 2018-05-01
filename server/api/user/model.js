@@ -55,7 +55,7 @@ const UserSchema = new mongoose.Schema({
     class: { type: mongoose.Schema.Types.ObjectId, ref: 'Class' }, //student, referent
 
     // Visualisation de tous les élèves d'un collège avec les informations principales
-    // ratacher des élèves à un collège
+    // Ratacher des élèves à un collège
     college: { type: mongoose.Schema.Types.ObjectId, ref: 'User' }, // student, referent
 
     company: { type: mongoose.Schema.Types.ObjectId, ref: 'Company' } // pro, hr
