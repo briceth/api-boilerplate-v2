@@ -7,6 +7,8 @@ const classSchema = new Schema({
     required: [true, 'un nom est requis']
   },
 
+  date: { type: Date, default: Date.now },
+
   is_active: { type: Boolean, default: true },
 
   college: { type: Schema.Types.ObjectId, ref: 'User', required: true },
@@ -17,5 +19,3 @@ const classSchema = new Schema({
 })
 
 module.exports = mongoose.model('Class', classSchema, 'classes')
-
-//Profil Collège : Affichage des classes

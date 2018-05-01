@@ -6,7 +6,7 @@ const server = require('../../../../index')
 const User = require('../../user/model')
 const Offer = require('../model')
 
-describe.only(`/offers`, () => {
+describe(`/offers`, () => {
   //let jwt
   let company
   let offer
@@ -17,7 +17,7 @@ describe.only(`/offers`, () => {
     company = await User.create({
       email: 'saintjoseph@mail.com',
       school: 'saint-joseph',
-      account: { type: 'school' }
+      account: { type: 'college' }
     })
 
     offer = await Offer.create({

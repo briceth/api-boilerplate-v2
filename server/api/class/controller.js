@@ -1,12 +1,14 @@
 const Class = require('./model')
 const ObjectId = require('mongoose').Types.ObjectId
 
+//GET CONTROLLERS
 exports.getAll = (req, res, next) => {
   return Class.find({})
     .then(docs => res.status(201).json(docs))
     .catch(error => next(error))
 }
 
+<<<<<<< HEAD
 exports.getClassFromCollege = (req, res, next) => {
   const { id } = req.params
 
@@ -15,6 +17,9 @@ exports.getClassFromCollege = (req, res, next) => {
     .catch(error => next(error))
 }
 
+=======
+//POST CONTROLLERS
+>>>>>>> create-models
 exports.create = (req, res, next) => {
   const { body } = req
 
@@ -23,14 +28,24 @@ exports.create = (req, res, next) => {
     .catch(error => next(error))
 }
 
-exports.update = (req, res, next) => {
-  const { body, id } = req
+//PUT CONTROLLERS
+exports.addStudent = (req, res, next) => {
+  const {
+    body: { student },
+    id
+  } = req
 
-  return Class.findOneAndUpdate(id, body, { new: true })
+  //addToSet only update if id not present
+  return Class.findOneAndUpdate(
+    id,
+    { $addToSet: { students: student } },
+    { new: true }
+  )
     .then(doc => res.status(201).json(doc))
     .catch(error => next(error))
 }
 
+//DELETE CONTROLLERS
 exports.delete = (req, res, next) => {
   const { id } = req.body
 

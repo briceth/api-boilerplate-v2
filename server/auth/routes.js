@@ -3,19 +3,19 @@ const express = require('express')
 const router = express.Router()
 const { handleResetPasswordErrors } = require('../middlewares/user')
 const { checkLoggedIn } = require('../middlewares/core')
-const user_controller = require('./controller')
+const controller = require('./controller')
 
-router.post('/sign_up', user_controller.sign_up)
+router.post('/sign_up', controller.signUp)
 
-router.post('/log_in', user_controller.log_in)
+router.post('/log_in', controller.logIn)
 
-router.route('/email_check').get(user_controller.email_check)
+router.route('/email_check').get(controller.emailCheck)
 
-router.route('/forgotten_password').post(user_controller.forgotten_password)
+router.route('/forgotten_password').post(controller.forgottenPassword)
 router
   // const options = { emailPresenceInQuery: true, tokenPresenceInQuery: true };
   .route('/reset_password')
-  .get(handleResetPasswordErrors({}), user_controller.reset_password_GET)
-  .post(handleResetPasswordErrors({}), user_controller.reset_password_POST)
+  .get(handleResetPasswordErrors({}), controller.resetPasswordGET)
+  .post(handleResetPasswordErrors({}), controller.resetPasswordPOST)
 
 module.exports = router
