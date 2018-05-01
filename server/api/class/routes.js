@@ -9,7 +9,7 @@ router
 
 router
   .route('/:id')
-  .put(controller.update)
+  .put(controller.addStudent)
   .delete(controller.delete)
 
 module.exports = router

@@ -1,5 +1,6 @@
 const Company = require('./model')
 
+//POST CONTROLLERS
 exports.create = (req, res, next) => {
   const { body } = req
 
