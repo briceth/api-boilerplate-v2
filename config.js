@@ -4,7 +4,10 @@ const env = process.env.NODE_ENV || 'development'
 const config = {
   ENV: env,
   MAILGUN_API_KEY: process.env.MAILGUN_API_KEY,
-  MAILGUN_DOMAIN: process.env.MAILGUN_DOMAIN
+  MAILGUN_DOMAIN: process.env.MAILGUN_DOMAIN,
+  CLOUD_NAME: process.env.CLOUD_NAME,
+  API_KEY: process.env.API_KEY,
+  API_SECRET: process.env.API_SECRET
 }
 
 switch (env) {

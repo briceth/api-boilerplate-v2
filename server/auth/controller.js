@@ -1,9 +1,11 @@
 const uid2 = require('uid2')
 const passport = require('passport')
+const cloudinaryStorage = require('multer-storage-cloudinary')
 const mailgun = require('mailgun-js')({
   apiKey: process.env.MAILGUN_API_KEY,
   domain: process.env.MAILGUN_DOMAIN
 })
+
 const config = require('../../config')
 const User = require('../api/user/model')
 const confirmEmail = require('../emails/confirmationEmail')
@@ -19,14 +21,14 @@ exports.sign_up = function(req, res) {
         createdAt: new Date()
       },
       account: {
-        name: req.body.name,
-        description: req.body.description
+        // name: req.body.name,
+        // description: req.body.description
       }
     }),
     req.body.password, // Le mot de passe doit être obligatoirement le deuxième paramètre transmis à `register` afin d'être crypté
     function(err, user) {
       if (err) {
-        if (config.ENV !== 'test') {
+        if (config.ENV !== 'development' || 'test') {
           console.error(err)
         }
         // TODO test
@@ -70,9 +72,12 @@ exports.log_in = function(req, res, next) {
       res.status(400)
       return next(err.message)
     }
+
     if (!user) return res.status(401).json({ error: 'Unauthorized' })
+
     if (!user.emailCheck.valid)
       return res.status(206).json({ message: 'Please confirm email first' })
+
     res.json({
       message: 'Login successful',
       user: {
@@ -82,6 +87,21 @@ exports.log_in = function(req, res, next) {
       }
     })
   })(req, res, next)
+}
+
+// TODO: gérer cas d'erreurs
+exports.upload_avatar = function(req, res, next) {
+  const image = {
+    version: req.file.version,
+    public_id: req.file.public_id,
+    mimetype: req.file.mimetype,
+    secure_url: req.file.secure_url
+  }
+
+  res.json({
+    message: 'Image uploaded',
+    image
+  })
 }
 
 exports.forgotten_password = function(req, res, next) {
