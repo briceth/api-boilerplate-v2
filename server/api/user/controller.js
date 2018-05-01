@@ -57,7 +57,7 @@ exports.create = (req, res, next) => {
 }
 
 // PUT CONTROLLERS
-//TODO: MANQUE LA PHOTO
+//TODO: MANQUE LA PHOTO + on update tout ou uniquement ce dont on a besoin ? je pense qu'il faut tout updater car il n'y a pas 40 infos
 exports.update = (req, res, next) => {
   const { body, id } = req
 
