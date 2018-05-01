@@ -11,7 +11,7 @@ const User = require('../api/user/model')
 const confirmEmail = require('../emails/confirmationEmail')
 const forgetPasswordEmail = require('../emails/forgetPasswordEmail')
 
-exports.sign_up = function(req, res) {
+exports.signUp = function(req, res) {
   User.register(
     new User({
       email: req.body.email,
@@ -66,7 +66,7 @@ exports.sign_up = function(req, res) {
   )
 }
 
-exports.log_in = function(req, res, next) {
+exports.logIn = function(req, res, next) {
   passport.authenticate('local', { session: false }, function(err, user, info) {
     if (err) {
       res.status(400)
@@ -149,7 +149,7 @@ exports.forgotten_password = function(req, res, next) {
   })
 }
 
-exports.email_check = function(req, res) {
+exports.emailCheck = function(req, res) {
   const { email, token } = req.query
   if (!token) return res.status(400).send('No token specified')
   User.findOne({ 'emailCheck.token': token, email: email }, (err, user) => {
@@ -174,11 +174,11 @@ exports.email_check = function(req, res) {
   })
 }
 
-exports.reset_password_GET = function(req, res) {
+exports.resetPasswordGET = function(req, res) {
   res.json({ message: 'Ready to recieve new password' })
 }
 
-exports.reset_password_POST = function(req, res, next) {
+exports.resetPasswordPOST = function(req, res, next) {
   const { newPassword, newPasswordConfirmation } = req.body
   if (!newPassword)
     return res.status(400).json({ error: 'No password provided' })

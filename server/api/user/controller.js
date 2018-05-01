@@ -1,14 +1,53 @@
-const config = require('../../../config')
-const User = require('./model')
-const uid2 = require('uid2')
-const passport = require('passport')
-const confirmEmail = require('../../emails/confirmationEmail')
-const forgetPasswordEmail = require('../../emails/forgetPasswordEmail')
 const mailgun = require('mailgun-js')({
   apiKey: process.env.MAILGUN_API_KEY,
   domain: process.env.MAILGUN_DOMAIN
 })
+const ObjectId = require('mongoose').Types.ObjectId
+const uid2 = require('uid2')
+const passport = require('passport')
+const confirmEmail = require('../../emails/confirmationEmail')
+const forgetPasswordEmail = require('../../emails/forgetPasswordEmail')
+const config = require('../../../config')
+const User = require('./model')
 
+// GET CONTROLLERS
+exports.getAll = (req, res, next) => {
+  return User.find({})
+    .then(doc => res.status(201).json(doc))
+    .catch(error => next(error))
+}
+
+exports.getAllByType = (req, res, next) => {
+  const { type } = req.params
+
+  return User.find({
+    'account.type': type
+  })
+    .then(docs => res.status(201).json(docs))
+    .catch(error => next(error))
+}
+
+exports.getStudentsFromCollege = (req, res, next) => {
+  const { college } = req.params
+
+  // 1 - on cherche le collège par le nom
+  // 2 - on récupère l'id et on filtre les students qui ont ce collège id
+  return User.find({
+    'account.type': 'college',
+    'account.college_name': college
+  })
+    .then(doc => {
+      User.find({
+        'account.type': 'student',
+        'account.college': new ObjectId(doc[0]._id)
+      })
+        .then(doc => res.status(201).json(doc))
+        .catch(error => next(error))
+    })
+    .catch(error => next(error))
+}
+
+// POST CONTROLLERS
 exports.create = (req, res, next) => {
   const { body } = req
 
@@ -17,42 +56,37 @@ exports.create = (req, res, next) => {
     .catch(error => next(error))
 }
 
-//MANQUE LA PHOTO
+// PUT CONTROLLERS
+//TODO: MANQUE LA PHOTO + on update tout ou uniquement ce dont on a besoin ? je pense qu'il faut tout updater car il n'y a pas 40 infos
 exports.update = (req, res, next) => {
   const { body, id } = req
 
-  return User.findOneAndUpdate(id, body, { new: true })
+  return User.findOneAndUpdate(id, body, {
+    new: true
+  })
     .then(doc => res.status(201).json(doc))
     .catch(error => next(error))
 }
 
-exports.getStudentsFromCollege = (req, res, next) => {
-  const { id } = req
+// exports.initial_get_user = function(req, res, next) {
+//   const { currentUser } = req
+//   User.findById(req.params.id)
+//     .select('account')
+//     // .populate("account")
+//     .exec()
+//     .then(user => {
+//       const { _id, account } = user
 
-  return User.find({ 'student.college': id })
-    .then(doc => res.status(201).json(doc))
-    .catch(error => next(error))
-}
+//       if (!user) {
+//         res.status(404)
+//         return next('User not found')
+//       }
 
-exports.initial_get_user = function(req, res, next) {
-  const { currentUser } = req
-  User.findById(req.params.id)
-    .select('account')
-    // .populate("account")
-    .exec()
-    .then(function(user) {
-      if (!user) {
-        res.status(404)
-        return next('User not found')
-      }
-      return res.json({
-        _id: user._id,
-        account: user.account
-      })
-    })
-    .catch(function(err) {
-      console.error(err.message)
-      res.status(400)
-      return next(err.message)
-    })
-}
+//       return res.json({ _id, account })
+//     })
+//     .catch(err => {
+//       console.error(err.message)
+//       res.status(400)
+//       return next(err.message)
+//     })
+// }

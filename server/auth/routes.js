@@ -8,7 +8,7 @@ const uniqid = require('uniqid')
 
 const { handleResetPasswordErrors } = require('../middlewares/user')
 const { checkLoggedIn } = require('../middlewares/core')
-const user_controller = require('./controller')
+const controller = require('./controller')
 
 // Cloudinary configuration
 cloudinary.config({
@@ -28,9 +28,9 @@ const storage = cloudinaryStorage({
 })
 const parser = multer({ storage: storage })
 
-router.post('/sign_up', user_controller.sign_up)
+router.post('/sign_up', controller.sign_up)
 
-router.post('/log_in', user_controller.log_in)
+router.post('/log_in', controller.logIn)
 
 router.post(
   '/upload_avatar',
@@ -38,13 +38,13 @@ router.post(
   user_controller.upload_avatar
 )
 
-router.route('/email_check').get(user_controller.email_check)
+router.route('/email_check').get(controller.email_check)
 
-router.route('/forgotten_password').post(user_controller.forgotten_password)
+router.route('/forgotten_password').post(controller.forgottenPassword)
 router
   // const options = { emailPresenceInQuery: true, tokenPresenceInQuery: true };
   .route('/reset_password')
-  .get(handleResetPasswordErrors({}), user_controller.reset_password_GET)
-  .post(handleResetPasswordErrors({}), user_controller.reset_password_POST)
+  .get(handleResetPasswordErrors({}), controller.resetPasswordGET)
+  .post(handleResetPasswordErrors({}), controller.resetPasswordPOST)
 
 module.exports = router
