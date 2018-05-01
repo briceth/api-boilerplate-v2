@@ -1,7 +1,16 @@
 const Class = require('./model')
+const ObjectId = require('mongoose').Types.ObjectId
 
 exports.getAll = (req, res, next) => {
   return Class.find({})
+    .then(docs => res.status(201).json(docs))
+    .catch(error => next(error))
+}
+
+exports.getClassFromCollege = (req, res, next) => {
+  const { id } = req.params
+
+  return Class.find({ college: new ObjectId(id) })
     .then(docs => res.status(201).json(docs))
     .catch(error => next(error))
 }
