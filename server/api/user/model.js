@@ -50,17 +50,16 @@ const UserSchema = new mongoose.Schema({
     type: {
       type: String,
       enum: ['college', 'student', 'hr', 'pro', 'administrator', 'referent']
-    }
-  },
+    },
+    // Visualisation de tous les élèves d'une classe
+    class: { type: mongoose.Schema.Types.ObjectId, ref: 'Class' }, //student, referent
 
-  // Visualisation de tous les élèves d'une classe
-  class: { type: mongoose.Schema.Types.ObjectId, ref: 'Class' }, //student, referent
+    // Visualisation de tous les élèves d'un collège avec les informations principales
+    // ratacher des élèves à un collège
+    college: { type: mongoose.Schema.Types.ObjectId, ref: 'User' }, // student, referent
 
-  // Visualisation de tous les élèves d'un collège avec les informations principales
-  // ratacher des élèves à un collège
-  college: { type: mongoose.Schema.Types.ObjectId, ref: 'User' }, // student, referent
-
-  company: { type: mongoose.Schema.Types.ObjectId, ref: 'Company' } // pro, hr
+    company: { type: mongoose.Schema.Types.ObjectId, ref: 'Company' } // pro, hr
+  }
 })
 
 UserSchema.plugin(passportLocalMongoose, {

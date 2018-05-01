@@ -14,7 +14,9 @@ router.route('/:id').put(controller.update)
 
 router.route('/type/:type').get(controller.getAllByType)
 
-router.route('/:id/students').get(controller.getStudentsFromCollege)
+router
+  .route('/college/:college/students')
+  .get(controller.getStudentsFromCollege)
 
 // L'authentification est obligatoire pour cette route
 //router.get('/:id', checkLoggedIn, controller.initial_get_user)

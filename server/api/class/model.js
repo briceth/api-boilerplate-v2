@@ -7,6 +7,8 @@ const classSchema = new Schema({
     required: [true, 'un nom est requis']
   },
 
+  date: { type: Date, default: Date.now },
+
   is_active: { type: Boolean, default: true },
 
   college: { type: Schema.Types.ObjectId, ref: 'User', required: true },

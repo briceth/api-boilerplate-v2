@@ -1,5 +1,6 @@
 const Candidature = require('./model')
 
+//POST CONTROLLERS
 exports.create = (req, res, next) => {
   const { body } = req
 
@@ -8,6 +9,7 @@ exports.create = (req, res, next) => {
     .catch(error => next(error))
 }
 
+//PUT CONTROLLERS
 exports.update = (req, res, next) => {
   const { body, id } = req
 
@@ -16,6 +18,7 @@ exports.update = (req, res, next) => {
     .catch(error => next(error))
 }
 
+//DELETE CONTROLLERS
 exports.delete = (req, res, next) => {
   const { id } = req.body
 

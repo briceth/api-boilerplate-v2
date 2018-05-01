@@ -11,7 +11,7 @@ mongoose.connect(config.MONGODB_URI)
 
 log('db url:', config.MONGODB_URI)
 
-const collegeIds = []
+let collegeId
 const classesIds = []
 
 const printAllUsers = type => {
@@ -48,11 +48,11 @@ const seedColleges = () => {
 
   return Promise.all(promises).then(colleges => {
     log(chalk.green('colleges added !! 👨🏻 💻 '))
-
-    for (let i = 0; i < colleges.length; i++) {
-      const college = colleges[i]
-      collegeIds.push(college._id)
-    }
+    collegeId = colleges[0]._id
+    // for (let i = 0; i < colleges.length; i++) {
+    //   collegeId.push(college._id)
+    //   const college = colleges[i]
+    // }
   })
 }
 
@@ -64,7 +64,7 @@ const seedClasses = () => {
   for (let i = 0; i < 5; i++) {
     const newClass = Class.create({
       name: faker.name.findName(),
-      college: collegeIds[i]
+      college: collegeId[i]
     })
 
     promises.push(newClass)
@@ -93,10 +93,10 @@ const seedStudents = () => {
         last_name: faker.name.lastName(),
         picture: faker.image.imageUrl(),
         address: faker.address.streetAddress(),
-        type: 'student'
-      },
-      class: classesIds[i],
-      college: collegeIds[i]
+        type: 'student',
+        class: classesIds[i],
+        college: collegeId
+      }
     })
 
     promises.push(student)
