@@ -28,17 +28,13 @@ const storage = cloudinaryStorage({
 })
 const parser = multer({ storage: storage })
 
-router.post('/sign_up', controller.sign_up)
+router.post('/sign_up', controller.signUp)
 
 router.post('/log_in', controller.logIn)
 
-router.post(
-  '/upload_avatar',
-  parser.single('image'),
-  user_controller.upload_avatar
-)
+router.post('/upload_avatar', parser.single('image'), controller.uploadAvatar)
 
-router.route('/email_check').get(controller.email_check)
+router.route('/email_check').get(controller.emailCheck)
 
 router.route('/forgotten_password').post(controller.forgottenPassword)
 router

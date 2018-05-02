@@ -11,7 +11,7 @@ const User = require('../api/user/model')
 const confirmEmail = require('../emails/confirmationEmail')
 const forgetPasswordEmail = require('../emails/forgetPasswordEmail')
 
-exports.signUp = function(req, res) {
+exports.signUp = function(req, res, next) {
   User.register(
     new User({
       email: req.body.email,
@@ -90,7 +90,7 @@ exports.logIn = function(req, res, next) {
 }
 
 // TODO: gérer cas d'erreurs
-exports.upload_avatar = function(req, res, next) {
+exports.uploadAvatar = function(req, res, next) {
   const image = {
     version: req.file.version,
     public_id: req.file.public_id,
@@ -104,7 +104,7 @@ exports.upload_avatar = function(req, res, next) {
   })
 }
 
-exports.forgotten_password = function(req, res, next) {
+exports.forgottenPassword = function(req, res, next) {
   var email = req.body.email
   if (!email) return res.status(400).json({ error: 'No email specified' })
   User.findOne({ email: email }, function(err, user) {
