@@ -7,12 +7,12 @@ const UserSchema = new mongoose.Schema({
   email: String,
 
   emailCheck: {
-    valid: { type: Boolean, default: false },
+    valid: { type: Boolean, default: true }, // change to false to activate emailCheck
     token: String,
     createdAt: Date
   },
 
-  //password: String,
+  password: String, //A supprimer
 
   passwordChange: {
     valid: { type: Boolean, default: true },
