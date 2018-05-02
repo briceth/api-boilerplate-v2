@@ -16,10 +16,7 @@ exports.getClassFromCollege = (req, res, next) => {
     .catch(error => next(error))
 }
 
-<<<<<<< Updated upstream
 //POST CONTROLLERS
-=======
->>>>>>> Stashed changes
 exports.create = (req, res, next) => {
   const { body } = req
 

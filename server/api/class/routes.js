@@ -12,11 +12,8 @@ router
   .put(controller.addStudent)
   .delete(controller.delete)
 
-<<<<<<< Updated upstream
 router.route('/:id/isactive').put(controller.toggleActive)
 
-=======
->>>>>>> Stashed changes
 router.route('/college/:id').get(controller.getClassFromCollege)
 
 module.exports = router
