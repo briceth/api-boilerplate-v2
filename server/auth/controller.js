@@ -5,6 +5,7 @@ const mailgun = require('mailgun-js')({
   apiKey: process.env.MAILGUN_API_KEY,
   domain: process.env.MAILGUN_DOMAIN
 })
+const cloudinary = require('cloudinary')
 
 const config = require('../../config')
 const User = require('../api/user/model')
@@ -90,7 +91,7 @@ exports.logIn = function(req, res, next) {
 }
 
 // TODO: gérer cas d'erreurs
-exports.uploadAvatar = function(req, res, next) {
+exports.upload = function(req, res, next) {
   const image = {
     version: req.file.version,
     public_id: req.file.public_id,
@@ -101,6 +102,23 @@ exports.uploadAvatar = function(req, res, next) {
   res.json({
     message: 'Image uploaded',
     image
+  })
+}
+
+// TODO: gérer cas d'erreur et réponse
+exports.deleteUpload = function(req, res, next) {
+  cloudinary.config({
+    cloud_name: config.CLOUD_NAME,
+    api_key: config.API_KEY,
+    api_secret: config.API_SECRET
+  })
+
+  cloudinary.v2.uploader.destroy(req.query.public_id, function(error, result) {
+    console.log('DELETE METHOD', result)
+  })
+
+  res.json({
+    message: 'Image deleter'
   })
 }
 
