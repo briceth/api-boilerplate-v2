@@ -13,8 +13,11 @@ router
   .delete(controller.delete)
 
 <<<<<<< Updated upstream
+<<<<<<< Updated upstream
 router.route('/:id/isactive').put(controller.toggleActive)
 
+=======
+>>>>>>> Stashed changes
 =======
 >>>>>>> Stashed changes
 router.route('/college/:id').get(controller.getClassFromCollege)

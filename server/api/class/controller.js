@@ -17,7 +17,10 @@ exports.getClassFromCollege = (req, res, next) => {
 }
 
 <<<<<<< Updated upstream
+<<<<<<< Updated upstream
 //POST CONTROLLERS
+=======
+>>>>>>> Stashed changes
 =======
 >>>>>>> Stashed changes
 exports.create = (req, res, next) => {
