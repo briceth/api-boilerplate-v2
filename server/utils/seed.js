@@ -49,10 +49,6 @@ const seedColleges = () => {
   return Promise.all(promises).then(colleges => {
     log(chalk.green('colleges added !! 👨🏻 💻 '))
     collegeId = colleges[0]._id
-    // for (let i = 0; i < colleges.length; i++) {
-    //   collegeId.push(college._id)
-    //   const college = colleges[i]
-    // }
   })
 }
 
@@ -64,7 +60,7 @@ const seedClasses = () => {
   for (let i = 0; i < 5; i++) {
     const newClass = Class.create({
       name: faker.name.findName(),
-      college: collegeId[i]
+      college: collegeId //le même collège pour toutes les classes
     })
 
     promises.push(newClass)
@@ -80,7 +76,7 @@ const seedClasses = () => {
   })
 }
 
-// USERS
+// STUDENTS
 const seedStudents = () => {
   log('creating students...')
   const promises = []
@@ -94,8 +90,8 @@ const seedStudents = () => {
         picture: faker.image.imageUrl(),
         address: faker.address.streetAddress(),
         type: 'student',
-        class: classesIds[i],
-        college: collegeId
+        class: classesIds[i], //une classe pour chaque élève (moyen)
+        college: collegeId //un seul collège pour tous les élèves
       }
     })
 
@@ -107,12 +103,39 @@ const seedStudents = () => {
   })
 }
 
-//Chaque student a un college et une classe
+// REFERENTS
+const seedReferents = () => {
+  log('creating referents...')
+  const promises = []
+
+  for (let i = 0; i < 5; i++) {
+    const referent = User.create({
+      email: faker.internet.email(),
+      password: '123456',
+      account: {
+        first_name: faker.name.firstName(),
+        last_name: faker.name.lastName(),
+        type: 'referent',
+        college: collegeId, //un seul collège pour tous les référents
+        class: classesIds[i] //un référent par classe
+      }
+    })
+
+    promises.push(referent)
+  }
+
+  return Promise.all(promises).then(() => {
+    log(chalk.green('students added !! 😁 ❤️'))
+  })
+}
+
 deleteDB()
   .then(() => seedColleges())
   .then(() => seedClasses())
   .then(() => seedStudents())
+  .then(() => seedReferents())
   .then(() => printAllUsers('student'))
   .then(() => printAllUsers('college'))
+  .then(() => printAllUsers('referent'))
   .then(() => printAllClasses())
   .catch(error => log(chalk.red(error, '‼️ 👮🏽')))

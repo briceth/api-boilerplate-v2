@@ -15,6 +15,7 @@ module.exports = app => {
   app.use(compression())
   app.use(helmet())
   app.use('/api', cors())
+  app.use('/auth', cors())
   app.use(passport.initialize())
   passport.use(new HTTPBearerStrategy(User.authenticateBearer()))
 

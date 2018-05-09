@@ -1,6 +1,5 @@
 const chai = require('chai')
 const expect = require('chai').expect
-const should = require('chai').should()
 const chaiHttp = require('chai-http')
 const faker = require('faker')
 const server = require('../../../../index')
@@ -14,6 +13,8 @@ describe('PUT /offers/:id', () => {
     await Offer.remove()
     await User.remove()
     await Company.remove()
+
+
 
     pro = await User.create({
       email: faker.internet.email(),
@@ -31,6 +32,18 @@ describe('PUT /offers/:id', () => {
       name: faker.company.companyName(),
       industry: faker.commerce.department()
     })
+
+    offer = await Offer.create({
+      title: faker.name.findName(),
+      description: faker.lorem.sentence(),
+      address: faker.address.streetAddress(),
+      starts_at: faker.date.future(),
+      end_at: faker.date.future(),
+      profession: faker.commerce.department(),
+      number_application: 7,
+      company: company._id,
+      pro: pro._id
+    })
   })
 
   afterEach(async () => {
@@ -43,7 +56,9 @@ describe('PUT /offers/:id', () => {
     const result = await chai
       .request(server)
       .put(`/api/offers/${offer._id}`)
-      .send({ status: 'standby' })
+      .send({
+        is_active: false
+      })
 
     expect(result).to.have.status(201)
     expect(result).to.be.json

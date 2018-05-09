@@ -11,18 +11,14 @@ exports.getAll = (req, res, next) => {
 exports.getClassFromCollege = (req, res, next) => {
   const { id } = req.params
 
-  return Class.find({ college: new ObjectId(id) })
+  return Class.find({ college: new ObjectId(id) }).select('name -_id')
     .then(docs => res.status(201).json(docs))
     .catch(error => next(error))
 }
 
-<<<<<<< Updated upstream
-<<<<<<< Updated upstream
+
 //POST CONTROLLERS
-=======
->>>>>>> Stashed changes
-=======
->>>>>>> Stashed changes
+
 exports.create = (req, res, next) => {
   const { body } = req
 
@@ -38,7 +34,7 @@ exports.addStudent = (req, res, next) => {
     id
   } = req
 
-  //addToSet only update if id not present
+  //addToSet only update if element is not present
   return Class.findOneAndUpdate(
     id,
     { $addToSet: { students: student } },
@@ -48,16 +44,14 @@ exports.addStudent = (req, res, next) => {
     .catch(error => next(error))
 }
 
-// exports.addReferent = (req, res, next) => {
-//   const {
-//     body: { referent },
-//     id
-//   } = req
+exports.addReferent = (req, res, next) => {
+  const { id } = req.params
+  const { referent } = req.body
 
-//   return Class.findOneAndUpdate(id, { $set: { student } }, { new: true })
-//     .then(doc => res.status(201).json(doc))
-//     .catch(error => next(error))
-// }
+  return Class.findOneAndUpdate(id, { $set: { referent } }, { new: true })
+    .then(doc => res.status(201).json(doc))
+    .catch(error => next(error))
+}
 
 exports.toggleActive = (req, res, next) => {
   const {

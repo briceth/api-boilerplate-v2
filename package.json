@@ -4,6 +4,7 @@
   "description": "",
   "main": "index.js",
   "scripts": {
+    "delete": "node server/utils/helpers.js",
     "start": "node index.js",
     "dev": "NODE_ENV=development nodemon index.js",
     "seed": "node server/utils/seed.js",

@@ -1,8 +1,8 @@
 require('dotenv').config() // allows to define env varibles in .env file
-const env = process.env.NODE_ENV || 'development'
+const ENV = process.env.NODE_ENV || 'development'
 
 const config = {
-  ENV: env,
+  ENV,
   MAILGUN_API_KEY: process.env.MAILGUN_API_KEY,
   MAILGUN_DOMAIN: process.env.MAILGUN_DOMAIN,
   CLOUD_NAME: process.env.CLOUD_NAME,
@@ -10,25 +10,27 @@ const config = {
   API_SECRET: process.env.API_SECRET
 }
 
-switch (env) {
+switch (ENV) {
   case 'development':
-    config.PORT = parseInt(process.env.DEV_APP_PORT) || 3100
+  case 'dev':
+    config.PORT = parseInt(process.env.APP_PORT_DEV)
     config.MONGODB_URI = 'mongodb://localhost/api-vvmt-dev'
     break
 
   case 'test':
-    config.PORT = parseInt(process.env.TEST_APP_PORT) || 3101
+    config.PORT = parseInt(process.env.APP_PORT_TEST)
     config.MONGODB_URI = 'mongodb://localhost/api-vvmt-test'
     break
 
   case 'production':
+  case 'prod':
     config.PORT = parseInt(process.env.PORT)
-    config.MONGODB_URI = process.env.PROD_MONGODB_URI
+    config.MONGODB_URI = process.env.MONGODB_URI
     break
 
   default:
     console.error(
-      `${env} is not a recognized NODE_ENV (only development, test and production are accepted)`
+      `${env} is not a recognized NODE_ENV (only development, test and production are accepted) ‼️ 😱 `
     )
 }
 

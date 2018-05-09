@@ -1,6 +1,5 @@
 const chai = require('chai')
 const expect = require('chai').expect
-const should = require('chai').should()
 const chaiHttp = require('chai-http')
 const faker = require('faker')
 const server = require('../../../../index')
@@ -8,10 +7,12 @@ const User = require('../../user/model')
 const Class = require('../model')
 const log = console.log
 
-describe.only(`/classes`, () => {
+describe(`/classes`, () => {
   let newClass
   let student
   let college
+  let referent
+
   beforeEach(async () => {
     await Class.remove()
     await User.remove()
@@ -38,6 +39,16 @@ describe.only(`/classes`, () => {
       }
     })
 
+    referent = await User.create({
+      email: faker.internet.email(),
+      account: {
+        first_name: faker.name.firstName(),
+        last_name: faker.name.lastName(),
+        college: college._id,
+        type: 'referent'
+      }
+    })
+
     newClass = await Class.create({
       name: faker.name.findName(),
       college: college._id
@@ -54,7 +65,10 @@ describe.only(`/classes`, () => {
       const result = await chai
         .request(server)
         .put(`/api/classes/${newClass._id}`)
-        .send({ name: 'standby', student: student._id })
+        .send({
+          name: 'standby',
+          student: student._id
+        })
 
       expect(result).to.have.status(201)
       expect(result).to.be.json
@@ -74,7 +88,9 @@ describe.only(`/classes`, () => {
       const result = await chai
         .request(server)
         .put(`/api/classes/${newClass._id}/isactive`)
-        .send({ boolean: false })
+        .send({
+          boolean: false
+        })
 
       expect(result).to.have.status(201)
       expect(result).to.be.json
@@ -92,6 +108,39 @@ describe.only(`/classes`, () => {
       expect(result.body._id).to.be.a('string')
       expect(result.body.is_active).to.be.a('boolean')
       expect(result.body.college).to.be.a('string')
+    })
+  })
+
+  describe('PUT /:id/add-referent', () => {
+    it('should update a class by adding a referent', async () => {
+      const result = await chai
+        .request(server)
+        .put(`/api/classes/${newClass._id}/add-referent`)
+        .send({
+          referent: referent._id
+        })
+
+      expect(result).to.have.status(201)
+      expect(result).to.be.json
+      expect(result.body).to.include.all.keys(
+        '_id',
+        'college',
+        'date',
+        'is_active',
+        'name',
+        'referent',
+        'students'
+      )
+
+      Object.keys(result.body).every(key => expect(key).to.exist)
+
+      expect(result.body.students).to.be.an('array')
+      expect(result.body.students).to.be.empty
+      expect(result.body._id).to.be.a('string')
+      expect(result.body.is_active).to.be.a('boolean')
+      expect(result.body.college).to.be.a('string')
+      expect(result.body.date).to.be.a('string')
+      expect(result.body.name).to.be.a('string')
     })
   })
 })

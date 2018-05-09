@@ -28,19 +28,35 @@ exports.getAllByType = (req, res, next) => {
 }
 
 exports.getStudentsFromCollege = (req, res, next) => {
-  const { college } = req.params
-
-  // 1 - on cherche le collège par le nom
-  // 2 - on récupère l'id et on filtre les students qui ont ce collège id
-  return User.find({
-    'account.type': 'college',
-    'account.college_name': college
-  })
+  const { id } = req.params
+  // 1 - on cherche le collège par son id
+  // 2 - on récupère l'id et on cherche les students qui ont l'id de ce collège
+ return User.findById(id)
     .then(doc => {
       User.find({
         'account.type': 'student',
-        'account.college': new ObjectId(doc[0]._id)
+        'account.college': new ObjectId(doc._id)
       })
+        .populate({path: "account.class", select: 'name -_id'}) //besoin du nom de la classe de l'élève
+        .select({ 'account.type': 1, 'account.first_name': 1, 'account.last_name': 1, 'account.picture': 1 }) //besoin du prénom, nom et photo de l'élève
+        .then(doc => res.status(201).json(doc))
+        .catch(error => next(error))
+    })
+    .catch(error => next(error))
+}
+
+exports.getReferentsFromCollege = (req, res, next) => {
+  const { id } = req.params
+  // 1 - on cherche le collège par son id
+  // 2 - on récupère l'id et on cherche les students qui ont l'id de ce collège
+ return User.findById(id)
+    .then(doc => {
+      User.find({
+        'account.type': 'referent',
+        'account.college': new ObjectId(doc._id)
+      })
+        //.populate({path: "account.class", select: 'name -_id'}) //besoin du nom de la classe de l'élève
+        .select({ 'email': 1, 'account.type': 1, 'account.first_name': 1, 'account.last_name': 1 }) //besoin du prénom, nom et photo de l'élève
         .then(doc => res.status(201).json(doc))
         .catch(error => next(error))
     })

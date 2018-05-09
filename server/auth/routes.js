@@ -37,8 +37,8 @@ router.post('/upload_avatar', parser.single('image'), controller.uploadAvatar)
 router.route('/email_check').get(controller.emailCheck)
 
 router.route('/forgotten_password').post(controller.forgottenPassword)
+// const options = { emailPresenceInQuery: true, tokenPresenceInQuery: true };
 router
-  // const options = { emailPresenceInQuery: true, tokenPresenceInQuery: true };
   .route('/reset_password')
   .get(handleResetPasswordErrors({}), controller.resetPasswordGET)
   .post(handleResetPasswordErrors({}), controller.resetPasswordPOST)
