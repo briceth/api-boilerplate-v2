@@ -11,17 +11,17 @@ exports.getAll = (req, res, next) => {
 exports.getClassFromCollege = (req, res, next) => {
   const { id } = req.params
 
-  return Class.find({ college: new ObjectId(id) }).select('name -_id')
+  return Class.find({ college: new ObjectId(id) }).select('name date -_id')
     .then(docs => res.status(201).json(docs))
     .catch(error => next(error))
 }
 
 
 //POST CONTROLLERS
-
 exports.create = (req, res, next) => {
   const { body } = req
-
+  console.log("body", req.body)
+  
   return Class.create(body)
     .then(doc => res.status(201).json(doc))
     .catch(error => next(error))

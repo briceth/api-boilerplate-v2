@@ -66,6 +66,7 @@ exports.getReferentsFromCollege = (req, res, next) => {
 // POST CONTROLLERS
 exports.create = (req, res, next) => {
   const { body } = req
+  console.log("body", req.body)
 
   return User.create(body)
     .then(doc => res.status(201).json(doc))

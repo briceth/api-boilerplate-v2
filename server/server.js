@@ -4,12 +4,14 @@ const config = require('../config')
 const { connect } = require('./db')
 const { errorHandler } = require('./middlewares/core')
 const setupAppMiddleware = require('./middlewares/app')
+//const { logger } = require('./middlewares/logger')
 
 const app = express()
 setupAppMiddleware(app)
 connect()
 
 app.get('/', (req, res) => {
+  //logger.trace('Entering cheese testing')
   res.send('Welcome to the  API.')
 })
 

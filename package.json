@@ -4,7 +4,7 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "delete": "node server/utils/helpers.js",
+    "delete": "node server/utils/remove.js",
     "start": "node index.js",
     "dev": "NODE_ENV=development nodemon index.js",
     "seed": "node server/utils/seed.js",
@@ -15,8 +15,8 @@
   "license": "ISC",
   "dependencies": {
     "body-parser": "^1.18.2",
-    "cloudinary": "^1.11.0",
     "chalk": "^2.4.1",
+    "cloudinary": "^1.11.0",
     "compression": "^1.7.1",
     "cors": "^2.8.4",
     "dotenv": "^5.0.0",
@@ -24,6 +24,7 @@
     "express": "^4.16.3",
     "faker": "^4.1.0",
     "helmet": "^3.11.0",
+    "log4js": "^2.5.3",
     "mailgun-js": "^0.16.0",
     "mongoose": "^5.0.6",
     "mongoose-simple-random": "^0.4.1",

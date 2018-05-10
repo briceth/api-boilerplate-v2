@@ -1,8 +1,8 @@
 const config = require('../../config')
-const mailgun = require('mailgun-js')({
-  apiKey: config.MAILGUN_API_KEY,
-  domain: config.MAILGUN_DOMAIN
-})
+// const mailgun = require('mailgun-js')({
+//   apiKey: config.MAILGUN_API_KEY,
+//   domain: config.MAILGUN_DOMAIN
+// })
 const uid2 = require('uid2')
 const passport = require('passport')
 const cloudinaryStorage = require('multer-storage-cloudinary')
@@ -11,15 +11,13 @@ const confirmEmail = require('../emails/confirmationEmail')
 const forgetPasswordEmail = require('../emails/forgetPasswordEmail')
 const log = console.log
 const error = console.error
+const mailgunModule = require('../emails/mailgun')
 
 exports.signUp = (req, res, next) => {
-  const {
-    body,
-    body: { password }
-  } = req
+  const { password, ...rest } = req.body
 
   User.register(
-    new User(body),
+    new User(rest),
     password, // Le mot de passe doit être obligatoirement le deuxième paramètre transmis à `register` afin d'être crypté
     async (error, user) => {
       if (error) {
@@ -30,15 +28,8 @@ exports.signUp = (req, res, next) => {
       } else {
         const url = req.headers.host //pour localhost et pour l'url de production
 
-        if (config.ENV !== 'test') {
-          try {
-            const result = await mailgun
-              .messages()
-              .send(confirmEmail(url, user, password))
-            log('Mail body:', result)
-          } catch (error) {
-            error('Mail error:', error)
-          }
+        if (config.ENV !== 'test' && user.account.type === 'referent') {
+          mailgunModule.sendPassword(url, user, password)
         }
 
         const { _id: id, token, account, email } = user
@@ -46,11 +37,9 @@ exports.signUp = (req, res, next) => {
         return res.status(201).json({
           message: 'User successfully signed up 🤩',
           email,
-          user: {
-            id,
-            token,
-            account
-          }
+          account,
+          id,
+          token
         })
       }
     }
