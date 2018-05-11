@@ -6,7 +6,7 @@ const offerSchema = new mongoose.Schema({
     required: true
   },
 
-  content: {
+  description: {
     type: String,
     required: true
   },

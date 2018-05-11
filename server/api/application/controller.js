@@ -1,5 +1,16 @@
 const Candidature = require('./model')
 
+//GET CONTROLLERS
+exports.getApplicationsFromStudent = (req, res, next) => {
+  const { id } = req.params
+  console.log('yep');
+  
+  return Candidature.find({ student: id }).count()
+    .then(doc => res.status(201).json(doc))
+    .then(error => next(error))
+}
+
+
 //POST CONTROLLERS
 exports.create = (req, res, next) => {
   const { body } = req

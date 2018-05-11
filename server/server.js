@@ -1,19 +1,17 @@
 const express = require('express')
 const cors = require('cors') // to authorize request to the API from another domaine
-
 const config = require('../config')
 const { connect } = require('./db')
 const { errorHandler } = require('./middlewares/core')
 const setupAppMiddleware = require('./middlewares/app')
+//const { logger } = require('./middlewares/logger')
 
 const app = express()
 setupAppMiddleware(app)
 connect()
 
-app.use('/api', cors())
-app.use('/auth', cors())
-
 app.get('/', (req, res) => {
+  //logger.trace('Entering cheese testing')
   res.send('Welcome to the  API.')
 })
 

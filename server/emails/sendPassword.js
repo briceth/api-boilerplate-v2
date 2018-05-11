@@ -1,10 +1,8 @@
-//to: user.email,
-//<a href="http://${url}/api/users/email_check?token=${user.emailCheck.token}&email=${user.email}" class="btn" mc:disable-tracking="">Confirm my email address</a>
-function confirmEmail(url, user, password) {
+exports.mailPassword = (url, user, password) => {
   return {
-    from: '<excited@sandbox50cb3f3f71d04c61899bef6766e06375.mailgun.org>',
-    to: 'tessierhuort@gmail.com',
-    subject: 'Welcome to our API - Email confirmation',
+    from: '<contact@great-api.mailgun.org>',
+    to: user.email,
+    subject: 'Your Password',
     html: `
     <!doctype html>
 <html xmlns="http://www.w3.org/1999/xhtml" xmlns:v="urn:schemas-microsoft-com:vml"
@@ -225,7 +223,54 @@ xmlns:o="urn:schemas-microsoft-com:office:office">
                     <td style="text-align:center;vertical-align:top;direction:ltr;font-size:0px;padding:0px;">
                       <!--[if mso | IE]>
                         <table role="presentation" border="0" cellpadding="0" cellspacing="0">
-                         
+                          <tr>
+                            <td style="width:600px;">
+                            <![endif]-->
+                            <div style="margin:0px auto;max-width:600px;">
+                              <table role="presentation" cellpadding="0" cellspacing="0" style="font-size:0px;width:100%;"
+                              align="center" border="0">
+                                <tbody>
+                                  <tr>
+                                    <td style="text-align:center;vertical-align:top;direction:ltr;font-size:0px;padding:0px;">
+                                      <!--[if mso | IE]>
+                                        <table role="presentation" border="0" cellpadding="0" cellspacing="0">
+                                          <tr>
+                                            <td style="vertical-align:middle;width:600px;">
+                                            <![endif]-->
+                                            <div class="mj-column-per-100 outlook-group-fix" style="vertical-align:middle;display:inline-block;direction:ltr;font-size:13px;text-align:left;width:100%;">
+                                              <table role="presentation" cellpadding="0" cellspacing="0" style="vertical-align:middle;"
+                                              width="100%" border="0">
+                                                <tbody>
+                                                  <tr>
+                                                    <td style="word-wrap:break-word;font-size:0px;padding:0px;" align="center">
+                                                      <table role="presentation" cellpadding="0" cellspacing="0" style="border-collapse:collapse;border-spacing:0px;"
+                                                      align="center" border="0">
+                                                        <tbody>
+                                                          <tr>
+                                                            <td style="width:150px;">
+                                                              Logo
+                                                            </td>
+                                                          </tr>
+                                                        </tbody>
+                                                      </table>
+                                                    </td>
+                                                  </tr>
+                                                </tbody>
+                                              </table>
+                                            </div>
+                                            <!--[if mso | IE]>
+                                            </td>
+                                          </tr>
+                                        </table>
+                                      <![endif]-->
+                                    </td>
+                                  </tr>
+                                </tbody>
+                              </table>
+                            </div>
+                            <!--[if mso | IE]>
+                            </td>
+                          </tr>
                           <tr>
                             <td style="width:600px;">
                             <![endif]-->
@@ -284,30 +329,20 @@ xmlns:o="urn:schemas-microsoft-com:office:office">
                                                   <tr>
                                                     <td style="word-wrap:break-word;font-size:0px;padding:0px;" align="left">
                                                       <div style="cursor:auto;color:#5d7079;font-family:TW-Averta-Regular, Averta, Helvetica, Arial;font-size:16px;line-height:24px;letter-spacing:0.4px;text-align:left;">
-                                                        <p>Bonjour ${user
-                                                          .account.first_name ||
-                                                          ''},</p>
-                                                        <p class="hero">Il est temps de confirmer ton adresse mail.</p>
-                                                        <p>Pour confirmer que vous pouvez recevoir nos emails, cliquez simplement sur le bouton ci-dessous.</p>
-                                                        <p>
-                                                          <a href="http://${url}/auth/email_check?token=${
-      user.emailCheck.token
-    }&email=${
-      user.email
-    }" class="btn" mc:disable-tracking="">Confirm my email address</a>
-                                                        </p>
-                                                        <p>Vos identifiants:</p>
-                                                        <p>adresse mail: ${
-                                                          user.email
-                                                        }</p>
-                                                        <p>Mot de passe: ${password}</p>
-                                                        <p>Pour changer le mot de passe, rendez-vous sur votre profil.</p>
+                                                        <p>Hello, ${user.account
+                                                          .name || ''}</p>
+                                                          <p>Vos identifiants:</p>
+                                                          <p>adresse mail: ${
+                                                            user.email
+                                                          }</p>
+                                                          <p>Mot de passe: ${password}</p>
+                                                          <p>Pour changer le mot de passe, rendez-vous sur votre profil.</p>
+                                         
+                                                        <p>If you don’t know why you got this email, please tell us straight away so we can
+                                                          fix this for you.</p>
                                                         <hr style="margin-top: 56px">
-                                                        <p></p>
-                                                        <p>Si vous ne savez pas pourquoi vous avez reçu cet e-mail, veuillez nous en informer immédiatement afin que nous puissions nous en occuper.</p>
-                                                        <hr style="margin-top: 56px">
-                                                        <p class="mb-0">Merci,</p>
-                                                        <p class="mb-0">L'équipe ViensVoirMonTaf</p>
+                                                        <p class="mb-0">Thanks,</p>
+                                                        <p class="mb-0">The TransferWise Team</p>
                                                       </div>
                                                     </td>
                                                   </tr>
@@ -344,5 +379,3 @@ xmlns:o="urn:schemas-microsoft-com:office:office">
 </html>`
   }
 }
-
-module.exports = confirmEmail

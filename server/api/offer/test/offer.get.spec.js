@@ -1,21 +1,24 @@
 const chai = require('chai')
 const expect = require('chai').expect
-const should = require('chai').should()
 const chaiHttp = require('chai-http')
 const faker = require('faker')
 const server = require('../../../../index')
 const User = require('../../user/model')
 const Company = require('../../company/model')
 const Offer = require('../model')
-const { deleteDB } = require('../../../utils/helpers')
+const {
+  deleteDB
+} = require('../../../utils/helpers')
 
-describe.only(`/offers`, () => {
+describe(`/offers`, () => {
   let company
   let offer
   let pro
 
   beforeEach(async () => {
-    await deleteDB()
+    await Offer.remove()
+    await User.remove()
+    await Company.remove()
 
     pro = await User.create({
       email: faker.internet.email(),
@@ -48,12 +51,19 @@ describe.only(`/offers`, () => {
   })
 
   afterEach(async () => {
-    await deleteDB()
+    await Offer.remove()
+    await User.remove()
+    await Company.remove()
   })
 
   describe(`GET /offers`, () => {
     it(`should get all offers`, async () => {
-      const result = await chai.request(server).get(`/api/offers`)
+      let result
+      try {
+        result = await chai.request(server).get(`/api/offers`)
+      } catch (error) {
+        log(error)
+      }
       //.set('Authorization', `Bearer ${jwt}`)
 
       expect(result).to.have.status(201)

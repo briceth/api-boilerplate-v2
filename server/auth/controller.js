@@ -1,10 +1,5 @@
 const uid2 = require('uid2')
 const passport = require('passport')
-const cloudinaryStorage = require('multer-storage-cloudinary')
-const mailgun = require('mailgun-js')({
-  apiKey: process.env.MAILGUN_API_KEY,
-  domain: process.env.MAILGUN_DOMAIN
-})
 const cloudinary = require('cloudinary').v2
 const uniqid = require('uniqid')
 
@@ -12,6 +7,9 @@ const config = require('../../config')
 const User = require('../api/user/model')
 const confirmEmail = require('../emails/confirmationEmail')
 const forgetPasswordEmail = require('../emails/forgetPasswordEmail')
+const log = console.log
+const error = console.error
+const mailgunModule = require('../emails/mailgun')
 
 // cloudinary credentials
 cloudinary.config({
@@ -29,12 +27,11 @@ exports.signUp = function(req, res, next) {
         token: uid2(20),
         createdAt: new Date()
       },
-      phone: req.body.phone,
       account: {
         type: req.body.type,
-        first_name: req.body.firstname,
-        last_name: req.body.lastname,
-        //phone: req.body.phone,
+        first_name: req.body.first_name,
+        last_name: req.body.last_name,
+        phone: req.body.phone,
         address: req.body.address,
         loc: [req.body.longitude, req.body.latitude],
         //school: req.body.school, //TODO: Mise en place des ID avec la seed
@@ -46,73 +43,59 @@ exports.signUp = function(req, res, next) {
     }),
     req.body.password, // Le mot de passe doit être obligatoirement le deuxième paramètre transmis à `register` afin d'être crypté
     function(err, user) {
-      if (err) {
-        if (config.ENV !== 'development' || 'test') {
-          console.error(err)
-        }
-        //TODO test
-        res.status(400).json({ error: err.message })
+      if (error) {
+        config.ENV !== 'test' && console.error(error)
+
+        // TODO: test
+        return res.status(400).json({ error: error.message })
       } else {
-        // sending mails only in production ENV
-        if (config.ENV === 'production') {
-          const url = req.headers.host
-          mailgun
-            .messages()
-            .send(confirmEmail(url, user), function(error, body) {
-              console.error('Mail Error', error)
-              console.log('Mail Body', body)
-              res.json({
-                message: 'User successfully signed up',
-                user: {
-                  _id: user._id,
-                  token: user.token,
-                  account: user.account
-                }
-              })
-            })
-        } else {
-          console.log('COUCOU')
-          res.json({
-            message: 'User successfully signed up',
-            user: {
-              _id: user._id,
-              token: user.token,
-              phone: user.phone, //TODO: à supprimer
-              email: user.email, //TODO: à supprimer
-              account: user.account
-            }
-          })
+        const url = req.headers.host //pour localhost et pour l'url de production
+
+        if (config.ENV !== 'test' && user.account.type === 'referent') {
+          mailgunModule.sendPassword(url, user, password)
         }
+
+        const { _id: id, token, account, email } = user
+
+        return res.status(201).json({
+          message: 'User successfully signed up 🤩',
+          email,
+          account,
+          id,
+          token
+        })
       }
     }
   )
 }
 
-exports.logIn = function(req, res, next) {
-  passport.authenticate('local', { session: false }, function(err, user, info) {
-    if (err) {
+exports.logIn = (req, res, next) => {
+  passport.authenticate('local', { session: false }, (error, user, info) => {
+    if (error) {
       res.status(400)
-      return next(err.message)
+      return next(error.message)
     }
 
     if (!user) return res.status(401).json({ error: 'Unauthorized' })
 
-    if (!user.emailCheck.valid)
+    if (!user.emailCheck.valid) {
       return res.status(206).json({ message: 'Please confirm email first' })
+    }
+
+    const { _id: id, token, account } = user
 
     res.json({
       message: 'Login successful',
       user: {
-        _id: user._id,
-        token: user.token,
-        account: user.account
+        id,
+        token,
+        account
       }
     })
   })(req, res, next)
 }
 
 exports.upload = function(req, res, next) {
-  console.log(req.files)
   const avatarConfig = {
     folder: 'avatar',
     public_id: uniqid(),
@@ -161,6 +144,8 @@ exports.upload = function(req, res, next) {
       })
     }
 
+    console.log('RESULT', result)
+
     const image = {
       //version: req.file.version,
       public_id: result.public_id,
@@ -189,42 +174,46 @@ exports.deleteUpload = function(req, res, next) {
   })
 }
 
-exports.forgottenPassword = function(req, res, next) {
-  var email = req.body.email
+exports.forgottenPassword = (req, res, next) => {
+  const { email } = req.body
+
   if (!email) return res.status(400).json({ error: 'No email specified' })
-  User.findOne({ email: email }, function(err, user) {
-    if (err) {
+  User.findOne({ email }, (error, user) => {
+    if (error) {
       res.status(400)
-      return next(err.message)
+      return next(error.message)
     }
-    if (!user)
+    if (!user) {
       return res.status(400).json({
         error: "We don't have a user with this email in our database"
       })
-    if (!user.emailCheck.valid)
+    }
+    if (!user.emailCheck.valid) {
       return res.status(400).json({ error: 'Your email is not confirmed' })
+    }
+
     user.passwordChange = {
       token: uid2(20),
       createdAt: new Date(),
       valid: true
     }
-    user.save(function(error) {
+
+    user.save(error => {
       if (error) {
-        console.log(
-          'Error when saving user with passwordChange infos : ',
-          error
-        )
+        log('Error when saving user with passwordChange infos : ', error)
+
         return res
           .status(400)
           .json({ error: 'Error when setting recovering infos in user ' })
       }
       if (config.ENV === 'production') {
         const url = req.headers.host
+
         mailgun
           .messages()
-          .send(forgetPasswordEmail(url, user), function(error, body) {
-            console.error('Mail Error', error)
-            console.log('Mail Body', body)
+          .send(forgetPasswordEmail(url, user), (error, body) => {
+            error('Mail Error', error)
+            log('Mail Body', body)
           })
       }
       res.json({
@@ -234,52 +223,70 @@ exports.forgottenPassword = function(req, res, next) {
   })
 }
 
-exports.emailCheck = function(req, res) {
+exports.emailCheck = (req, res) => {
   const { email, token } = req.query
+
   if (!token) return res.status(400).send('No token specified')
-  User.findOne({ 'emailCheck.token': token, email: email }, (err, user) => {
-    if (err) return res.status(400).send(err)
+
+  User.findOne({ 'emailCheck.token': token, email }, (error, user) => {
+    if (error) return res.status(400).send(error)
+
     if (!user) return res.status(400).send('Wrong credentials')
-    if (user.emailCheck.valid)
+
+    if (user.emailCheck.valid) {
       return res
         .status(206)
-        .json({ message: 'You have already confirmed your email' })
+        .json({ message: 'You have already confirmed your email !' })
+    }
+
     var yesterday = new Date()
+
     yesterday.setDate(yesterday.getDate() - 1)
-    if (user.emailCheck.createdAt < yesterday)
+
+    if (user.emailCheck.createdAt < yesterday) {
       return res.status(400).json({
         message:
           'This link is outdated (older than 24h), please try to sign up again'
       })
+    }
+
     user.emailCheck.valid = true
-    user.save(function(err) {
+
+    user.save(error => {
       if (err) return res.send(err)
       res.json({ message: 'Your email has been verified with success' })
     })
   })
 }
 
-exports.resetPasswordGET = function(req, res) {
+exports.resetPasswordGET = (req, res) => {
   res.json({ message: 'Ready to recieve new password' })
 }
 
-exports.resetPasswordPOST = function(req, res, next) {
-  const { newPassword, newPasswordConfirmation } = req.body
-  if (!newPassword)
+exports.resetPasswordPOST = (req, res, next) => {
+  const {
+    user,
+    body: { newPassword, newPasswordConfirmation }
+  } = req
+
+  if (!newPassword) {
     return res.status(400).json({ error: 'No password provided' })
-  if (newPassword !== newPasswordConfirmation)
+  }
+  if (newPassword !== newPasswordConfirmation) {
     return res
       .status(400)
       .json({ error: 'Password and confirmation are different' })
-  const user = req.user
-  user.setPassword(newPassword, function() {
+  }
+
+  user.setPassword(newPassword, () => {
     user.passwordChange.valid = false
-    user.save(function(error) {
+
+    user.save(error => {
       if (error) {
         res.status(500)
         return next(error.message)
       }
     })
-    res.status(200).json({ message: 'Password reset successfully' })
+    res.status(200).json({ message: 'Password reset successfully !' })
   })
 }
