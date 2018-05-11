@@ -1,8 +1,10 @@
 const passport = require('passport')
+const { logger } = require('./app')
 
 exports.errorHandler = function(err, req, res) {
   if (res.statusCode === 200) res.status(400)
   console.error(err)
+  //logger.error(err);
 
   if (config.ENV === 'production') err = 'An error occurred'
   res.json({ error: err })

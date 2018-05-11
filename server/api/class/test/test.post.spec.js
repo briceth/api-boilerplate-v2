@@ -1,6 +1,5 @@
 const chai = require('chai')
 const expect = require('chai').expect
-const should = require('chai').should()
 const chaiHttp = require('chai-http')
 const faker = require('faker')
 const server = require('../../../../index')
@@ -38,9 +37,12 @@ describe(`/classes`, () => {
       const result = await chai
         .request(server)
         .post(`/api/classes`)
-        .send({ name: faker.name.findName(), college: college._id })
+        .send({
+          name: faker.name.findName(),
+          college: college._id
+        })
 
-      log(result.body)
+
       expect(result).to.have.status(201)
       expect(result).to.be.json
       expect(result.body.students).to.be.an('array')
