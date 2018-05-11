@@ -22,6 +22,8 @@ const UserSchema = new mongoose.Schema({
 
   token: String, // Le token permettra d'authentifier l'utilisateur à l'aide du package `passport-http-bearer`
 
+  phone: String, // college, pro, rh,
+
   account: {
     first_name: String, // student, pro, hr, referent
 
@@ -29,9 +31,13 @@ const UserSchema = new mongoose.Schema({
 
     address: String, // student, pro
 
-    city: String, // college
+    // student, pro
+    loc: {
+      type: [Number], // Array : longitude et latitude
+      index: '2d'
+    },
 
-    phone: String, // college, pro, rh,
+    city: String, // college
 
     picture: String, // student
 

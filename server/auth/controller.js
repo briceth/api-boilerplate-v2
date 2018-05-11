@@ -5,12 +5,20 @@ const mailgun = require('mailgun-js')({
   apiKey: process.env.MAILGUN_API_KEY,
   domain: process.env.MAILGUN_DOMAIN
 })
-const cloudinary = require('cloudinary')
+const cloudinary = require('cloudinary').v2
+const uniqid = require('uniqid')
 
 const config = require('../../config')
 const User = require('../api/user/model')
 const confirmEmail = require('../emails/confirmationEmail')
 const forgetPasswordEmail = require('../emails/forgetPasswordEmail')
+
+// cloudinary credentials
+cloudinary.config({
+  cloud_name: config.CLOUD_NAME,
+  api_key: config.API_KEY,
+  api_secret: config.API_SECRET
+})
 
 exports.signUp = function(req, res, next) {
   User.register(
@@ -21,9 +29,19 @@ exports.signUp = function(req, res, next) {
         token: uid2(20),
         createdAt: new Date()
       },
+      phone: req.body.phone,
       account: {
-        // name: req.body.name,
-        // description: req.body.description
+        type: req.body.type,
+        first_name: req.body.firstname,
+        last_name: req.body.lastname,
+        //phone: req.body.phone,
+        address: req.body.address,
+        loc: [req.body.longitude, req.body.latitude],
+        //school: req.body.school, //TODO: Mise en place des ID avec la seed
+        //class: req.body.class, //TODO: Idem
+        picture: req.body.avatar && req.body.avatar,
+        curriculum: req.body.cv && req.body.cv,
+        diary_picture: req.body.correspondenceBook
       }
     }),
     req.body.password, // Le mot de passe doit être obligatoirement le deuxième paramètre transmis à `register` afin d'être crypté
@@ -32,7 +50,7 @@ exports.signUp = function(req, res, next) {
         if (config.ENV !== 'development' || 'test') {
           console.error(err)
         }
-        // TODO test
+        //TODO test
         res.status(400).json({ error: err.message })
       } else {
         // sending mails only in production ENV
@@ -53,11 +71,14 @@ exports.signUp = function(req, res, next) {
               })
             })
         } else {
+          console.log('COUCOU')
           res.json({
             message: 'User successfully signed up',
             user: {
               _id: user._id,
               token: user.token,
+              phone: user.phone, //TODO: à supprimer
+              email: user.email, //TODO: à supprimer
               account: user.account
             }
           })
@@ -90,35 +111,81 @@ exports.logIn = function(req, res, next) {
   })(req, res, next)
 }
 
-// TODO: gérer cas d'erreurs
 exports.upload = function(req, res, next) {
-  const image = {
-    version: req.file.version,
-    public_id: req.file.public_id,
-    mimetype: req.file.mimetype,
-    secure_url: req.file.secure_url
+  console.log(req.files)
+  const avatarConfig = {
+    folder: 'avatar',
+    public_id: uniqid(),
+    allowedFormats: ['jpg', 'png'],
+    transformation: [
+      { width: 200, height: 200, crop: 'thumb', gravity: 'face' }
+    ]
+  }
+  const correspondenceBookConfig = {
+    folder: 'correspondence_book',
+    public_id: uniqid(),
+    allowedFormats: ['jpg', 'png'],
+    transformation: [{ width: 400, height: 600, crop: 'thumb' }]
+  }
+  const cvConfig = {
+    public_id: uniqid(),
+    resource_type: 'raw'
+  }
+  const defaultConfig = {
+    folder: 'other',
+    public_id: uniqid(),
+    allowedFormats: ['jpg', 'png']
   }
 
-  res.json({
-    message: 'Image uploaded',
-    image
+  let config
+  switch (req.body.type) {
+    case 'avatar':
+      config = avatarConfig
+      break
+    case 'correspondenceBook':
+      config = correspondenceBookConfig
+      break
+    case 'cv':
+      config = cvConfig
+      break
+    default:
+      config = defaultConfig
+  }
+
+  const filePath = req.files.file.path
+  cloudinary.uploader.upload(filePath, config, function(error, result) {
+    if (error) {
+      return res.status(400).json({
+        error: `We couldn't upload your file to our database
+                ${error}`
+      })
+    }
+
+    const image = {
+      //version: req.file.version,
+      public_id: result.public_id,
+      //mimetype: req.file.mimetype,
+      secure_url: result.secure_url
+    }
+    console.log('image', image)
+    return res.json({
+      message: 'File uploaded',
+      image
+    })
   })
 }
 
-// TODO: gérer cas d'erreur et réponse
 exports.deleteUpload = function(req, res, next) {
-  cloudinary.config({
-    cloud_name: config.CLOUD_NAME,
-    api_key: config.API_KEY,
-    api_secret: config.API_SECRET
-  })
-
-  cloudinary.v2.uploader.destroy(req.query.public_id, function(error, result) {
-    console.log('DELETE METHOD', result)
-  })
-
-  res.json({
-    message: 'Image deleter'
+  cloudinary.uploader.destroy(req.query.public_id, function(error, result) {
+    if (error) {
+      return res.status(400).json({
+        error: `We couldn't delete your file to our database
+                ${error}`
+      })
+    }
+    return res.json({
+      message: 'File deleted'
+    })
   })
 }
 
@@ -132,7 +199,7 @@ exports.forgottenPassword = function(req, res, next) {
     }
     if (!user)
       return res.status(400).json({
-        error: "We don't have a user with this email in our dataBase"
+        error: "We don't have a user with this email in our database"
       })
     if (!user.emailCheck.valid)
       return res.status(400).json({ error: 'Your email is not confirmed' })
