@@ -33,18 +33,18 @@ exports.signUp = function(req, res, next) {
         last_name: req.body.last_name,
         phone: req.body.phone,
         address: req.body.address,
-        loc: [req.body.longitude, req.body.latitude],
+        loc: req.body.loc,
         //school: req.body.school, //TODO: Mise en place des ID avec la seed
         //class: req.body.class, //TODO: Idem
-        picture: req.body.avatar && req.body.avatar,
-        curriculum: req.body.cv && req.body.cv,
-        diary_picture: req.body.correspondenceBook
+        picture: req.body.picture && req.body.picture,
+        curriculum: req.body.curriculum && req.body.curriculum,
+        diary_picture: req.body.diary_picture
       }
     }),
     req.body.password, // Le mot de passe doit être obligatoirement le deuxième paramètre transmis à `register` afin d'être crypté
-    function(err, user) {
+    function(error, user) {
       if (error) {
-        config.ENV !== 'test' && console.error(error)
+        if (config.ENV !== 'test') console.error('ERROR', error)
 
         // TODO: test
         return res.status(400).json({ error: error.message })
@@ -56,9 +56,11 @@ exports.signUp = function(req, res, next) {
         }
 
         const { _id: id, token, account, email } = user
+        const userCreated = { id, email, token, account }
 
         return res.status(201).json({
           message: 'User successfully signed up 🤩',
+          user: userCreated, //Besoin de user "en entier" pour localStorage
           email,
           account,
           id,
@@ -96,6 +98,7 @@ exports.logIn = (req, res, next) => {
 }
 
 exports.upload = function(req, res, next) {
+  //console.log(req.files)
   const avatarConfig = {
     folder: 'avatar',
     public_id: uniqid(),
@@ -144,15 +147,13 @@ exports.upload = function(req, res, next) {
       })
     }
 
-    console.log('RESULT', result)
-
     const image = {
       //version: req.file.version,
       public_id: result.public_id,
       //mimetype: req.file.mimetype,
       secure_url: result.secure_url
     }
-    console.log('image', image)
+
     return res.json({
       message: 'File uploaded',
       image
