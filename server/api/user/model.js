@@ -47,6 +47,7 @@ const UserSchema = new mongoose.Schema({
       //   'un nom de famille est requis'
       // ]
     },
+
     // student, pro
     address: {
       type: String
@@ -58,6 +59,12 @@ const UserSchema = new mongoose.Schema({
       // ]
     },
 
+    // student, pro
+    loc: {
+      type: [Number], // Array : longitude et latitude
+      index: '2d'
+    },
+
     // college
     city: {
       type: String
@@ -67,6 +74,7 @@ const UserSchema = new mongoose.Schema({
       //   }
       // ]
     },
+
     // college, pro, rh,
     phone: {
       type: String

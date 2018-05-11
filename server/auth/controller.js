@@ -1,11 +1,9 @@
-const config = require('../../config')
-// const mailgun = require('mailgun-js')({
-//   apiKey: config.MAILGUN_API_KEY,
-//   domain: config.MAILGUN_DOMAIN
-// })
 const uid2 = require('uid2')
 const passport = require('passport')
-const cloudinaryStorage = require('multer-storage-cloudinary')
+const cloudinary = require('cloudinary').v2
+const uniqid = require('uniqid')
+
+const config = require('../../config')
 const User = require('../api/user/model')
 const confirmEmail = require('../emails/confirmationEmail')
 const forgetPasswordEmail = require('../emails/forgetPasswordEmail')
@@ -13,15 +11,40 @@ const log = console.log
 const error = console.error
 const mailgunModule = require('../emails/mailgun')
 
-exports.signUp = (req, res, next) => {
-  const { password, ...rest } = req.body
+// cloudinary credentials
+cloudinary.config({
+  cloud_name: config.CLOUD_NAME,
+  api_key: config.API_KEY,
+  api_secret: config.API_SECRET
+})
 
+exports.signUp = function(req, res, next) {
   User.register(
-    new User(rest),
-    password, // Le mot de passe doit être obligatoirement le deuxième paramètre transmis à `register` afin d'être crypté
-    async (error, user) => {
+    new User({
+      email: req.body.email,
+      token: uid2(32), // Token created with uid2. Will be used for Bear strategy. Should be regenerated when password is changed.
+      emailCheck: {
+        token: uid2(20),
+        createdAt: new Date()
+      },
+      account: {
+        type: req.body.type,
+        first_name: req.body.first_name,
+        last_name: req.body.last_name,
+        phone: req.body.phone,
+        address: req.body.address,
+        loc: req.body.loc,
+        //school: req.body.school, //TODO: Mise en place des ID avec la seed
+        //class: req.body.class, //TODO: Idem
+        picture: req.body.picture && req.body.picture,
+        curriculum: req.body.curriculum && req.body.curriculum,
+        diary_picture: req.body.diary_picture
+      }
+    }),
+    req.body.password, // Le mot de passe doit être obligatoirement le deuxième paramètre transmis à `register` afin d'être crypté
+    function(error, user) {
       if (error) {
-        config.ENV !== 'test' && console.error(error)
+        if (config.ENV !== 'test') console.error('ERROR', error)
 
         // TODO: test
         return res.status(400).json({ error: error.message })
@@ -33,9 +56,11 @@ exports.signUp = (req, res, next) => {
         }
 
         const { _id: id, token, account, email } = user
+        const userCreated = { id, email, token, account }
 
         return res.status(201).json({
           message: 'User successfully signed up 🤩',
+          user: userCreated, //Besoin de user "en entier" pour localStorage
           email,
           account,
           id,
@@ -72,18 +97,81 @@ exports.logIn = (req, res, next) => {
   })(req, res, next)
 }
 
-// TODO: gérer cas d'erreurs
-exports.uploadAvatar = (req, res, next) => {
-  const image = {
-    version: req.file.version,
-    public_id: req.file.public_id,
-    mimetype: req.file.mimetype,
-    secure_url: req.file.secure_url
+exports.upload = function(req, res, next) {
+  //console.log(req.files)
+  const avatarConfig = {
+    folder: 'avatar',
+    public_id: uniqid(),
+    allowedFormats: ['jpg', 'png'],
+    transformation: [
+      { width: 200, height: 200, crop: 'thumb', gravity: 'face' }
+    ]
+  }
+  const correspondenceBookConfig = {
+    folder: 'correspondence_book',
+    public_id: uniqid(),
+    allowedFormats: ['jpg', 'png'],
+    transformation: [{ width: 400, height: 600, crop: 'thumb' }]
+  }
+  const cvConfig = {
+    public_id: uniqid(),
+    resource_type: 'raw'
+  }
+  const defaultConfig = {
+    folder: 'other',
+    public_id: uniqid(),
+    allowedFormats: ['jpg', 'png']
   }
 
-  res.json({
-    message: 'Image uploaded',
-    image
+  let config
+  switch (req.body.type) {
+    case 'avatar':
+      config = avatarConfig
+      break
+    case 'correspondenceBook':
+      config = correspondenceBookConfig
+      break
+    case 'cv':
+      config = cvConfig
+      break
+    default:
+      config = defaultConfig
+  }
+
+  const filePath = req.files.file.path
+  cloudinary.uploader.upload(filePath, config, function(error, result) {
+    if (error) {
+      return res.status(400).json({
+        error: `We couldn't upload your file to our database
+                ${error}`
+      })
+    }
+
+    const image = {
+      //version: req.file.version,
+      public_id: result.public_id,
+      //mimetype: req.file.mimetype,
+      secure_url: result.secure_url
+    }
+
+    return res.json({
+      message: 'File uploaded',
+      image
+    })
+  })
+}
+
+exports.deleteUpload = function(req, res, next) {
+  cloudinary.uploader.destroy(req.query.public_id, function(error, result) {
+    if (error) {
+      return res.status(400).json({
+        error: `We couldn't delete your file to our database
+                ${error}`
+      })
+    }
+    return res.json({
+      message: 'File deleted'
+    })
   })
 }
 
@@ -98,7 +186,7 @@ exports.forgottenPassword = (req, res, next) => {
     }
     if (!user) {
       return res.status(400).json({
-        error: "We don't have a user with this email in our dataBase"
+        error: "We don't have a user with this email in our database"
       })
     }
     if (!user.emailCheck.valid) {
