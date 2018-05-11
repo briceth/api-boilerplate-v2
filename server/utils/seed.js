@@ -3,6 +3,9 @@ const chalk = require('chalk')
 const faker = require('faker')
 const User = require('../api/user/model')
 const Class = require('../api/class/model')
+const Application = require('../api/application/model')
+const Offer = require('../api/offer/model')
+const Company = require('../api/company/model')
 const config = require('../../config')
 const { deleteDB } = require('./helpers')
 const log = console.log
@@ -13,6 +16,10 @@ log('db url:', config.MONGODB_URI)
 
 let collegeId
 const classesIds = []
+const studentIds = []
+const offerIds = []
+const companyIds = []
+const proIds = []
 
 const printAllUsers = type => {
   return User.find({ 'account.type': type })
@@ -98,8 +105,12 @@ const seedStudents = () => {
     promises.push(student)
   }
 
-  return Promise.all(promises).then(() => {
+  return Promise.all(promises).then((students) => {
     log(chalk.green('students added !! 😁 ❤️'))
+    
+    for (let i = 0; i < students.length; i++) {
+      studentIds.push(students[i]._id)
+    }
   })
 }
 
@@ -129,11 +140,121 @@ const seedReferents = () => {
   })
 }
 
+// COMPANIES
+const seedCompanies = () => {
+  log('creating companies...')
+  const promises = []
+
+  for (let i = 0; i < 5; i++) {
+    const company = Company.create({
+      name: faker.company.companyName(),
+      industry: faker.commerce.product()
+    })
+
+    promises.push(company)
+  }
+
+  return Promise.all(promises).then((companies) => {
+    log(chalk.green('companies added !! 😁 ❤️'))
+    
+    for (let i = 0; i < companies.length; i++) {
+      companyIds.push(companies[i]._id)
+    }
+  })
+}
+
+// PROS
+const seedPros = () => {
+  log('creating pros...')
+  const promises = []
+
+  for (let i = 0; i < 5; i++) {
+    const application = User.create({
+      email: faker.internet.email(),
+      password: '123456',
+      account: {
+        first_name: faker.name.firstName(),
+        last_name: faker.name.lastName(),
+        address: faker.address.streetAddress(),
+        phone: faker.phone.phoneNumber(),
+        type: 'pro',
+        company: companyIds[i] //chaque pro a une company
+      }
+    })
+
+    promises.push(application)
+  }
+
+  return Promise.all(promises).then((pros) => {
+    log(chalk.green('students added !! 😁 ❤️'))
+
+    for (let i = 0; i < pros.length; i++) {
+      proIds.push(pros[i]._id)
+    }
+  })
+}
+
+// APPLICATIONS
+const seedApplications = () => {
+  log('creating applications...')
+  const promises = []
+  const status = ['hiring', 'declined', 'pending']
+
+  for (let i = 0; i < 5; i++) {
+    const application = Application.create({
+      status: status[Math.floor(Math.random() * status.length)], //chope un status au hasard
+      starts_at: faker.date.recent(),
+      student: studentIds[i], // une candidature a un étudiant
+      offer: offerIds[i] // une candidature a une offre
+    })
+
+    promises.push(application)
+  }
+
+  return Promise.all(promises).then(() => {
+    log(chalk.green('students added !! 😁 ❤️'))
+  })
+}
+
+// OFFERS
+const seedOffers = () => {
+  log('creating offers...')
+  const promises = []
+
+  for (let i = 0; i < 5; i++) {
+    const offer = Offer.create({
+     title: faker.name.title(),
+     description: faker.name.jobDescriptor(),
+     address: faker.address.streetAddress(),
+     starts_at: faker.date.recent(),
+     end_at: faker.date.future(),
+     profession: faker.name.jobTitle(),
+     number_application: i,
+     company: companyIds[i],
+     pro: proIds[i]
+    })
+
+    promises.push(offer)
+  }
+
+  return Promise.all(promises).then((offers) => {
+    log(chalk.green('students added !! 😁 ❤️'))
+
+    for (let i = 0; i < offers.length; i++) {
+      offerIds.push(offers[i]._id)
+    }
+  })
+}
+
 deleteDB()
   .then(() => seedColleges())
   .then(() => seedClasses())
   .then(() => seedStudents())
   .then(() => seedReferents())
+  .then(() => seedCompanies())
+  .then(() => seedPros())
+  .then(() => seedOffers())
+  .then(() => seedApplications())
   .then(() => printAllUsers('student'))
   .then(() => printAllUsers('college'))
   .then(() => printAllUsers('referent'))
