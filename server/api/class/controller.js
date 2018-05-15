@@ -73,9 +73,6 @@ exports.addReferent = (req, res, next) => {
     referent
   } = req.body
 
-  console.log("body", req.body);
-  console.log("params", req.params);
-
   return Class.findByIdAndUpdate(id, {
       $set: {
         referent: req.body.referent
@@ -111,15 +108,17 @@ exports.toggleActive = (req, res, next) => {
 }
 
 //DELETE CONTROLLERS
-// exports.removeReferent = (req, res, next) => {
-//   const {
-//     id
-//   } = req.body
+exports.removeReferent = (req, res, next) => {
+  const {
+    id
+  } = req.body
 
-//   return Class.findByIdAndRemove(id)
-//     .then(doc => res.status(201).json(doc))
-//     .catch(error => next(error))
-// }
+  return Class.findByIdAndUpdate(id, {}, {
+      new: true
+    })
+    .then(doc => res.status(201).json(doc))
+    .catch(error => next(error))
+}
 
 
 

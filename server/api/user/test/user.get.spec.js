@@ -69,43 +69,6 @@ describe('/users', () => {
       expect(result.body).to.have.lengthOf(1)
     })
   })
-
-  describe('GET /users/college/:college/students', () => {
-    it('should get a list of students by their college name', async () => {
-      console.log('college.account.username', college.account.college_name)
-      console.log(`/api/college/${college.account.college_name}/students`)
-
-      const result = await chai
-        .request(server)
-        .get(`/api/users/college/${college.account.college_name}/students`)
-
-      expect(result).to.have.status(201)
-      expect(result).to.be.json
-      expect(result.body).to.be.an('array')
-      expect(result.body).to.have.lengthOf(1)
-
-      expect(result.body[0]).to.include.all.keys(
-        'emailCheck',
-        'passwordChange',
-        'account',
-        '_id',
-        'email'
-      )
-
-      Object.keys(result.body[0]).every(key => expect(key).to.exist) //not empty and not false
-
-      expect(result.body[0]._id).to.be.a('string')
-      expect(result.body[0].email).to.be.a('string')
-      expect(result.body[0].account).to.be.an('object')
-      expect(result.body[0].emailCheck).to.be.an('object')
-      expect(result.body[0].passwordChange).to.be.an('object')
-
-      Object.keys(result.body[0].account).every(key => expect(key).to.exist)
-      Object.keys(result.body[0].account).every(key =>
-        expect(key).to.be.a('string')
-      )
-    })
-  })
 })
 
 // describe('GET testing secured route users/:id', () => {
