@@ -9,9 +9,21 @@ exports.getAll = (req, res, next) => {
 }
 
 exports.getClassFromCollege = (req, res, next) => {
-  const { id } = req.params
+  const {
+    id
+  } = req.params
 
-  return Class.find({ college: new ObjectId(id) }).select('name date -_id')
+  return Class.find({
+      college: new ObjectId(id)
+    })
+    .populate({
+      path: "referent",
+      select: "account.first_name account.last_name"
+    })
+    .select('name date _id is_active')
+    .sort({
+      date: 1
+    })
     .then(docs => res.status(201).json(docs))
     .catch(error => next(error))
 }
@@ -19,9 +31,11 @@ exports.getClassFromCollege = (req, res, next) => {
 
 //POST CONTROLLERS
 exports.create = (req, res, next) => {
-  const { body } = req
+  const {
+    body
+  } = req
   console.log("body", req.body)
-  
+
   return Class.create(body)
     .then(doc => res.status(201).json(doc))
     .catch(error => next(error))
@@ -30,49 +44,91 @@ exports.create = (req, res, next) => {
 //PUT CONTROLLERS
 exports.addStudent = (req, res, next) => {
   const {
-    params: { student },
+    params: {
+      student
+    },
     id
   } = req
 
   //addToSet only update if element is not present
-  return Class.findOneAndUpdate(
-    id,
-    { $addToSet: { students: student } },
-    { new: true }
-  )
+  return Class.findByIdAndUpdate(
+      id, {
+        $addToSet: {
+          students: student
+        }
+      }, {
+        new: true
+      }
+    )
     .then(doc => res.status(201).json(doc))
     .catch(error => next(error))
 }
 
 exports.addReferent = (req, res, next) => {
-  const { id } = req.params
-  const { referent } = req.body
+  const {
+    id
+  } = req.params
 
-  return Class.findOneAndUpdate(id, { $set: { referent } }, { new: true })
+  const {
+    referent
+  } = req.body
+
+  console.log("body", req.body);
+  console.log("params", req.params);
+
+  return Class.findByIdAndUpdate(id, {
+      $set: {
+        referent: req.body.referent
+      }
+    }, {
+      new: true
+    })
     .then(doc => res.status(201).json(doc))
     .catch(error => next(error))
 }
 
 exports.toggleActive = (req, res, next) => {
   const {
-    body: { boolean },
-    id
+    body: {
+      boolean
+    },
+    params: {
+      id
+    }
   } = req
 
-  return Class.findOneAndUpdate(
-    id,
-    { $set: { is_active: boolean } },
-    { new: true }
-  )
-    .then(doc => res.status(201).json(doc))
+  return Class.findByIdAndUpdate(id, {
+      $set: {
+        is_active: boolean
+      }
+    }, {
+      new: true
+    })
+    .then(doc => res.status(201).json({
+      is_active: true
+    }))
     .catch(error => next(error))
 }
 
 //DELETE CONTROLLERS
-exports.delete = (req, res, next) => {
-  const { id } = req.body
+// exports.removeReferent = (req, res, next) => {
+//   const {
+//     id
+//   } = req.body
 
-  return Class.findOneAndRemove(id)
+//   return Class.findByIdAndRemove(id)
+//     .then(doc => res.status(201).json(doc))
+//     .catch(error => next(error))
+// }
+
+
+
+exports.delete = (req, res, next) => {
+  const {
+    id
+  } = req.body
+
+  return Class.findByIdAndRemove(id)
     .then(doc => res.status(201).json(doc))
     .catch(error => next(error))
 }

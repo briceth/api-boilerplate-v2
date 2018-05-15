@@ -1,8 +1,12 @@
 const express = require('express')
 const router = express.Router()
 const config = require('../../../config')
-const { handleResetPasswordErrors } = require('../../middlewares/user')
-const { checkLoggedIn } = require('../../middlewares/core')
+const {
+  handleResetPasswordErrors
+} = require('../../middlewares/user')
+const {
+  checkLoggedIn
+} = require('../../middlewares/core')
 const controller = require('./controller')
 
 router
@@ -10,7 +14,12 @@ router
   .get(controller.getAll)
   .post(controller.create)
 
-router.route('/:id').put(controller.update)
+router
+  .route('/:id')
+  .put(controller.update)
+
+
+router.route('/referent/:id').delete(controller.removeReferent)
 
 router.route('/type/:type').get(controller.getAllByType)
 
@@ -21,6 +30,7 @@ router
 router
   .route('/college/:id/referents')
   .get(controller.getReferentsFromCollege)
+
 
 // L'authentification est obligatoire pour cette route
 //router.get('/:id', checkLoggedIn, controller.initial_get_user)
