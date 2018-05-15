@@ -3,6 +3,8 @@ const passportLocalMongoose = require('passport-local-mongoose')
 const uid2 = require('uid2')
 
 const UserSchema = new mongoose.Schema({
+  oauthID: String,
+
   shortId: Number, // shortId is useful when seeding data, it facilitates associations
 
   email: String,
