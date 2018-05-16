@@ -7,7 +7,9 @@ const Application = require('../api/application/model')
 const Offer = require('../api/offer/model')
 const Company = require('../api/company/model')
 const config = require('../../config')
-const { deleteDB } = require('./helpers')
+const {
+  deleteDB
+} = require('./helpers')
 const log = console.log
 
 mongoose.connect(config.MONGODB_URI)
@@ -22,7 +24,9 @@ const companyIds = []
 const proIds = []
 
 const printAllUsers = type => {
-  return User.find({ 'account.type': type })
+  return User.find({
+      'account.type': type
+    })
     .then(students => log(chalk.green(`print all ${type}:`), students))
     .catch(error => log(chalk.red(error)))
 }
@@ -107,7 +111,7 @@ const seedStudents = () => {
 
   return Promise.all(promises).then((students) => {
     log(chalk.green('students added !! 😁 ❤️'))
-    
+
     for (let i = 0; i < students.length; i++) {
       studentIds.push(students[i]._id)
     }
@@ -128,7 +132,8 @@ const seedReferents = () => {
         last_name: faker.name.lastName(),
         type: 'referent',
         college: collegeId, //un seul collège pour tous les référents
-        class: classesIds[i] //un référent par classe
+        class: classesIds[i], //un référent par classe
+        students: i === 0 ? [...studentIds] : undefined // le premier référent est le référent des 5 élèves
       }
     })
 
@@ -136,7 +141,7 @@ const seedReferents = () => {
   }
 
   return Promise.all(promises).then(() => {
-    log(chalk.green('students added !! 😁 ❤️'))
+    log(chalk.green('referent added !! 😁 ❤️'))
   })
 }
 
@@ -156,7 +161,7 @@ const seedCompanies = () => {
 
   return Promise.all(promises).then((companies) => {
     log(chalk.green('companies added !! 😁 ❤️'))
-    
+
     for (let i = 0; i < companies.length; i++) {
       companyIds.push(companies[i]._id)
     }
@@ -223,15 +228,15 @@ const seedOffers = () => {
 
   for (let i = 0; i < 5; i++) {
     const offer = Offer.create({
-     title: faker.name.title(),
-     description: faker.name.jobDescriptor(),
-     address: faker.address.streetAddress(),
-     starts_at: faker.date.recent(),
-     end_at: faker.date.future(),
-     profession: faker.name.jobTitle(),
-     number_application: i,
-     company: companyIds[i],
-     pro: proIds[i]
+      title: faker.name.title(),
+      description: faker.name.jobDescriptor(),
+      address: faker.address.streetAddress(),
+      starts_at: faker.date.recent(),
+      end_at: faker.date.future(),
+      profession: faker.name.jobTitle(),
+      number_application: i,
+      company: companyIds[i],
+      pro: proIds[i]
     })
 
     promises.push(offer)

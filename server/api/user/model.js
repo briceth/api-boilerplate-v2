@@ -8,27 +8,44 @@ const UserSchema = new mongoose.Schema({
   email: String,
 
   emailCheck: {
-    valid: { type: Boolean, default: true }, // change to false to activate emailCheck
-    token: { type: String, default: uid2(20) },
-    createdAt: { type: Date, default: Date.now }
+    valid: {
+      type: Boolean,
+      default: true
+    }, // change to false to activate emailCheck
+    token: {
+      type: String,
+      default: uid2(20)
+    },
+    createdAt: {
+      type: Date,
+      default: Date.now
+    }
   },
 
   //password: String, //A supprimer
 
   passwordChange: {
-    valid: { type: Boolean, default: true },
+    valid: {
+      type: Boolean,
+      default: true
+    },
     token: String,
     createdAt: Date
   },
 
-  token: { type: String, default: uid2(32) }, // Token created with uid2. Will be used for Bear strategy. Should be regenerated when password is changed.}
+  token: {
+    type: String,
+    default: uid2(32)
+  }, // Token created with uid2. Will be used for Bear strategy. Should be regenerated when password is changed.}
 
   //token: String, // Le token permettra d'authentifier l'utilisateur à l'aide du package `passport-http-bearer`
 
   account: {
     // student, pro, hr, referent
     first_name: {
-      type: String
+      type: String,
+      lowercase: true,
+      trim: true
       // required: [
       //   function() {
       //     return this.account.type === 'student' || 'pro' || 'hr' || 'referent'
@@ -39,7 +56,9 @@ const UserSchema = new mongoose.Schema({
 
     // student, pro, hr, referent
     last_name: {
-      type: String
+      type: String,
+      lowercase: true,
+      trim: true
       // required: [
       //   function() {
       //     return this.account.type === 'student' || 'pro' || 'hr' || 'referent'
@@ -111,13 +130,27 @@ const UserSchema = new mongoose.Schema({
       enum: ['college', 'student', 'hr', 'pro', 'administrator', 'referent']
     },
     // Visualisation de tous les élèves d'une classe
-    class: { type: mongoose.Schema.Types.ObjectId, ref: 'Class' }, //student, referent
+    class: {
+      type: mongoose.Schema.Types.ObjectId, ref: 'Class'
+    }, //student, referent
 
     // Visualisation de tous les élèves d'un collège avec les informations principales
     // Ratacher des élèves à un collège
-    college: { type: mongoose.Schema.Types.ObjectId, ref: 'User' }, // student, referent
+    college: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: 'User'
+    }, // student, referent
 
-    company: { type: mongoose.Schema.Types.ObjectId, ref: 'Company' } // pro, hr
+    company: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: 'Company'
+    }, // pro, hr
+
+
+    students: [{
+      type: mongoose.Schema.Types.ObjectId,
+      ref: 'User'
+    }] // referent
   }
 })
 
@@ -127,10 +160,10 @@ UserSchema.plugin(passportLocalMongoose, {
 })
 
 // Cette méthode sera utilisée par la strategie `passport-local` pour trouver un utilisateur en fonction de son `email` et `password`
-UserSchema.statics.authenticateLocal = function() {
+UserSchema.statics.authenticateLocal = function () {
   const _self = this
-  return function(req, email, password, cb) {
-    _self.findByUsername(email, true, function(err, user) {
+  return function (req, email, password, cb) {
+    _self.findByUsername(email, true, function (err, user) {
       if (err) return cb(err)
       if (user) {
         return user.authenticate(password, cb)
@@ -142,13 +175,15 @@ UserSchema.statics.authenticateLocal = function() {
 }
 
 // Cette méthode sera utilisée par la strategie `passport-http-bearer` pour trouver un utilisateur en fonction de son `token`
-UserSchema.statics.authenticateBearer = function() {
+UserSchema.statics.authenticateBearer = function () {
   const _self = this
-  return function(token, cb) {
+  return function (token, cb) {
     if (!token) {
       cb(null, false)
     } else {
-      _self.findOne({ token }, function(err, user) {
+      _self.findOne({
+        token
+      }, function (err, user) {
         if (err) return cb(err)
         if (!user) return cb(null, false)
         return cb(null, user)
