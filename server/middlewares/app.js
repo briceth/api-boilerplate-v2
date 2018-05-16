@@ -9,17 +9,23 @@ const LocalStrategy = require('passport-local').Strategy
 const config = require('../../config')
 const User = require('../api/user/model')
 
-
-
 module.exports = app => {
-  app.use(bodyParser.urlencoded({ extended: true }))
+  app.use(bodyParser.urlencoded({ extended: false }))
   app.use(bodyParser.json())
   app.use(compression())
   app.use(helmet())
   app.use('/api', cors())
   app.use('/auth', cors())
   app.use(passport.initialize())
+
   passport.use(new HTTPBearerStrategy(User.authenticateBearer()))
+
+  passport.serializeUser(function(user, done) {
+    done(null, user)
+  })
+  passport.deserializeUser(function(user, done) {
+    done(null, user)
+  })
 
   passport.use(
     new LocalStrategy(
@@ -31,8 +37,8 @@ module.exports = app => {
       User.authenticateLocal()
     )
   )
-  
+
   if (config.ENV !== 'test') {
     app.use(morgan('dev'))
- }
+  }
 }

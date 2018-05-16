@@ -19,14 +19,20 @@ cloudinary.config({
 })
 
 exports.signUp = function(req, res, next) {
+  if (req.err) return res.status(401)
+
+  console.log('req.user', req.user)
+  console.log('req.body', req.body)
+
   User.register(
     new User({
-      email: req.body.email,
+      email: req.user && req.user.email ? req.user.email : req.body.email,
       token: uid2(32), // Token created with uid2. Will be used for Bear strategy. Should be regenerated when password is changed.
       emailCheck: {
         token: uid2(20),
         createdAt: new Date()
       },
+      oauthID: req.user && req.user.oauthID && req.user.oauthID,
       account: {
         type: req.body.type,
         first_name: req.body.first_name,
@@ -41,7 +47,7 @@ exports.signUp = function(req, res, next) {
         diary_picture: req.body.diary_picture
       }
     }),
-    req.body.password, // Le mot de passe doit être obligatoirement le deuxième paramètre transmis à `register` afin d'être crypté
+    req.body.password ? req.body.password : uid2(8), // Le mot de passe doit être obligatoirement le deuxième paramètre transmis à `register` afin d'être crypté
     function(error, user) {
       if (error) {
         if (config.ENV !== 'test') console.error('ERROR', error)
@@ -72,29 +78,25 @@ exports.signUp = function(req, res, next) {
 }
 
 exports.logIn = (req, res, next) => {
-  passport.authenticate('local', { session: false }, (error, user, info) => {
-    if (error) {
-      res.status(400)
-      return next(error.message)
-    }
+  if (req.err) {
+    return res.status(401)
+  }
 
-    if (!user) return res.status(401).json({ error: 'Unauthorized' })
-
-    if (!user.emailCheck.valid) {
-      return res.status(206).json({ message: 'Please confirm email first' })
-    }
-
-    const { _id: id, token, account } = user
-
-    res.json({
-      message: 'Login successful',
-      user: {
-        id,
-        token,
-        account
-      }
+  if (req.authInfo.newUser) {
+    const { oauthID, email, first_name, last_name } = req.user
+    const user = { oauthID, email, first_name, last_name }
+    return res.status(202).json({
+      message: 'Welcome to our new user 🤩',
+      user
     })
-  })(req, res, next)
+  }
+
+  const { _id, token, account, email } = req.user
+  const user = { id: _id, token, account, email }
+  return res.status(200).json({
+    message: 'User successfully signed up 🤩',
+    user
+  })
 }
 
 exports.upload = function(req, res, next) {
@@ -125,13 +127,13 @@ exports.upload = function(req, res, next) {
 
   let config
   switch (req.body.type) {
-    case 'avatar':
+    case 'picture':
       config = avatarConfig
       break
-    case 'correspondenceBook':
+    case 'diary':
       config = correspondenceBookConfig
       break
-    case 'cv':
+    case 'curriculum':
       config = cvConfig
       break
     default:
