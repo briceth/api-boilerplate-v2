@@ -16,7 +16,9 @@ router.route('/:id/isactive').put(controller.toggleActive)
 
 router.route('/college/:id').get(controller.getClassFromCollege)
 
-router.route('/:id/add-referent').put(controller.addReferent)
+router.route('/:id/referent').put(controller.addReferent)
+
+//router.route('/:id/referent/:referent').put(controller.removeReferent)
 
 
 module.exports = router
