@@ -2,7 +2,6 @@ const mailgun = require('mailgun-js')({
   apiKey: process.env.MAILGUN_API_KEY,
   domain: process.env.MAILGUN_DOMAIN
 })
-const ObjectId = require('mongoose').Types.ObjectId
 const uid2 = require('uid2')
 const passport = require('passport')
 const confirmEmail = require('../../emails/confirmationEmail')
@@ -10,7 +9,12 @@ const forgetPasswordEmail = require('../../emails/forgetPasswordEmail')
 const config = require('../../../config')
 const User = require('./model')
 const Class = require('../class/model')
-const Candidature = require('../application/model')
+const {
+  getApplications
+} = require('./controller.helpers')
+const {
+  ObjectId
+} = require('mongoose').Types
 
 // GET CONTROLLERS
 exports.getAll = (req, res, next) => {
@@ -31,7 +35,8 @@ exports.getAllByType = (req, res, next) => {
     .catch(error => next(error))
 }
 
-exports.getStudentsFromCollege = (req, res, next) => {
+
+exports.getStudentsFromCollege = (user) => (req, res, next) => {
   const {
     id
   } = req.params
@@ -41,7 +46,7 @@ exports.getStudentsFromCollege = (req, res, next) => {
     .then(doc => {
       User.find({
           'account.type': 'student',
-          'account.college': new ObjectId(doc._id)
+          ['account.' + user]: new ObjectId(doc._id)
         })
         .populate({
           path: "account.class",
@@ -58,31 +63,8 @@ exports.getStudentsFromCollege = (req, res, next) => {
         })
         .then(async docs => {
 
-          // the operation is async
-          const docs2 = []
-
-          for (let i = 0; i < docs.length; i++) {
-            const doc = docs[i];
-
-            // get the amount of applications
-            const number = await Candidature.find({
-              student: new ObjectId(doc._id)
-            }).count()
-            // get the statut of applications
-            const application = await Candidature.find({
-              student: new ObjectId(doc._id)
-            })
-
-            docs2.push({
-              account: doc.account,
-              _id: doc._id,
-              application: {
-                statut: application[0].status,
-                number
-              }
-            })
-          }
-          return res.status(201).json(docs2)
+          const result = await getApplications(docs)
+          return res.status(201).json(result)
         })
         .catch(error => next(error))
     })
@@ -117,12 +99,36 @@ exports.getReferentsFromCollege = (req, res, next) => {
     .catch(error => next(error))
 }
 
+exports.getStudentsFromReferent = (req, res, next) => {
+  const {
+    id
+  } = req.params
+  // 1 - on cherche le reférent par son id
+  // 2 - besoin d'avoir tous les élèves du référent
+  // 3 - besoin du nom de la classe pour chaque élève
+  return User.findById(id)
+    .populate({
+      path: 'account.students',
+      select: 'account.first_name account.last_name',
+      populate: {
+        path: 'account.class',
+        select: 'name -_id'
+      }
+    })
+    .then(async docs => {
+      const result = await getApplications(docs.account.students)
+
+      return res.status(201).json(result)
+    })
+    .catch(error => next(error))
+}
+
 // POST CONTROLLERS
 exports.create = (req, res, next) => {
   const {
     body
   } = req
-  console.log("body", req.body)
+  //console.log("body", req.body)
 
   return User.create(body)
     .then(doc => res.status(201).json(doc))

@@ -144,7 +144,13 @@ const UserSchema = new mongoose.Schema({
     company: {
       type: mongoose.Schema.Types.ObjectId,
       ref: 'Company'
-    } // pro, hr
+    }, // pro, hr
+
+
+    students: [{
+      type: mongoose.Schema.Types.ObjectId,
+      ref: 'User'
+    }] // referent
   }
 })
 
