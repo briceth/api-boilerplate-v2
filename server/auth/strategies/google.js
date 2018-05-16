@@ -21,7 +21,6 @@ passport.use(
           first_name: profile.name.givenName,
           last_name: profile.name.familyName
         }
-        console.log('newUser !!!!!!', newUser)
         return done(null, newUser, { newUser: true })
       })
     }

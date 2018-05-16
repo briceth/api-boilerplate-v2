@@ -127,13 +127,13 @@ exports.upload = function(req, res, next) {
 
   let config
   switch (req.body.type) {
-    case 'avatar':
+    case 'picture':
       config = avatarConfig
       break
-    case 'correspondenceBook':
+    case 'diary':
       config = correspondenceBookConfig
       break
-    case 'cv':
+    case 'curriculum':
       config = cvConfig
       break
     default:
