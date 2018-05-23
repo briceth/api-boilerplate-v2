@@ -128,12 +128,14 @@ const UserSchema = new mongoose.Schema({
     last_connection: String, // pro
 
     type: {
-      type: String,
-      enum: ['college', 'student', 'hr', 'pro', 'administrator', 'referent']
+      type: String
+      //TODO: enum doesn't work for type college ...
+      //enum: ['college', 'student', 'hr', 'pro', 'administrator', 'referent']
     },
     // Visualisation de tous les élèves d'une classe
     class: {
-      type: mongoose.Schema.Types.ObjectId, ref: 'Class'
+      type: mongoose.Schema.Types.ObjectId,
+      ref: 'Class'
     }, //student, referent
 
     // Visualisation de tous les élèves d'un collège avec les informations principales
@@ -148,11 +150,12 @@ const UserSchema = new mongoose.Schema({
       ref: 'Company'
     }, // pro, hr
 
-
-    students: [{
-      type: mongoose.Schema.Types.ObjectId,
-      ref: 'User'
-    }] // referent
+    students: [
+      {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: 'User'
+      }
+    ] // referent
   }
 })
 
@@ -162,10 +165,10 @@ UserSchema.plugin(passportLocalMongoose, {
 })
 
 // Cette méthode sera utilisée par la strategie `passport-local` pour trouver un utilisateur en fonction de son `email` et `password`
-UserSchema.statics.authenticateLocal = function () {
+UserSchema.statics.authenticateLocal = function() {
   const _self = this
-  return function (req, email, password, cb) {
-    _self.findByUsername(email, true, function (err, user) {
+  return function(req, email, password, cb) {
+    _self.findByUsername(email, true, function(err, user) {
       if (err) return cb(err)
       if (user) {
         return user.authenticate(password, cb)
@@ -177,19 +180,22 @@ UserSchema.statics.authenticateLocal = function () {
 }
 
 // Cette méthode sera utilisée par la strategie `passport-http-bearer` pour trouver un utilisateur en fonction de son `token`
-UserSchema.statics.authenticateBearer = function () {
+UserSchema.statics.authenticateBearer = function() {
   const _self = this
-  return function (token, cb) {
+  return function(token, cb) {
     if (!token) {
       cb(null, false)
     } else {
-      _self.findOne({
-        token
-      }, function (err, user) {
-        if (err) return cb(err)
-        if (!user) return cb(null, false)
-        return cb(null, user)
-      })
+      _self.findOne(
+        {
+          token
+        },
+        function(err, user) {
+          if (err) return cb(err)
+          if (!user) return cb(null, false)
+          return cb(null, user)
+        }
+      )
     }
   }
 }

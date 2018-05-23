@@ -35,8 +35,7 @@ exports.getAllByType = (req, res, next) => {
     .catch(error => next(error))
 }
 
-
-exports.getStudentsFromCollege = (user) => (req, res, next) => {
+exports.getStudentsFromCollege = user => (req, res, next) => {
   const {
     id
   } = req.params
@@ -49,7 +48,7 @@ exports.getStudentsFromCollege = (user) => (req, res, next) => {
           ['account.' + user]: new ObjectId(doc._id)
         })
         .populate({
-          path: "account.class",
+          path: 'account.class',
           select: 'name -_id'
         }) // besoin du nom de la classe de l'élève
         .select({
@@ -59,10 +58,9 @@ exports.getStudentsFromCollege = (user) => (req, res, next) => {
           'account.picture': 1
         }) // besoin du prénom, nom et photo de l'élève
         .sort({
-          "account.last_name": 1
+          'account.last_name': 1
         })
         .then(async docs => {
-
           const result = await getApplications(docs)
           return res.status(201).json(result)
         })
@@ -137,27 +135,41 @@ exports.create = (req, res, next) => {
     body
   } = req
 
-
   return User.create(body)
     .then(doc => res.status(201).json(doc))
     .catch(error => next(error))
 }
 
 // PUT CONTROLLERS
-//TODO: MANQUE LA PHOTO + on update tout ou uniquement ce dont on a besoin ? je pense qu'il faut tout updater car il n'y a pas 40 infos
+//TODO: check token user or admin
 exports.update = (req, res, next) => {
   const {
-    body,
-    id
+    body
   } = req
+  const {
+    id
+  } = req.params
 
-  return User.findOneAndUpdate(id, body, {
+  return User.findByIdAndUpdate(id, body, {
       new: true
     })
-    .then(doc => res.status(201).json(doc))
+    .then(doc => {
+      // change password if user has provided one
+      if (body.password) {
+        doc.setPassword(body.password, function (error) {
+          if (!error) {
+            doc.save(function (error) {
+              if (error) next(error)
+            })
+          } else {
+            next(error)
+          }
+        })
+      }
+      res.status(201).json(doc)
+    })
     .catch(error => next(error))
 }
-
 
 // DELETE CONTROLLERS
 exports.removeReferent = (req, res, next) => {
@@ -167,14 +179,15 @@ exports.removeReferent = (req, res, next) => {
 
   return User.findByIdAndRemove(id)
     .then(referent => {
-
-      return Class.findByIdAndUpdate(new ObjectId(referent.account.class), {
-          $unset: {
-            referent: 1
+      return Class.findByIdAndUpdate(
+          new ObjectId(referent.account.class), {
+            $unset: {
+              referent: 1
+            }
+          }, {
+            new: true
           }
-        }, {
-          new: true
-        })
+        )
         .then(doc => {
           const {
             first_name,
@@ -182,22 +195,18 @@ exports.removeReferent = (req, res, next) => {
           } = referent.account
 
           return res.status(201).json({
-            message: "le référent a été supprimé avec succès!",
+            message: 'le référent a été supprimé avec succès!',
             referent: {
               first_name,
               last_name
             },
             doc
           })
-
         })
         .catch(error => next(error))
     })
     .catch(error => next(error))
 }
-
-
-
 
 // exports.initial_get_user = function(req, res, next) {
 //   const { currentUser } = req
