@@ -51,13 +51,13 @@ exports.getStudentsFromCollege = (user) => (req, res, next) => {
         .populate({
           path: "account.class",
           select: 'name -_id'
-        }) //besoin du nom de la classe de l'élève
+        }) // besoin du nom de la classe de l'élève
         .select({
           'account.type': 1,
           'account.first_name': 1,
           'account.last_name': 1,
           'account.picture': 1
-        }) //besoin du prénom, nom et photo de l'élève
+        }) // besoin du prénom, nom et photo de l'élève
         .sort({
           "account.last_name": 1
         })
@@ -79,22 +79,30 @@ exports.getReferentsFromCollege = (req, res, next) => {
   // 2 - on récupère l'id et on cherche les students qui ont l'id de ce collège
   return User.findById(id)
     .then(doc => {
-      User.find({
-          'account.type': 'referent',
-          'account.college': new ObjectId(doc._id)
+
+      if (doc) {
+
+        User.find({
+            'account.type': 'referent',
+            'account.college': new ObjectId(doc._id)
+          })
+          //.populate({path: "account.class", select: 'name -_id'}) //besoin du nom de la classe de l'élève
+          .select({
+            'email': 1,
+            'account.type': 1,
+            'account.first_name': 1,
+            'account.last_name': 1
+          }) //besoin du prénom, nom et photo de l'élève
+          .sort({
+            "account.last_name": 1
+          })
+          .then(doc => res.status(201).json(doc))
+          .catch(error => next(error))
+      } else {
+        return res.status(404).json({
+          message: "pas encore de référent pour ce collège"
         })
-        //.populate({path: "account.class", select: 'name -_id'}) //besoin du nom de la classe de l'élève
-        .select({
-          'email': 1,
-          'account.type': 1,
-          'account.first_name': 1,
-          'account.last_name': 1
-        }) //besoin du prénom, nom et photo de l'élève
-        .sort({
-          "account.last_name": 1
-        })
-        .then(doc => res.status(201).json(doc))
-        .catch(error => next(error))
+      }
     })
     .catch(error => next(error))
 }
@@ -128,7 +136,7 @@ exports.create = (req, res, next) => {
   const {
     body
   } = req
-  //console.log("body", req.body)
+
 
   return User.create(body)
     .then(doc => res.status(201).json(doc))

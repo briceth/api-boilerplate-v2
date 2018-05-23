@@ -125,9 +125,12 @@ exports.removeReferent = (req, res, next) => {
 exports.delete = (req, res, next) => {
   const {
     id
-  } = req.body
+  } = req.params
 
   return Class.findByIdAndRemove(id)
-    .then(doc => res.status(201).json(doc))
+    .then(doc => res.status(201).json({
+      id: doc.id,
+      message: "class has been removed"
+    }))
     .catch(error => next(error))
 }

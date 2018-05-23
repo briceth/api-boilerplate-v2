@@ -17,7 +17,11 @@ const messageSchema = new mongoose.Schema({
     required: true
   },
 
-  sender: { type: mongoose.Schema.Types.ObjectId, ref: 'User', required: true },
+  sender: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: 'User',
+    required: true
+  },
 
   recipient: {
     type: mongoose.Schema.Types.ObjectId,
@@ -25,7 +29,10 @@ const messageSchema = new mongoose.Schema({
     required: true
   },
 
-  date: { type: Date, default: Date.now, required: true },
+  date: {
+    type: Date,
+    default: Date.now
+  },
 
   files: [String]
 })
