@@ -14,7 +14,8 @@ const { checkLoggedIn } = require('../middlewares/core')
 const controller = require('./controller')
 
 // routes
-// TODO: vérifier dans le signup si l'utilisateur n'est pas déjà inscrit
+router.post('/verify_token', controller.verifyToken)
+
 router.post('/sign_up', controller.signUp)
 router.post(
   '/sign_up_facebook',
