@@ -6,6 +6,7 @@ const Class = require('../api/class/model')
 const Application = require('../api/application/model')
 const Offer = require('../api/offer/model')
 const Company = require('../api/company/model')
+const Message = require('../api/message/model')
 const config = require('../../config')
 const {
   deleteDB
@@ -98,8 +99,9 @@ const seedStudents = () => {
       account: {
         first_name: faker.name.firstName(),
         last_name: faker.name.lastName(),
-        picture: faker.image.imageUrl(),
+        picture: `https://randomuser.me/api/portraits/med/men/${i}.jpg`,
         address: faker.address.streetAddress(),
+        curriculum: 'https://res.cloudinary.com/djexqgocu/image/upload/v1527068284/container-big_rdwvdp.pdf',
         type: 'student',
         class: classesIds[i], //une classe pour chaque élève (moyen)
         college: collegeId //un seul collège pour tous les élèves
@@ -153,7 +155,8 @@ const seedCompanies = () => {
   for (let i = 0; i < 5; i++) {
     const company = Company.create({
       name: faker.company.companyName(),
-      industry: faker.commerce.product()
+      industry: faker.commerce.product(),
+      logo: "https://picsum.photos/80/120"
     })
 
     promises.push(company)
@@ -251,6 +254,42 @@ const seedOffers = () => {
   })
 }
 
+const seedMessages = () => {
+  log('creating messages...')
+  const promises = []
+
+
+  // 5 messages venant du pro
+  for (let i = 0; i < 5; i++) {
+    const message = Message.create({
+      title: faker.name.title(),
+      content: faker.lorem.paragraph(),
+      date: faker.date.past(),
+      sender: proIds[0], // tous les messages ont le même pro
+      recipient: studentIds[0] //  tous les messages ont le même élève
+    }) // sachant que tous les élèves ont le même référent, il faudra requêter le premier référent pour avoir les messages
+
+    promises.push(message)
+  }
+
+  // 5 messages venant du student
+  for (let i = 0; i < 5; i++) {
+    const message = Message.create({
+      title: faker.name.title(),
+      content: faker.lorem.paragraph(),
+      date: faker.date.past(),
+      sender: studentIds[0], // tous les messages ont le même élève
+      recipient: proIds[0] //  tous les messages ont le même pro
+    }) // (sachant que tous les élèves ont le même référent, il faudra requêter le premier référent pour avoir les messages)
+
+    promises.push(message)
+  }
+
+  return Promise.all(promises).then(() => {
+    log(chalk.green('messages added !! 😁 ❤️'))
+  })
+}
+
 deleteDB()
   .then(() => seedColleges())
   .then(() => seedClasses())
@@ -258,6 +297,7 @@ deleteDB()
   .then(() => seedReferents())
   .then(() => seedCompanies())
   .then(() => seedPros())
+  .then(() => seedMessages())
   .then(() => seedOffers())
   .then(() => seedApplications())
   .then(() => printAllUsers('student'))
