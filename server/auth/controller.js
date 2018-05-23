@@ -18,18 +18,32 @@ cloudinary.config({
   api_secret: config.API_SECRET
 })
 
+exports.verifyToken = function(req, res, next) {
+  User.findOne({ token: req.body.token }, (error, user) => {
+    if (error || !user) {
+      return res.status(400).json({
+        error: "We don't have a user with this token in our database"
+      })
+    }
+
+    return res.status(200).json({
+      user
+    })
+  })
+}
+
 exports.signUp = function(req, res, next) {
   if (req.err) return res.status(401)
 
-  console.log('req.user', req.user)
-  console.log('req.body', req.body)
+  // console.log('req.user', req.user)
+  // console.log('req.body', req.body)
 
   User.register(
     new User({
       email: req.user && req.user.email ? req.user.email : req.body.email,
       token: uid2(32), // Token created with uid2. Will be used for Bear strategy. Should be regenerated when password is changed.
       emailCheck: {
-        token: uid2(20),
+        token: uid2(24),
         createdAt: new Date()
       },
       oauthID: req.user && req.user.oauthID && req.user.oauthID,
@@ -44,10 +58,14 @@ exports.signUp = function(req, res, next) {
         //class: req.body.class, //TODO: Idem
         picture: req.body.picture && req.body.picture,
         curriculum: req.body.curriculum && req.body.curriculum,
-        diary_picture: req.body.diary_picture
+        diary_picture: req.body.diary_picture,
+
+        // College
+        college_name: req.body.college_name,
+        city: req.body.city
       }
     }),
-    req.body.password ? req.body.password : uid2(8), // Le mot de passe doit être obligatoirement le deuxième paramètre transmis à `register` afin d'être crypté
+    req.body.password ? req.body.password : uid2(16), // Le mot de passe doit être obligatoirement le deuxième paramètre transmis à `register` afin d'être crypté
     function(error, user) {
       if (error) {
         if (config.ENV !== 'test') console.error('ERROR', error)
@@ -61,15 +79,15 @@ exports.signUp = function(req, res, next) {
           mailgunModule.sendPassword(url, user, password)
         }
 
-        const { _id: id, token, account, email } = user
-        const userCreated = { id, email, token, account }
+        const { _id, oauthID, token, email, account } = user
+        const userCreated = { _id, oauthID, email, token, account }
 
         return res.status(201).json({
           message: 'User successfully signed up 🤩',
-          user: userCreated, //Besoin de user "en entier" pour localStorage
+          user: userCreated, //Besoin de user "en entier" pour context
           email,
           account,
-          id,
+          _id,
           token
         })
       }
@@ -91,8 +109,8 @@ exports.logIn = (req, res, next) => {
     })
   }
 
-  const { _id, token, account, email } = req.user
-  const user = { id: _id, token, account, email }
+  const { _id, oauthID, email, token, account } = req.user
+  const user = { _id, oauthID, email, token, account }
   return res.status(200).json({
     message: 'User successfully signed up 🤩',
     user
