@@ -4,6 +4,10 @@ const {
   ObjectId
 } = require('mongoose').Types
 
+const {
+  PerformanceObserver,
+  performance
+} = require('perf_hooks')
 
 //PARAM
 exports.findByParam = (req, res, next, id) => {
@@ -41,74 +45,101 @@ exports.getAll = (req, res, next) => {
 // - Solution: afficher uniquement le message du sender (celui qui envoie)
 
 // - TODO: transformer cette reqête avec aggregate
+// performance.mark('start')
 exports.messagesStudentAndProForReferent = (req, res, next) => {
+  //console.time('message.find');
   const {
     referent
   } = req.params
 
-  return User.findById(referent)
+  User.findById(referent)
     .populate('account.students')
     .then(async referent => {
       const {
         students
       } = referent.account
 
-      const messages = []
+      const message = await Message.find({
+          $or: [{
+              recipient: {
+                $in: students
+              }
+            },
+            {
+              sender: {
+                $in: students
+              }
+            }
+          ]
+        })
+        .select('-files -recipient -__v')
+        .populate({
+          path: 'sender',
+          select: '_id email account.color account.picture account.curriculum account.first_name account.last_name account.type account.company',
+          populate: {
+            path: 'account.company',
+            select: 'name logo -_id'
+          }
+        })
 
+      //const messages = []
       // trouver tous les messages où le sender est le pro
       // autrement dit les messages qu'à reçu le student
       // on les trouve en recherchant les messages où les recipient sont les élèves
-      for (let i = 0; i < students.length; i++) {
-        const student = students[i]
+      // for (let i = 0; i < students.length; i++) {
+      //   const student = students[i]
 
-        const message = await Message.find({
-            recipient: new ObjectId(student._id),
-          })
-          .select('-files -recipient -__v')
-          .populate({
-            path: 'sender', // pro
-            select: '_id email account.first_name account.last_name account.type account.company',
-            populate: {
-              path: 'account.company',
-              select: 'name logo -_id'
-            }
-          })
+      //   const message = await Message.find({
+      //       recipient: new ObjectId(student._id),
+      //     })
+      //     .select('-files -recipient -__v')
+      //     .populate({
+      //       path: 'sender', // pro
+      //       select: '_id email account.first_name account.last_name account.type account.company',
+      //       populate: {
+      //         path: 'account.company',
+      //         select: 'name logo -_id'
+      //       }
+      //     })
 
-        //si il y a un message on le return
-        if (Boolean(message.length)) {
-          messages.push(...message)
-        }
-      }
+      //   //si il y a un message on le return
+      //   if (Boolean(message.length)) {
+      //     messages.push(...message)
+      //   }
+      // }
 
       // trouver tous les messages où le sender est le student
       // autrement dit les messages qu'à reçu le référent
       // on les trouve en recherchant les messages où les sender sont les élèves
-      for (let i = 0; i < students.length; i++) {
-        const student = students[i]
+      // for (let i = 0; i < students.length; i++) {
+      //   const student = students[i]
 
-        const message = await Message.find({
-            sender: new ObjectId(student._id)
-          })
-          .select('-files -recipient -__v')
-          .populate({
-            path: 'sender', // étudiant
-            select: '_id email account.picture account.curriculum account.first_name account.last_name account.type',
-          })
+      //   const message = await Message.find({
+      //       sender: new ObjectId(student._id)
+      //     })
+      //     .select('-files -recipient -__v')
+      //     .populate({
+      //       path: 'sender', // étudiant
+      //       select: '_id email account.picture account.curriculum account.first_name account.last_name account.type',
+      //     })
 
-        //si il y a un message on le return
-        if (Boolean(message.length)) {
-          messages.push(...message)
-        }
-      }
+      //   //si il y a un message on le return
+      //   if (Boolean(message.length)) {
+      //     messages.push(...message)
+      //   }
+      // }
 
       //trier les messages par date
-      messages.sort((a, b) => new Date(b.date) - new Date(a.date))
+      message.sort((a, b) => new Date(b.date) - new Date(a.date))
 
-      res.status(201).json(messages)
-
+      //console.timeEnd('message.find');
+      res.status(201).json(message)
     })
     .catch(error => next(error))
 }
+
+// performance.mark('end')
+// performance.measure('messagesStudentAndProForReferent', 'start', 'end')
 
 //POST CONTROLLERS
 // - 1 créer un message sans validation

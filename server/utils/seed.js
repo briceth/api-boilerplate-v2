@@ -3,7 +3,9 @@ const chalk = require('chalk')
 const faker = require('faker')
 faker.locale = 'fr'
 
-const { createUser } = require('./modelFactory')
+const {
+  createUser
+} = require('./modelFactory')
 const User = require('../api/user/model')
 const Class = require('../api/class/model')
 const Application = require('../api/application/model')
@@ -11,7 +13,9 @@ const Offer = require('../api/offer/model')
 const Company = require('../api/company/model')
 const Message = require('../api/message/model')
 const config = require('../../config')
-const { deleteDB } = require('./helpers')
+const {
+  deleteDB
+} = require('./helpers')
 const log = console.log
 
 // seed data
@@ -113,9 +117,9 @@ const seedStudents = async (number = 20) => {
     for (let j = 0; j < number; j++) {
       // un élève sur deux n'a pas de photo de profil
       const picture =
-        j % 2 === 0
-          ? `https://randomuser.me/api/portraits/med/men/${i * 10 + j}.jpg`
-          : 'undefined'
+        j % 2 === 0 ?
+        `https://randomuser.me/api/portraits/med/men/${i * 10 + j}.jpg` :
+        'undefined'
 
       const student = User.create({
         email: faker.internet.email(),
@@ -124,8 +128,7 @@ const seedStudents = async (number = 20) => {
           last_name: faker.name.lastName(),
           picture,
           address: faker.address.streetAddress(),
-          diary_picture:
-            'https://res.cloudinary.com/djexqgocu/image/upload/v1527068284/container-big_rdwvdp.pdf',
+          diary_picture: 'https://res.cloudinary.com/djexqgocu/image/upload/v1527068284/container-big_rdwvdp.pdf',
           type: 'student',
           class: classesIds[i],
           college: collegeId //un seul collège pour tous les élèves
