@@ -97,9 +97,10 @@ const seedStudents = () => {
     const student = User.create({
       email: faker.internet.email(),
       account: {
+
         first_name: faker.name.firstName(),
         last_name: faker.name.lastName(),
-        picture: `https://randomuser.me/api/portraits/med/men/${i}.jpg`,
+        //picture: `https://randomuser.me/api/portraits/med/men/${i}.jpg`, //tous les étudiants ont une picture sauf le premier
         address: faker.address.streetAddress(),
         curriculum: 'https://res.cloudinary.com/djexqgocu/image/upload/v1527068284/container-big_rdwvdp.pdf',
         type: 'student',
