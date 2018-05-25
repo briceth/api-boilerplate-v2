@@ -51,7 +51,7 @@ const createReferent = async (options, user, callback, resolve) => {
   user.account.first_name = options.name || faker.name.firstName()
   user.account.last_name = options.last_name || faker.name.lastName()
 
-  const newUser = await User.register(user, password, (err, user) => {
+  await User.register(user, password, (err, user) => {
     if (err) {
       if (!callback) {
         reject(new Error(`Could not create user : ${err}`))
@@ -87,7 +87,7 @@ const createStudent = async (options, user, callback, resolve) => {
     : faker.image.imageUrl()
   user.account.diary_picture = options.diary_picture || faker.image.imageUrl()
 
-  const newUser = await User.register(user, password, (err, user) => {
+  await User.register(user, password, (err, user) => {
     if (err) {
       if (!callback) {
         reject(new Error(`Could not create user : ${err}`))
@@ -114,7 +114,7 @@ const createCollege = async (options, user, callback, resolve) => {
     options.college_name || `Collège ${faker.name.findName()}`
   user.account.phone = options.phone || faker.phone.phoneNumber()
 
-  const newUser = await User.register(user, password, (err, user) => {
+  await User.register(user, password, (err, user) => {
     if (err) {
       if (!callback) {
         reject(new Error(`Could not create user : ${err}`))
