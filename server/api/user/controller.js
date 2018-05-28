@@ -9,14 +9,18 @@ const forgetPasswordEmail = require('../../emails/forgetPasswordEmail')
 const config = require('../../../config')
 const User = require('./model')
 const Class = require('../class/model')
-const {
-  getApplications
-} = require('./controller.helpers')
-const {
-  ObjectId
-} = require('mongoose').Types
+const { getApplications } = require('./controller.helpers')
+const { ObjectId } = require('mongoose').Types
 
 // GET CONTROLLERS
+exports.getById = (req, res, next) => {
+  const { id } = req.params
+
+  return User.findById(id)
+    .then(doc => res.status(201).json(doc))
+    .catch(error => next(error))
+}
+
 exports.getAll = (req, res, next) => {
   return User.find({})
     .then(doc => res.status(201).json(doc))
@@ -24,29 +28,25 @@ exports.getAll = (req, res, next) => {
 }
 
 exports.getAllByType = (req, res, next) => {
-  const {
-    type
-  } = req.params
+  const { type } = req.params
 
   return User.find({
-      'account.type': type
-    })
+    'account.type': type
+  })
     .then(docs => res.status(201).json(docs))
     .catch(error => next(error))
 }
 
 exports.getStudentsFromCollege = user => (req, res, next) => {
-  const {
-    id
-  } = req.params
+  const { id } = req.params
   // 1 - on cherche le collège par son id
   // 2 - on récupère l'id et on cherche les students qui ont l'id de ce collège
   User.findById(id)
     .then(doc => {
       User.find({
-          'account.type': 'student',
-          ['account.' + user]: new ObjectId(doc._id)
-        })
+        'account.type': 'student',
+        ['account.' + user]: new ObjectId(doc._id)
+      })
         .populate({
           path: 'account.class',
           select: 'name -_id'
@@ -70,35 +70,31 @@ exports.getStudentsFromCollege = user => (req, res, next) => {
 }
 
 exports.getReferentsFromCollege = (req, res, next) => {
-  const {
-    id
-  } = req.params
+  const { id } = req.params
   // 1 - on cherche le collège par son id
   // 2 - on récupère l'id et on cherche les students qui ont l'id de ce collège
   return User.findById(id)
     .then(doc => {
-
       if (doc) {
-
         User.find({
-            'account.type': 'referent',
-            'account.college': new ObjectId(doc._id)
-          })
+          'account.type': 'referent',
+          'account.college': new ObjectId(doc._id)
+        })
           //.populate({path: "account.class", select: 'name -_id'}) //besoin du nom de la classe de l'élève
           .select({
-            'email': 1,
+            email: 1,
             'account.type': 1,
             'account.first_name': 1,
             'account.last_name': 1
           }) //besoin du prénom, nom et photo de l'élève
           .sort({
-            "account.last_name": 1
+            'account.last_name': 1
           })
           .then(doc => res.status(201).json(doc))
           .catch(error => next(error))
       } else {
         return res.status(404).json({
-          message: "pas encore de référent pour ce collège"
+          message: 'pas encore de référent pour ce collège'
         })
       }
     })
@@ -106,9 +102,7 @@ exports.getReferentsFromCollege = (req, res, next) => {
 }
 
 exports.getStudentsFromReferent = (req, res, next) => {
-  const {
-    id
-  } = req.params
+  const { id } = req.params
   // 1 - on cherche le reférent par son id
   // 2 - besoin d'avoir tous les élèves du référent
   // 3 - besoin du nom de la classe pour chaque élève
@@ -131,9 +125,7 @@ exports.getStudentsFromReferent = (req, res, next) => {
 
 // POST CONTROLLERS
 exports.create = (req, res, next) => {
-  const {
-    body
-  } = req
+  const { body } = req
 
   return User.create(body)
     .then(doc => res.status(201).json(doc))
@@ -143,22 +135,18 @@ exports.create = (req, res, next) => {
 // PUT CONTROLLERS
 //TODO: check token user or admin
 exports.update = (req, res, next) => {
-  const {
-    body
-  } = req
-  const {
-    id
-  } = req.params
+  const { body } = req
+  const { id } = req.params
 
   return User.findByIdAndUpdate(id, body, {
-      new: true
-    })
+    new: true
+  })
     .then(doc => {
       // change password if user has provided one
       if (body.password) {
-        doc.setPassword(body.password, function (error) {
+        doc.setPassword(body.password, function(error) {
           if (!error) {
-            doc.save(function (error) {
+            doc.save(function(error) {
               if (error) next(error)
             })
           } else {
@@ -173,26 +161,23 @@ exports.update = (req, res, next) => {
 
 // DELETE CONTROLLERS
 exports.removeReferent = (req, res, next) => {
-  const {
-    id
-  } = req.params
+  const { id } = req.params
 
   return User.findByIdAndRemove(id)
     .then(referent => {
       return Class.findByIdAndUpdate(
-          new ObjectId(referent.account.class), {
-            $unset: {
-              referent: 1
-            }
-          }, {
-            new: true
+        new ObjectId(referent.account.class),
+        {
+          $unset: {
+            referent: 1
           }
-        )
+        },
+        {
+          new: true
+        }
+      )
         .then(doc => {
-          const {
-            first_name,
-            last_name
-          } = referent.account
+          const { first_name, last_name } = referent.account
 
           return res.status(201).json({
             message: 'le référent a été supprimé avec succès!',
@@ -204,6 +189,24 @@ exports.removeReferent = (req, res, next) => {
           })
         })
         .catch(error => next(error))
+    })
+    .catch(error => next(error))
+}
+
+exports.removeCollege = (req, res, next) => {
+  const { id } = req.params
+
+  User.findById(id)
+    .then(college => {
+      // supprime le collège et tous les élèves et les référents lié à ce collège
+      User.remove({
+        $or: [{ _id: college._id }, { 'account.college': college._id }]
+      }).then(doc => {
+        return res.status(201).json({
+          message: `le collège a été supprimé avec succès! 
+                    Total : ${doc.n} utilisateurs supprimés`
+        })
+      })
     })
     .catch(error => next(error))
 }
