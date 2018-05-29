@@ -2,7 +2,7 @@ Arguments:
   /usr/local/bin/node /usr/local/Cellar/yarn/1.5.1_1/libexec/bin/yarn.js seed
 
 PATH: 
-  /Users/kevin/Library/Android/sdk/tools/bin:/Users/kevin/Library/Android/sdk/tools:/Users/kevin/Library/Android/sdk/platform-tools:/usr/local/bin:/usr/bin:/bin:/usr/sbin:/sbin:/Users/kevin/Library/Android/sdk/tools/bin:/Users/kevin/Library/Android/sdk/tools:/Users/kevin/Library/Android/sdk/platform-tools
+  /Users/kevin/Library/Android/sdk/tools/bin:/Users/kevin/Library/Android/sdk/tools:/Users/kevin/Library/Android/sdk/platform-tools:/usr/local/bin:/usr/bin:/bin:/usr/sbin:/sbin
 
 Yarn version: 
   1.5.1
