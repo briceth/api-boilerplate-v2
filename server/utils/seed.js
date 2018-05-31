@@ -1,5 +1,6 @@
 const mongoose = require('mongoose')
 const chalk = require('chalk')
+const uid2 = require('uid2')
 const faker = require('faker')
 faker.locale = 'fr'
 
@@ -78,6 +79,7 @@ const seedColleges = async (number = 5) => {
         phone: faker.phone.phoneNumber(),
         city: faker.address.city(),
         loc: [faker.address.longitude(), faker.address.latitude()],
+        token: uid2(32),
         type: 'college'
       }
     })

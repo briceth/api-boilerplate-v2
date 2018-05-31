@@ -9,30 +9,26 @@ const UserSchema = new mongoose.Schema({
 
   email: String,
 
-  emailCheck: {
-    valid: {
-      type: Boolean,
-      default: true
-    }, // change to false to activate emailCheck
-    token: {
-      type: String,
-      default: uid2(20)
-    },
-    createdAt: {
-      type: Date,
-      default: Date.now
-    }
-  },
+  // emailCheck: {
+  //   valid: {
+  //     type: Boolean,
+  //     default: true
+  //   }, // change to false to activate emailCheck
+  //   token: {
+  //     type: String,
+  //     default: uid2(20)
+  //   },
+  //   createdAt: {
+  //     type: Date,
+  //     default: Date.now
+  //   }
+  // },
 
   //password: String, //A supprimer
 
   passwordChange: {
-    valid: {
-      type: Boolean,
-      default: true
-    },
     token: String,
-    createdAt: Date
+    expiryDate: Date
   },
 
   token: {

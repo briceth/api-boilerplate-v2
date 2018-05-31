@@ -6,7 +6,7 @@ const uniqid = require('uniqid')
 const config = require('../../config')
 const User = require('../api/user/model')
 const confirmEmail = require('../emails/confirmationEmail')
-const forgetPasswordEmail = require('../emails/forgetPasswordEmail')
+
 const log = console.log
 const error = console.error
 const mailgunModule = require('../emails/mailgun')
@@ -195,7 +195,9 @@ exports.deleteUpload = function(req, res, next) {
   })
 }
 
-exports.forgottenPassword = (req, res, next) => {
+//TODO:
+//TODO:
+exports.forgotPassword = (req, res, next) => {
   const { email } = req.body
 
   if (!email) return res.status(400).json({ error: 'No email specified' })
@@ -209,14 +211,13 @@ exports.forgottenPassword = (req, res, next) => {
         error: "We don't have a user with this email in our database"
       })
     }
-    if (!user.emailCheck.valid) {
-      return res.status(400).json({ error: 'Your email is not confirmed' })
-    }
+    // if (!user.emailCheck.valid) {
+    //   return res.status(400).json({ error: 'Your email is not confirmed' })
+    // }
 
     user.passwordChange = {
       token: uid2(20),
-      createdAt: new Date(),
-      valid: true
+      expiryDate: new Date(Date.now() + 86400000)
     }
 
     user.save(error => {
@@ -227,16 +228,11 @@ exports.forgottenPassword = (req, res, next) => {
           .status(400)
           .json({ error: 'Error when setting recovering infos in user ' })
       }
-      if (config.ENV === 'production') {
-        const url = req.headers.host
-
-        mailgun
-          .messages()
-          .send(forgetPasswordEmail(url, user), (error, body) => {
-            error('Mail Error', error)
-            log('Mail Body', body)
-          })
-      }
+      //TODO: décommenter le if
+      //if (config.ENV === 'production') {
+      const url = req.headers.origin
+      mailgunModule.forgotPassword(url, user)
+      //}
       res.json({
         message: 'An email has been send with a link to change your password'
       })
@@ -244,70 +240,77 @@ exports.forgottenPassword = (req, res, next) => {
   })
 }
 
-exports.emailCheck = (req, res) => {
-  const { email, token } = req.query
+exports.resetPassword = (req, res, next) => {
+  const {
+    user,
+    body: { password, token }
+  } = req
 
-  if (!token) return res.status(400).send('No token specified')
+  if (!password) {
+    return res.status(400).json({ error: 'No password provided' })
+  }
 
-  User.findOne({ 'emailCheck.token': token, email }, (error, user) => {
-    if (error) return res.status(400).send(error)
-
-    if (!user) return res.status(400).send('Wrong credentials')
-
-    if (user.emailCheck.valid) {
-      return res
-        .status(206)
-        .json({ message: 'You have already confirmed your email !' })
+  User.findOne({ 'passwordChange.token': token }, function(err, user) {
+    if (err) {
+      res.status(400)
+      return errorHandler(err.message)
     }
 
-    var yesterday = new Date()
+    if (!user) return res.status(401).json({ error: 'Wrong credentials' })
 
-    yesterday.setDate(yesterday.getDate() - 1)
-
-    if (user.emailCheck.createdAt < yesterday) {
-      return res.status(400).json({
-        message:
-          'This link is outdated (older than 24h), please try to sign up again'
+    if (user.passwordChange.expiryDate < Date.now()) {
+      return res.status(401).json({
+        error: 'Outdated link',
+        message: 'This link is outdated (older than 24h)'
       })
     }
 
-    user.emailCheck.valid = true
+    user.setPassword(password, () => {
+      user.passwordChange.expiryDate = Date.now()
 
-    user.save(error => {
-      if (err) return res.send(err)
-      res.json({ message: 'Your email has been verified with success' })
+      user.save(error => {
+        if (error) {
+          res.status(500)
+          return next(error.message)
+        }
+      })
+      res.json({ message: 'Password reset successfully !' })
     })
   })
 }
 
-exports.resetPasswordGET = (req, res) => {
-  res.json({ message: 'Ready to recieve new password' })
-}
+// exports.emailCheck = (req, res) => {
+//   const { email, token } = req.query
 
-exports.resetPasswordPOST = (req, res, next) => {
-  const {
-    user,
-    body: { newPassword, newPasswordConfirmation }
-  } = req
+//   if (!token) return res.status(400).send('No token specified')
 
-  if (!newPassword) {
-    return res.status(400).json({ error: 'No password provided' })
-  }
-  if (newPassword !== newPasswordConfirmation) {
-    return res
-      .status(400)
-      .json({ error: 'Password and confirmation are different' })
-  }
+//   User.findOne({ 'emailCheck.token': token, email }, (error, user) => {
+//     if (error) return res.status(400).send(error)
 
-  user.setPassword(newPassword, () => {
-    user.passwordChange.valid = false
+//     if (!user) return res.status(400).send('Wrong credentials')
 
-    user.save(error => {
-      if (error) {
-        res.status(500)
-        return next(error.message)
-      }
-    })
-    res.status(200).json({ message: 'Password reset successfully !' })
-  })
-}
+//     if (user.emailCheck.valid) {
+//       return res
+//         .status(206)
+//         .json({ message: 'You have already confirmed your email !' })
+//     }
+
+//     var yesterday = new Date()
+
+//     yesterday.setDate(yesterday.getDate() - 1)
+
+//     if (user.emailCheck.createdAt < yesterday) {
+//       return res.status(400).json({
+//         message:
+//           'This link is outdated (older than 24h), please try to sign up again'
+//       })
+//     }
+
+//     user.emailCheck.valid = true
+
+//     user.save(error => {
+//       if (err) return res.send(err)
+//       res.json({ message: 'Your email has been verified with success' })
+//     })
+//   })
+// }

@@ -1,11 +1,6 @@
-const mailgun = require('mailgun-js')({
-  apiKey: process.env.MAILGUN_API_KEY,
-  domain: process.env.MAILGUN_DOMAIN
-})
 const uid2 = require('uid2')
 const passport = require('passport')
-const confirmEmail = require('../../emails/confirmationEmail')
-const forgetPasswordEmail = require('../../emails/forgetPasswordEmail')
+
 const config = require('../../../config')
 const User = require('./model')
 const Class = require('../class/model')
