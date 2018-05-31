@@ -1,8 +1,8 @@
 const chai = require('chai')
 const expect = require('chai').expect
-const should = require('chai').should()
 const chaiHttp = require('chai-http')
 const faker = require('faker')
+const uid2 = require('uid2')
 const server = require('../../../../../index')
 const User = require('../../model')
 const Application = require('../../../application/model')
@@ -12,7 +12,7 @@ const log = console.log
 
 chai.use(chaiHttp)
 
-describe('GET COLLEGE', () => {
+describe.only('GET COLLEGE', () => {
   let student
   let college
   let application
@@ -28,6 +28,7 @@ describe('GET COLLEGE', () => {
     //jwt = signToken(user.id)
     college = await User.create({
       email: faker.internet.email(),
+      token: uid2(32),
       account: {
         address: faker.address.streetAddress(),
         city: faker.address.city(),
@@ -39,6 +40,7 @@ describe('GET COLLEGE', () => {
 
     student = await User.create({
       email: faker.internet.email(),
+      token: uid2(32),
       account: {
         first_name: faker.name.firstName(),
         last_name: faker.name.lastName(),
@@ -51,6 +53,7 @@ describe('GET COLLEGE', () => {
 
     pro = await User.create({
       email: faker.internet.email(),
+      token: uid2(32),
       account: {
         first_name: faker.name.firstName(),
         last_name: faker.name.lastName(),
@@ -63,6 +66,7 @@ describe('GET COLLEGE', () => {
 
     referent = await User.create({
       email: faker.internet.email(),
+      token: uid2(32),
       account: {
         first_name: faker.name.firstName(),
         last_name: faker.name.lastName(),
@@ -112,6 +116,7 @@ describe('GET COLLEGE', () => {
       const result = await chai
         .request(server)
         .get(`/api/users/college/${college._id}/students`)
+        .set('Authorization', `Bearer ${college.token}`)
 
       //result
       expect(result).to.have.status(201)
@@ -148,6 +153,7 @@ describe('GET COLLEGE', () => {
       const result = await chai
         .request(server)
         .get(`/api/users/college/${college._id}/referents`)
+        .set('Authorization', `Bearer ${college.token}`)
 
       //result
       expect(result).to.have.status(201)

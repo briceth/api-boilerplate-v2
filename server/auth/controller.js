@@ -18,8 +18,10 @@ cloudinary.config({
   api_secret: config.API_SECRET
 })
 
-exports.verifyToken = function(req, res, next) {
-  User.findOne({ token: req.body.token }, (error, user) => {
+exports.verifyToken = function (req, res, next) {
+  User.findOne({
+    token: req.body.token
+  }, (error, user) => {
     if (error || !user) {
       return res.status(400).json({
         error: "We don't have a user with this token in our database"
@@ -32,11 +34,8 @@ exports.verifyToken = function(req, res, next) {
   })
 }
 
-exports.signUp = function(req, res, next) {
+exports.signUp = function (req, res, next) {
   if (req.err) return res.status(401)
-
-  // console.log('req.user', req.user)
-  // console.log('req.body', req.body)
 
   User.register(
     new User({
@@ -48,14 +47,27 @@ exports.signUp = function(req, res, next) {
       },
       oauthID: req.user && req.user.oauthID && req.user.oauthID,
       account: {
+        // everybody
         type: req.body.type,
         first_name: req.body.first_name,
         last_name: req.body.last_name,
+
+        // college, pro, rh
         phone: req.body.phone,
+
+        // student, pro
         address: req.body.address,
         loc: req.body.loc,
+
         //school: req.body.school, //TODO: Mise en place des ID avec la seed
+
+        // student, referent? (pas à la création)
         //class: req.body.class, //TODO: Idem
+
+        // referent
+        college: req.body.college,
+
+        // student
         picture: req.body.picture && req.body.picture,
         curriculum: req.body.curriculum && req.body.curriculum,
         diary_picture: req.body.diary_picture,
@@ -66,21 +78,30 @@ exports.signUp = function(req, res, next) {
       }
     }),
     req.body.password ? req.body.password : uid2(16), // Le mot de passe doit être obligatoirement le deuxième paramètre transmis à `register` afin d'être crypté
-    function(error, user) {
+    function (error, user) {
       if (error) {
-        if (config.ENV !== 'test') console.error('ERROR', error)
-
-        // TODO: test
-        return res.status(400).json({ error: error.message })
+        return next(error)
       } else {
         const url = req.headers.host //pour localhost et pour l'url de production
 
         if (config.ENV !== 'test' && user.account.type === 'referent') {
-          mailgunModule.sendPassword(url, user, password)
+          mailgunModule.sendPassword(url, user, password = "123456")
         }
 
-        const { _id, oauthID, token, email, account } = user
-        const userCreated = { _id, oauthID, email, token, account }
+        const {
+          _id,
+          oauthID,
+          token,
+          email,
+          account
+        } = user
+        const userCreated = {
+          _id,
+          oauthID,
+          email,
+          token,
+          account
+        }
 
         return res.status(201).json({
           message: 'User successfully signed up 🤩',
@@ -101,37 +122,66 @@ exports.logIn = (req, res, next) => {
   }
 
   if (req.authInfo.newUser) {
-    const { oauthID, email, first_name, last_name } = req.user
-    const user = { oauthID, email, first_name, last_name }
+    const {
+      oauthID,
+      email,
+      first_name,
+      last_name
+    } = req.user
+    const user = {
+      oauthID,
+      email,
+      first_name,
+      last_name
+    }
     return res.status(202).json({
       message: 'Welcome to our new user 🤩',
       user
     })
   }
 
-  const { _id, oauthID, email, token, account } = req.user
-  const user = { _id, oauthID, email, token, account }
+  const {
+    _id,
+    oauthID,
+    email,
+    token,
+    account
+  } = req.user
+  const user = {
+    _id,
+    oauthID,
+    email,
+    token,
+    account
+  }
   return res.status(200).json({
     message: 'User successfully signed up 🤩',
     user
   })
 }
 
-exports.upload = function(req, res, next) {
+exports.upload = function (req, res, next) {
   //console.log(req.files)
   const avatarConfig = {
     folder: 'avatar',
     public_id: uniqid(),
     allowedFormats: ['jpg', 'png'],
-    transformation: [
-      { width: 200, height: 200, crop: 'thumb', gravity: 'face' }
-    ]
+    transformation: [{
+      width: 200,
+      height: 200,
+      crop: 'thumb',
+      gravity: 'face'
+    }]
   }
   const correspondenceBookConfig = {
     folder: 'correspondence_book',
     public_id: uniqid(),
     allowedFormats: ['jpg', 'png'],
-    transformation: [{ width: 400, height: 600, crop: 'thumb' }]
+    transformation: [{
+      width: 400,
+      height: 600,
+      crop: 'thumb'
+    }]
   }
   const cvConfig = {
     public_id: uniqid(),
@@ -159,7 +209,7 @@ exports.upload = function(req, res, next) {
   }
 
   const filePath = req.files.file.path
-  cloudinary.uploader.upload(filePath, config, function(error, result) {
+  cloudinary.uploader.upload(filePath, config, function (error, result) {
     if (error) {
       return res.status(400).json({
         error: `We couldn't upload your file to our database
@@ -181,8 +231,8 @@ exports.upload = function(req, res, next) {
   })
 }
 
-exports.deleteUpload = function(req, res, next) {
-  cloudinary.uploader.destroy(req.query.public_id, function(error, result) {
+exports.deleteUpload = function (req, res, next) {
+  cloudinary.uploader.destroy(req.query.public_id, function (error, result) {
     if (error) {
       return res.status(400).json({
         error: `We couldn't delete your file to our database
@@ -196,10 +246,16 @@ exports.deleteUpload = function(req, res, next) {
 }
 
 exports.forgottenPassword = (req, res, next) => {
-  const { email } = req.body
+  const {
+    email
+  } = req.body
 
-  if (!email) return res.status(400).json({ error: 'No email specified' })
-  User.findOne({ email }, (error, user) => {
+  if (!email) return res.status(400).json({
+    error: 'No email specified'
+  })
+  User.findOne({
+    email
+  }, (error, user) => {
     if (error) {
       res.status(400)
       return next(error.message)
@@ -210,7 +266,9 @@ exports.forgottenPassword = (req, res, next) => {
       })
     }
     if (!user.emailCheck.valid) {
-      return res.status(400).json({ error: 'Your email is not confirmed' })
+      return res.status(400).json({
+        error: 'Your email is not confirmed'
+      })
     }
 
     user.passwordChange = {
@@ -225,7 +283,9 @@ exports.forgottenPassword = (req, res, next) => {
 
         return res
           .status(400)
-          .json({ error: 'Error when setting recovering infos in user ' })
+          .json({
+            error: 'Error when setting recovering infos in user '
+          })
       }
       if (config.ENV === 'production') {
         const url = req.headers.host
@@ -245,11 +305,17 @@ exports.forgottenPassword = (req, res, next) => {
 }
 
 exports.emailCheck = (req, res) => {
-  const { email, token } = req.query
+  const {
+    email,
+    token
+  } = req.query
 
   if (!token) return res.status(400).send('No token specified')
 
-  User.findOne({ 'emailCheck.token': token, email }, (error, user) => {
+  User.findOne({
+    'emailCheck.token': token,
+    email
+  }, (error, user) => {
     if (error) return res.status(400).send(error)
 
     if (!user) return res.status(400).send('Wrong credentials')
@@ -257,7 +323,9 @@ exports.emailCheck = (req, res) => {
     if (user.emailCheck.valid) {
       return res
         .status(206)
-        .json({ message: 'You have already confirmed your email !' })
+        .json({
+          message: 'You have already confirmed your email !'
+        })
     }
 
     var yesterday = new Date()
@@ -266,8 +334,7 @@ exports.emailCheck = (req, res) => {
 
     if (user.emailCheck.createdAt < yesterday) {
       return res.status(400).json({
-        message:
-          'This link is outdated (older than 24h), please try to sign up again'
+        message: 'This link is outdated (older than 24h), please try to sign up again'
       })
     }
 
@@ -275,28 +342,39 @@ exports.emailCheck = (req, res) => {
 
     user.save(error => {
       if (err) return res.send(err)
-      res.json({ message: 'Your email has been verified with success' })
+      res.json({
+        message: 'Your email has been verified with success'
+      })
     })
   })
 }
 
 exports.resetPasswordGET = (req, res) => {
-  res.json({ message: 'Ready to recieve new password' })
+  res.json({
+    message: 'Ready to recieve new password'
+  })
 }
 
 exports.resetPasswordPOST = (req, res, next) => {
   const {
     user,
-    body: { newPassword, newPasswordConfirmation }
+    body: {
+      newPassword,
+      newPasswordConfirmation
+    }
   } = req
 
   if (!newPassword) {
-    return res.status(400).json({ error: 'No password provided' })
+    return res.status(400).json({
+      error: 'No password provided'
+    })
   }
   if (newPassword !== newPasswordConfirmation) {
     return res
       .status(400)
-      .json({ error: 'Password and confirmation are different' })
+      .json({
+        error: 'Password and confirmation are different'
+      })
   }
 
   user.setPassword(newPassword, () => {
@@ -308,6 +386,8 @@ exports.resetPasswordPOST = (req, res, next) => {
         return next(error.message)
       }
     })
-    res.status(200).json({ message: 'Password reset successfully !' })
+    res.status(200).json({
+      message: 'Password reset successfully !'
+    })
   })
 }

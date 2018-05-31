@@ -1,8 +1,7 @@
 const mongoose = require('mongoose')
 const chalk = require('chalk')
 const faker = require('faker')
-faker.locale = 'fr'
-
+const uid2 = require('uid2')
 const {
   createUser
 } = require('./modelFactory')
@@ -17,6 +16,7 @@ const {
   deleteDB
 } = require('./helpers')
 const log = console.log
+faker.locale = 'fr'
 
 // seed data
 const seedDataColleges = require('./seedData/seedColleges.json')
@@ -94,7 +94,7 @@ const seedClasses = async (number = 5) => {
         college: collegeIds[i]
       })
 
-      // classesIds contient uniquement les classes du 1er collège
+      //classesIds contient uniquement les classes du 1er collège
       if (i === 0) promises.push(newClass)
     }
   }
@@ -341,6 +341,23 @@ const seedMessages = () => {
   })
 }
 
+const seedAdmin = async () => {
+  log('creating one admin...');
+
+  const admin = await User.create({
+    email: faker.internet.email(),
+    password: '123456',
+    token: uid2(32),
+    account: {
+      first_name: faker.name.firstName(),
+      last_name: faker.name.lastName(),
+      type: 'admin',
+    }
+  })
+
+  log(chalk.bgYellow.bold(`First admin ${admin.account.first_name} added !! 😁 ❤️`))
+}
+
 const closeConnection = () => {
   mongoose.connection.close(() => {
     log(chalk.magenta('Password for all accounts: azerty 🤫'))
@@ -358,5 +375,6 @@ deleteDB()
   .then(() => seedOffers())
   .then(() => seedApplications())
   .then(() => seedMessages())
+  .then(() => seedAdmin())
   .then(() => closeConnection())
   .catch(error => log(chalk.red(error, '‼️ 👮🏽')))

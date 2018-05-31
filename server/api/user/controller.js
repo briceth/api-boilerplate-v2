@@ -16,6 +16,7 @@ const {
   ObjectId
 } = require('mongoose').Types
 
+
 // GET CONTROLLERS
 exports.getAll = (req, res, next) => {
   return User.find({})
@@ -35,28 +36,34 @@ exports.getAllByType = (req, res, next) => {
     .catch(error => next(error))
 }
 
-exports.getStudentsFromCollege = user => (req, res, next) => {
+/**
+ * 1 - on cherche le collège par son id
+ * 2 - on récupère l'id et on cherche les students qui ont l'id de ce collège
+ * @param {ObjectId} id
+ * @param {ObjectId} doc._id
+ * @return {array} - [{_id, account: { class: { name }, first_name, last_name, type, picture }, application: { number, statut } }]
+ */
+exports.getStudentsFromCollege = (req, res, next) => {
   const {
     id
   } = req.params
-  // 1 - on cherche le collège par son id
-  // 2 - on récupère l'id et on cherche les students qui ont l'id de ce collège
+
   User.findById(id)
     .then(doc => {
       User.find({
           'account.type': 'student',
-          ['account.' + user]: new ObjectId(doc._id)
+          'account.college': new ObjectId(doc._id)
         })
         .populate({
           path: 'account.class',
           select: 'name -_id'
-        }) // besoin du nom de la classe de l'élève
+        })
         .select({
           'account.type': 1,
           'account.first_name': 1,
           'account.last_name': 1,
           'account.picture': 1
-        }) // besoin du prénom, nom et photo de l'élève
+        })
         .sort({
           'account.last_name': 1
         })
@@ -69,17 +76,22 @@ exports.getStudentsFromCollege = user => (req, res, next) => {
     .catch(error => next(error))
 }
 
+/**
+ * on cherche le collège par son id
+ * on récupère son _id et on cherche les students qui ont l'id de ce collège
+ * @param {ObjectId} id
+ * @param {ObjectId} doc._id
+ * @return {array} - [{_id, email, account: { first_name, last_name, type } }]
+ */
 exports.getReferentsFromCollege = (req, res, next) => {
   const {
     id
   } = req.params
-  // 1 - on cherche le collège par son id
-  // 2 - on récupère l'id et on cherche les students qui ont l'id de ce collège
+
   return User.findById(id)
     .then(doc => {
 
       if (doc) {
-
         User.find({
             'account.type': 'referent',
             'account.college': new ObjectId(doc._id)
@@ -90,7 +102,7 @@ exports.getReferentsFromCollege = (req, res, next) => {
             'account.type': 1,
             'account.first_name': 1,
             'account.last_name': 1
-          }) //besoin du prénom, nom et photo de l'élève
+          })
           .sort({
             "account.last_name": 1
           })
@@ -105,13 +117,19 @@ exports.getReferentsFromCollege = (req, res, next) => {
     .catch(error => next(error))
 }
 
+/**
+ * on cherche le reférent par son id
+ * besoin d'avoir tous les élèves du référent
+ * besoin du nom de la classe pour chaque élève
+ * @param {ObjectId} id
+ * @param {array} docs.account.students - les élèves du référent
+ * @return {array} - [{_id, account, application: { statut, number } }]
+ */
 exports.getStudentsFromReferent = (req, res, next) => {
   const {
     id
   } = req.params
-  // 1 - on cherche le reférent par son id
-  // 2 - besoin d'avoir tous les élèves du référent
-  // 3 - besoin du nom de la classe pour chaque élève
+
   return User.findById(id)
     .populate({
       path: 'account.students',
@@ -141,7 +159,6 @@ exports.create = (req, res, next) => {
 }
 
 // PUT CONTROLLERS
-//TODO: check token user or admin
 exports.update = (req, res, next) => {
   const {
     body
@@ -171,6 +188,36 @@ exports.update = (req, res, next) => {
     .catch(error => next(error))
 }
 
+/**
+ * 0n update la première connection du user à FALSE
+ * pour pas qu'elle se tape le stepper (le tuto affiché à la première connection)
+ * @param {Boolean} first_connection
+ * @return {object} - message & first_connection
+ */
+exports.updateFirstConnection = (req, res, next) => {
+  const {
+    first_connection
+  } = req.body
+  const {
+    id
+  } = req.params
+
+  return User.findByIdAndUpdate(id, {
+      $set: {
+        account: {
+          first_connection
+        }
+      }
+    }, {
+      new: true
+    })
+    .then(user => res.status(201).json({
+      message: `le user ${user._id} a été modifié`,
+      user
+    }))
+    .catch(error => next(error))
+}
+
 // DELETE CONTROLLERS
 exports.removeReferent = (req, res, next) => {
   const {
@@ -179,6 +226,7 @@ exports.removeReferent = (req, res, next) => {
 
   return User.findByIdAndRemove(id)
     .then(referent => {
+      // on enlève le référent à sa classe
       return Class.findByIdAndUpdate(
           new ObjectId(referent.account.class), {
             $unset: {
@@ -199,11 +247,11 @@ exports.removeReferent = (req, res, next) => {
             referent: {
               first_name,
               last_name
-            },
-            doc
+            }
           })
         })
         .catch(error => next(error))
+
     })
     .catch(error => next(error))
 }
