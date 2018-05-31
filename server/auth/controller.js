@@ -35,9 +35,6 @@ exports.verifyToken = function(req, res, next) {
 exports.signUp = function(req, res, next) {
   if (req.err) return res.status(401)
 
-  // console.log('req.user', req.user)
-  // console.log('req.body', req.body)
-
   User.register(
     new User({
       email: req.user && req.user.email ? req.user.email : req.body.email,
