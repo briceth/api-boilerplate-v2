@@ -1,5 +1,6 @@
 const mongoose = require('mongoose')
 const chalk = require('chalk')
+const uid2 = require('uid2')
 const faker = require('faker')
 const uid2 = require('uid2')
 const {
@@ -21,6 +22,7 @@ faker.locale = 'fr'
 // seed data
 const seedDataColleges = require('./seedData/seedColleges.json')
 const seedDataCompagnies = require('./seedData/seedCompanies.json')
+const seedDataAdministrators = require('./seedData/seedAdministrators.json')
 
 mongoose.connect(config.MONGODB_URI)
 
@@ -33,6 +35,22 @@ const studentIds = []
 const offerIds = []
 const companyIds = []
 const proIds = []
+
+// ADMINISTRATOR
+const seedAdministrators = async (number = 5) => {
+  log('creating administrators...')
+  const promises = []
+
+  // génére des utilisateurs "college" grâce au fichier json seedDataColleges
+  for (let i = 0; i < seedDataAdministrators.length; i++) {
+    const administrator = await createUser({
+      ...seedDataAdministrators[i],
+      type: 'administrator'
+    })
+    promises.push(administrator)
+    log(chalk.magenta(`>> Administrator ${i + 1}: ${promises[i].email}`))
+  }
+}
 
 // COLLEGES
 const seedColleges = async (number = 5) => {
@@ -65,6 +83,7 @@ const seedColleges = async (number = 5) => {
         phone: faker.phone.phoneNumber(),
         city: faker.address.city(),
         loc: [faker.address.longitude(), faker.address.latitude()],
+        token: uid2(32),
         type: 'college'
       }
     })
@@ -366,7 +385,8 @@ const closeConnection = () => {
 }
 
 deleteDB()
-  .then(() => seedColleges())
+  .then(() => seedAdministrators())
+  .then(() => seedColleges(200))
   .then(() => seedClasses())
   .then(() => seedStudents())
   .then(() => seedReferents())

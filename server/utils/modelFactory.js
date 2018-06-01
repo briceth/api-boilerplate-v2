@@ -24,6 +24,9 @@ exports.createUser = async (options = {}, callback) => {
     })
 
     switch (options.type) {
+      case 'administrator':
+        createAdministrator(options, user, callback, resolve)
+        break
       case 'student':
         createStudent(options, user, callback, resolve)
         break
@@ -40,39 +43,32 @@ exports.createUser = async (options = {}, callback) => {
   return promise
 }
 
-const createReferent = async (options, user, callback, resolve) => {
+const createAdministrator = (options, user, callback, resolve) => {
+  const password = options.password || 'azerty'
+  user.account.first_name = options.name || faker.name.firstName()
+
+  userRegister(user, password, callback, resolve)
+}
+
+const createReferent = (options, user, callback, resolve) => {
   const password = options.password || 'azerty'
   // paramètres obligatoires
   user.account.class = options.class
   user.account.college = options.college
   user.account.students = options.students
 
-  user.email = options.email || faker.internet.email()
   user.account.first_name = options.name || faker.name.firstName()
   user.account.last_name = options.last_name || faker.name.lastName()
 
-  await User.register(user, password, (err, user) => {
-    if (err) {
-      if (!callback) {
-        reject(new Error(`Could not create user : ${err}`))
-      } else {
-        console.error(`Could not create user :  ${err}`)
-      }
-    } else if (!callback) {
-      resolve(user)
-    } else {
-      callback(user)
-    }
-  })
+  userRegister(user, password, callback, resolve)
 }
 
-const createStudent = async (options, user, callback, resolve) => {
+const createStudent = (options, user, callback, resolve) => {
   const password = options.password || 'azerty'
   // paramètres obligatoires
   user.account.class = options.class
   user.account.college = options.college
 
-  user.email = options.email || faker.internet.email()
   user.account.first_name = options.name || faker.name.firstName()
   user.account.last_name = options.last_name || faker.name.lastName()
   user.account.address = options.address || faker.address.streetAddress()
@@ -87,22 +83,10 @@ const createStudent = async (options, user, callback, resolve) => {
     : faker.image.imageUrl()
   user.account.diary_picture = options.diary_picture || faker.image.imageUrl()
 
-  await User.register(user, password, (err, user) => {
-    if (err) {
-      if (!callback) {
-        reject(new Error(`Could not create user : ${err}`))
-      } else {
-        console.error(`Could not create user :  ${err}`)
-      }
-    } else if (!callback) {
-      resolve(user)
-    } else {
-      callback(user)
-    }
-  })
+  userRegister(user, password, callback, resolve)
 }
 
-const createCollege = async (options, user, callback, resolve) => {
+const createCollege = (options, user, callback, resolve) => {
   const password = options.password || 'azerty'
 
   user.account.city = options.city || faker.address.city()
@@ -114,6 +98,10 @@ const createCollege = async (options, user, callback, resolve) => {
     options.college_name || `Collège ${faker.name.findName()}`
   user.account.phone = options.phone || faker.phone.phoneNumber()
 
+  userRegister(user, password, callback, resolve)
+}
+
+userRegister = async (user, password, callback, resolve) => {
   await User.register(user, password, (err, user) => {
     if (err) {
       if (!callback) {

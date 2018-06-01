@@ -2,7 +2,11 @@ Arguments:
   /usr/local/Cellar/node/9.8.0/bin/node /usr/local/Cellar/yarn/1.5.1_1/libexec/bin/yarn.js test
 
 PATH: 
+<<<<<<< HEAD
   ./bin:/Users/bricetessierhuort/.rbenv/shims:/usr/local/opt/rbenv/bin:/Users/bricetessierhuort/.rvm/gems/ruby-2.4.1/bin:/Users/bricetessierhuort/.rvm/gems/ruby-2.4.1@global/bin:/Users/bricetessierhuort/.rvm/rubies/ruby-2.4.1/bin:/usr/local/bin:/usr/bin:/bin:/usr/sbin:/sbin:/Users/bricetessierhuort/.rvm/bin
+=======
+  /Users/kevin/Library/Android/sdk/tools/bin:/Users/kevin/Library/Android/sdk/tools:/Users/kevin/Library/Android/sdk/platform-tools:/usr/local/bin:/usr/bin:/bin:/usr/sbin:/sbin
+>>>>>>> master
 
 Yarn version: 
   1.5.1

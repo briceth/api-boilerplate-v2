@@ -1,11 +1,6 @@
-const mailgun = require('mailgun-js')({
-  apiKey: process.env.MAILGUN_API_KEY,
-  domain: process.env.MAILGUN_DOMAIN
-})
 const uid2 = require('uid2')
 const passport = require('passport')
-const confirmEmail = require('../../emails/confirmationEmail')
-const forgetPasswordEmail = require('../../emails/forgetPasswordEmail')
+
 const config = require('../../../config')
 const User = require('./model')
 const Class = require('../class/model')
@@ -18,6 +13,16 @@ const {
 
 
 // GET CONTROLLERS
+exports.getById = (req, res, next) => {
+  const {
+    id
+  } = req.params
+
+  return User.findById(id)
+    .then(doc => res.status(201).json(doc))
+    .catch(error => next(error))
+}
+
 exports.getAll = (req, res, next) => {
   return User.find({})
     .then(doc => res.status(201).json(doc))
@@ -87,10 +92,8 @@ exports.getReferentsFromCollege = (req, res, next) => {
   const {
     id
   } = req.params
-
   return User.findById(id)
     .then(doc => {
-
       if (doc) {
         User.find({
             'account.type': 'referent',
@@ -98,19 +101,19 @@ exports.getReferentsFromCollege = (req, res, next) => {
           })
           //.populate({path: "account.class", select: 'name -_id'}) //besoin du nom de la classe de l'élève
           .select({
-            'email': 1,
+            email: 1,
             'account.type': 1,
             'account.first_name': 1,
             'account.last_name': 1
           })
           .sort({
-            "account.last_name": 1
+            'account.last_name': 1
           })
           .then(doc => res.status(201).json(doc))
           .catch(error => next(error))
       } else {
         return res.status(404).json({
-          message: "pas encore de référent pour ce collège"
+          message: 'pas encore de référent pour ce collège'
         })
       }
     })
@@ -129,7 +132,9 @@ exports.getStudentsFromReferent = (req, res, next) => {
   const {
     id
   } = req.params
-
+  // 1 - on cherche le reférent par son id
+  // 2 - besoin d'avoir tous les élèves du référent
+  // 3 - besoin du nom de la classe pour chaque élève
   return User.findById(id)
     .populate({
       path: 'account.students',
@@ -252,6 +257,30 @@ exports.removeReferent = (req, res, next) => {
         })
         .catch(error => next(error))
 
+    })
+    .catch(error => next(error))
+}
+
+exports.removeCollege = (req, res, next) => {
+  const {
+    id
+  } = req.params
+
+  User.findById(id)
+    .then(college => {
+      // supprime le collège et tous les élèves et les référents lié à ce collège
+      User.remove({
+        $or: [{
+          _id: college._id
+        }, {
+          'account.college': college._id
+        }]
+      }).then(doc => {
+        return res.status(201).json({
+          message: `le collège a été supprimé avec succès! 
+                    Total : ${doc.n} utilisateurs supprimés`
+        })
+      })
     })
     .catch(error => next(error))
 }

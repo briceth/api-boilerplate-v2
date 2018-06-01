@@ -2,10 +2,7 @@ const Candidature = require('./model')
 
 //GET CONTROLLERS
 exports.getApplicationsFromStudent = (req, res, next) => {
-  const {
-    id
-  } = req.params
-  console.log('yep');
+  const { id } = req.params
 
   return Candidature.find({
     student: id
@@ -14,12 +11,9 @@ exports.getApplicationsFromStudent = (req, res, next) => {
   // .then(error => next(error))
 }
 
-
 //POST CONTROLLERS
 exports.create = (req, res, next) => {
-  const {
-    body
-  } = req
+  const { body } = req
 
   return Candidature.create(body)
     .then(doc => res.status(201).json(doc))
@@ -28,23 +22,18 @@ exports.create = (req, res, next) => {
 
 //PUT CONTROLLERS
 exports.update = (req, res, next) => {
-  const {
-    body,
-    id
-  } = req
+  const { body, id } = req
 
   return Candidature.findOneAndUpdate(id, body, {
-      new: true
-    })
+    new: true
+  })
     .then(doc => res.status(201).json(doc))
     .catch(error => next(error))
 }
 
 //DELETE CONTROLLERS
 exports.delete = (req, res, next) => {
-  const {
-    id
-  } = req.body
+  const { id } = req.body
 
   return Candidature.findOneAndRemove(id)
     .then(doc => res.status(201).json(doc))

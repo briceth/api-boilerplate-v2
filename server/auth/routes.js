@@ -43,13 +43,9 @@ router.post(
 router.post('/upload', multipartMiddleware, controller.upload)
 router.delete('/upload', controller.deleteUpload)
 
-router.route('/email_check').get(controller.emailCheck)
+router.post('/forgot_password', controller.forgotPassword)
+router.post('/reset_password', controller.resetPassword)
 
-router.route('/forgotten_password').post(controller.forgottenPassword)
-// const options = { emailPresenceInQuery: true, tokenPresenceInQuery: true };
-router
-  .route('/reset_password')
-  .get(handleResetPasswordErrors({}), controller.resetPasswordGET)
-  .post(handleResetPasswordErrors({}), controller.resetPasswordPOST)
+//router.route('/email_check').get(controller.emailCheck)
 
 module.exports = router
