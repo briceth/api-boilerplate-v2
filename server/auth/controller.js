@@ -192,20 +192,17 @@ exports.deleteUpload = function(req, res, next) {
   })
 }
 
-//TODO:
-//TODO:
 exports.forgotPassword = (req, res, next) => {
   const { email } = req.body
 
-  if (!email) return res.status(400).json({ error: 'No email specified' })
+  if (!email) return res.status(400).json({ message: 'Email obligatoire' })
   User.findOne({ email }, (error, user) => {
     if (error) {
-      res.status(400)
-      return next(error.message)
+      return res.status(500).json({ message: 'Erreur serveur' })
     }
     if (!user) {
       return res.status(400).json({
-        error: "We don't have a user with this email in our database"
+        error: "Nous n'avons pas pu trouver votre compte."
       })
     }
     // if (!user.emailCheck.valid) {
@@ -219,11 +216,7 @@ exports.forgotPassword = (req, res, next) => {
 
     user.save(error => {
       if (error) {
-        log('Error when saving user with passwordChange infos : ', error)
-
-        return res
-          .status(400)
-          .json({ error: 'Error when setting recovering infos in user ' })
+        return res.status(500).json({ message: 'Erreur serveur' })
       }
       //TODO: décommenter le if
       //if (config.ENV === 'production') {
@@ -231,7 +224,8 @@ exports.forgotPassword = (req, res, next) => {
       mailgunModule.forgotPassword(url, user)
       //}
       res.json({
-        message: 'An email has been send with a link to change your password'
+        message:
+          'Un email vous a été envoyé pour réinitialiser votre mot de passe.'
       })
     })
   })
@@ -244,21 +238,19 @@ exports.resetPassword = (req, res, next) => {
   } = req
 
   if (!password) {
-    return res.status(400).json({ error: 'No password provided' })
+    return res.status(400).json({ message: 'Mot de passe obligatoire' })
   }
 
   User.findOne({ 'passwordChange.token': token }, function(err, user) {
     if (err) {
-      res.status(400)
-      return errorHandler(err.message)
+      return res.status(500).json({ message: 'Erreur serveur' })
     }
 
-    if (!user) return res.status(401).json({ error: 'Wrong credentials' })
+    if (!user) return res.status(401).json({ message: 'Lien invalide' })
 
     if (user.passwordChange.expiryDate < Date.now()) {
       return res.status(401).json({
-        error: 'Outdated link',
-        message: 'This link is outdated (older than 24h)'
+        message: 'La validité de ce lien a expiré (plus de 24h)'
       })
     }
 
@@ -267,11 +259,10 @@ exports.resetPassword = (req, res, next) => {
 
       user.save(error => {
         if (error) {
-          res.status(500)
-          return next(error.message)
+          return res.status(500).json({ message: 'Erreur serveur' })
         }
       })
-      res.json({ message: 'Password reset successfully !' })
+      res.json({ message: 'Mot de passe défini avec succès !' })
     })
   })
 }
