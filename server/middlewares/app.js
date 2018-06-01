@@ -16,7 +16,8 @@ module.exports = app => {
   app.use(bodyParser.json())
   app.use(compression())
   app.use(helmet())
-  app.use(/(api|auth)/, cors())
+  app.use('/api', cors())
+  app.use('/auth', cors())
   app.use(passport.initialize())
 
   passport.use(new HTTPBearerStrategy(User.authenticateBearer()))
@@ -43,6 +44,7 @@ module.exports = app => {
   // parce que le problème avec le Token c'est que je peux prendre le token de qlq et m'amuser avec.
   // donc il faut aussi vérifier que l'id du user renvoyé par passport(req.user) match avec 
   // le req.params.id ou req.body.id qui est demandé ou modifié.
+
   app.use("/api/*", passport.authenticate('bearer', {
     session: false
   }))
