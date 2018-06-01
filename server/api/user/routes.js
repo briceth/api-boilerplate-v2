@@ -10,9 +10,14 @@ router
   .get(controller.getAll)
   .post(controller.create)
 
-router.route('/:id').put(controller.update)
+router
+  .route('/:id')
+  .get(controller.getById)
+  .put(controller.update)
 
+// TODO: pq faire une route spéciale pour supprimer un user ?
 router.route('/referent/:id').delete(controller.removeReferent)
+router.route('/college/:id').delete(controller.removeCollege)
 
 router.route('/type/:type').get(controller.getAllByType)
 

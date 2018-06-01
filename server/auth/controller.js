@@ -6,7 +6,7 @@ const uniqid = require('uniqid')
 const config = require('../../config')
 const User = require('../api/user/model')
 const confirmEmail = require('../emails/confirmationEmail')
-const forgetPasswordEmail = require('../emails/forgetPasswordEmail')
+
 const log = console.log
 const error = console.error
 const mailgunModule = require('../emails/mailgun')
@@ -34,9 +34,6 @@ exports.verifyToken = function(req, res, next) {
 
 exports.signUp = function(req, res, next) {
   if (req.err) return res.status(401)
-
-  // console.log('req.user', req.user)
-  // console.log('req.body', req.body)
 
   User.register(
     new User({
@@ -195,119 +192,113 @@ exports.deleteUpload = function(req, res, next) {
   })
 }
 
-exports.forgottenPassword = (req, res, next) => {
+exports.forgotPassword = (req, res, next) => {
   const { email } = req.body
 
-  if (!email) return res.status(400).json({ error: 'No email specified' })
+  if (!email) return res.status(400).json({ message: 'Email obligatoire' })
   User.findOne({ email }, (error, user) => {
     if (error) {
-      res.status(400)
-      return next(error.message)
+      return res.status(500).json({ message: 'Erreur serveur' })
     }
     if (!user) {
       return res.status(400).json({
-        error: "We don't have a user with this email in our database"
+        error: "Nous n'avons pas pu trouver votre compte."
       })
     }
-    if (!user.emailCheck.valid) {
-      return res.status(400).json({ error: 'Your email is not confirmed' })
-    }
+    // if (!user.emailCheck.valid) {
+    //   return res.status(400).json({ error: 'Your email is not confirmed' })
+    // }
 
     user.passwordChange = {
       token: uid2(20),
-      createdAt: new Date(),
-      valid: true
+      expiryDate: new Date(Date.now() + 86400000)
     }
 
     user.save(error => {
       if (error) {
-        log('Error when saving user with passwordChange infos : ', error)
-
-        return res
-          .status(400)
-          .json({ error: 'Error when setting recovering infos in user ' })
+        return res.status(500).json({ message: 'Erreur serveur' })
       }
-      if (config.ENV === 'production') {
-        const url = req.headers.host
-
-        mailgun
-          .messages()
-          .send(forgetPasswordEmail(url, user), (error, body) => {
-            error('Mail Error', error)
-            log('Mail Body', body)
-          })
-      }
+      //TODO: décommenter le if
+      //if (config.ENV === 'production') {
+      const url = req.headers.origin
+      mailgunModule.forgotPassword(url, user)
+      //}
       res.json({
-        message: 'An email has been send with a link to change your password'
-      })
-    })
-  })
-}
-
-exports.emailCheck = (req, res) => {
-  const { email, token } = req.query
-
-  if (!token) return res.status(400).send('No token specified')
-
-  User.findOne({ 'emailCheck.token': token, email }, (error, user) => {
-    if (error) return res.status(400).send(error)
-
-    if (!user) return res.status(400).send('Wrong credentials')
-
-    if (user.emailCheck.valid) {
-      return res
-        .status(206)
-        .json({ message: 'You have already confirmed your email !' })
-    }
-
-    var yesterday = new Date()
-
-    yesterday.setDate(yesterday.getDate() - 1)
-
-    if (user.emailCheck.createdAt < yesterday) {
-      return res.status(400).json({
         message:
-          'This link is outdated (older than 24h), please try to sign up again'
+          'Un email vous a été envoyé pour réinitialiser votre mot de passe.'
       })
-    }
-
-    user.emailCheck.valid = true
-
-    user.save(error => {
-      if (err) return res.send(err)
-      res.json({ message: 'Your email has been verified with success' })
     })
   })
 }
 
-exports.resetPasswordGET = (req, res) => {
-  res.json({ message: 'Ready to recieve new password' })
-}
-
-exports.resetPasswordPOST = (req, res, next) => {
+exports.resetPassword = (req, res, next) => {
   const {
     user,
-    body: { newPassword, newPasswordConfirmation }
+    body: { password, token }
   } = req
 
-  if (!newPassword) {
-    return res.status(400).json({ error: 'No password provided' })
-  }
-  if (newPassword !== newPasswordConfirmation) {
-    return res
-      .status(400)
-      .json({ error: 'Password and confirmation are different' })
+  if (!password) {
+    return res.status(400).json({ message: 'Mot de passe obligatoire' })
   }
 
-  user.setPassword(newPassword, () => {
-    user.passwordChange.valid = false
+  User.findOne({ 'passwordChange.token': token }, function(err, user) {
+    if (err) {
+      return res.status(500).json({ message: 'Erreur serveur' })
+    }
 
-    user.save(error => {
-      if (error) {
-        res.status(500)
-        return next(error.message)
-      }
+    if (!user) return res.status(401).json({ message: 'Lien invalide' })
+
+    if (user.passwordChange.expiryDate < Date.now()) {
+      return res.status(401).json({
+        message: 'La validité de ce lien a expiré (plus de 24h)'
+      })
+    }
+
+    user.setPassword(password, () => {
+      user.passwordChange.expiryDate = Date.now()
+
+      user.save(error => {
+        if (error) {
+          return res.status(500).json({ message: 'Erreur serveur' })
+        }
+      })
+      res.json({ message: 'Mot de passe défini avec succès !' })
     })
-    res.status(200).json({ message: 'Password reset successfully !' })
   })
 }
+
+// exports.emailCheck = (req, res) => {
+//   const { email, token } = req.query
+
+//   if (!token) return res.status(400).send('No token specified')
+
+//   User.findOne({ 'emailCheck.token': token, email }, (error, user) => {
+//     if (error) return res.status(400).send(error)
+
+//     if (!user) return res.status(400).send('Wrong credentials')
+
+//     if (user.emailCheck.valid) {
+//       return res
+//         .status(206)
+//         .json({ message: 'You have already confirmed your email !' })
+//     }
+
+//     var yesterday = new Date()
+
+//     yesterday.setDate(yesterday.getDate() - 1)
+
+//     if (user.emailCheck.createdAt < yesterday) {
+//       return res.status(400).json({
+//         message:
+//           'This link is outdated (older than 24h), please try to sign up again'
+//       })
+//     }
+
+//     user.emailCheck.valid = true
+
+//     user.save(error => {
+//       if (err) return res.send(err)
+//       res.json({ message: 'Your email has been verified with success' })
+//     })
+//   })
+// }

@@ -9,30 +9,26 @@ const UserSchema = new mongoose.Schema({
 
   email: String,
 
-  emailCheck: {
-    valid: {
-      type: Boolean,
-      default: true
-    }, // change to false to activate emailCheck
-    token: {
-      type: String,
-      default: uid2(20)
-    },
-    createdAt: {
-      type: Date,
-      default: Date.now
-    }
-  },
+  // emailCheck: {
+  //   valid: {
+  //     type: Boolean,
+  //     default: true
+  //   }, // change to false to activate emailCheck
+  //   token: {
+  //     type: String,
+  //     default: uid2(20)
+  //   },
+  //   createdAt: {
+  //     type: Date,
+  //     default: Date.now
+  //   }
+  // },
 
   //password: String, //A supprimer
 
   passwordChange: {
-    valid: {
-      type: Boolean,
-      default: true
-    },
     token: String,
-    createdAt: Date
+    expiryDate: Date
   },
 
   token: {
@@ -143,7 +139,7 @@ const UserSchema = new mongoose.Schema({
     // Visualisation de tous les élèves d'une classe
     class: {
       type: mongoose.Schema.Types.ObjectId,
-        ref: 'Class'
+      ref: 'Class'
     }, //student, referent
 
     // Visualisation de tous les élèves d'un collège avec les informations principales
@@ -158,10 +154,12 @@ const UserSchema = new mongoose.Schema({
       ref: 'Company'
     }, // pro, hr
 
-    students: [{
-      type: mongoose.Schema.Types.ObjectId,
-      ref: 'User'
-    }] // referent
+    students: [
+      {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: 'User'
+      }
+    ] // referent
   }
 })
 
@@ -171,10 +169,10 @@ UserSchema.plugin(passportLocalMongoose, {
 })
 
 // Cette méthode sera utilisée par la strategie `passport-local` pour trouver un utilisateur en fonction de son `email` et `password`
-UserSchema.statics.authenticateLocal = function () {
+UserSchema.statics.authenticateLocal = function() {
   const _self = this
-  return function (req, email, password, cb) {
-    _self.findByUsername(email, true, function (err, user) {
+  return function(req, email, password, cb) {
+    _self.findByUsername(email, true, function(err, user) {
       if (err) return cb(err)
       if (user) {
         return user.authenticate(password, cb)
@@ -186,16 +184,17 @@ UserSchema.statics.authenticateLocal = function () {
 }
 
 // Cette méthode sera utilisée par la strategie `passport-http-bearer` pour trouver un utilisateur en fonction de son `token`
-UserSchema.statics.authenticateBearer = function () {
+UserSchema.statics.authenticateBearer = function() {
   const _self = this
-  return function (token, cb) {
+  return function(token, cb) {
     if (!token) {
       cb(null, false)
     } else {
-      _self.findOne({
+      _self.findOne(
+        {
           token
         },
-        function (err, user) {
+        function(err, user) {
           if (err) return cb(err)
           if (!user) return cb(null, false)
           return cb(null, user)
