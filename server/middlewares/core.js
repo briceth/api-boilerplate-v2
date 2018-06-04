@@ -7,8 +7,6 @@ const {
 
 
 exports.errorHandler = (error, req, res, next) => {
-  console.log("error handlerrrrrrr");
-
   if (res.statusCode === 200) res.status(400)
   if (config.ENV === 'production') error = 'An error occurred'
   return res.json({

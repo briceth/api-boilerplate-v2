@@ -23,8 +23,10 @@ exports.getApplications = async (students) => {
       account: student.account,
       _id: student._id,
       application: {
-        statut: application[0].status,
-        number
+        number,
+        statut: application
+          .map(app => app.status)
+          .find(statut => statut === 'hiring' ? 'oui' : 'non') //TODO: ne renvoie pas oui ou non
       }
     })
   }

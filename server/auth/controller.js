@@ -161,7 +161,6 @@ exports.logIn = (req, res, next) => {
 }
 
 exports.upload = function (req, res, next) {
-  //console.log(req.files)
   const avatarConfig = {
     folder: 'avatar',
     public_id: uniqid(),
