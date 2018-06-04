@@ -132,12 +132,18 @@ const UserSchema = new mongoose.Schema({
 
     curriculum: String, // student
 
+    // student, pro, referent, college, hr, administrator
+    first_connection: {
+      type: Boolean,
+      default: true
+    },
+
     last_connection: String, // pro
 
     type: {
       type: String
       //TODO: enum doesn't work for type college ...
-      //enum: ['college', 'student', 'hr', 'pro', 'administrator', 'referent']
+      //enum: ['college', 'student', 'hr', 'pro', 'administrator', 'referent', 'admin']
     },
     // Visualisation de tous les élèves d'une classe
     class: {

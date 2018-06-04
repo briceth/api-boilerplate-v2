@@ -22,7 +22,7 @@ describe("POST STUDENT", () => {
     const result = await chai
       .request(server)
       .post(`/api/users`)
-      //.set('Authorization', `Bearer ${jwt}`)
+      //.set('Authorization', `Bearer ${jwt}`) //TODO: gêrer la création de student sans token 
       .send({
         email: faker.internet.email(),
         account: {

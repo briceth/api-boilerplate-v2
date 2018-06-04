@@ -3,6 +3,7 @@
 // const should = require('chai').should()
 // const chaiHttp = require('chai-http')
 // const faker = require('faker')
+// const uid2 = require('uid2')
 // const server = require('../../../../../index')
 // const User = require('../../model')
 // const Application = require('../../../application/model')
@@ -12,7 +13,7 @@
 
 // chai.use(chaiHttp)
 
-// describe('GET STUDENT', () => {
+// describe.only('GET STUDENT', () => {
 //   let student
 //   let college
 //   let application
@@ -27,6 +28,7 @@
 //     //jwt = signToken(user.id)
 //     college = await User.create({
 //       email: faker.internet.email(),
+//       token: uid2(32),
 //       account: {
 //         address: faker.address.streetAddress(),
 //         city: faker.address.city(),
@@ -92,12 +94,12 @@
 //     await Application.remove({})
 //   })
 
-
-//   describe('GET /users/college/:college/students => controlleur: getStudentsFromCollege', () => {
+//   describe('GET /users/college/:college/students', () => {
 //     it('should get a list of students by their college id and with number of applications and statut', async () => {
 //       const result = await chai
 //         .request(server)
 //         .get(`/api/users/college/${college._id}/students`)
+//         .set('Authorization', `Bearer ${college.token}`)
 
 //       //result
 //       expect(result).to.have.status(201)
@@ -111,8 +113,8 @@
 //         'application'
 //       )
 //       Object.keys(result.body[0]).every(key => expect(key).to.exist) //not empty and not false
-
 //       expect(result.body[0]._id).to.be.a('string')
+
 //       //account
 //       expect(result.body[0].account).to.be.an('object')
 //       Object.keys(result.body[0].account).every(key => expect(key).to.exist)

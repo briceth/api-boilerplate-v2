@@ -1,5 +1,7 @@
 const Candidature = require('../application/model')
-const { ObjectId } = require('mongoose').Types
+const {
+  ObjectId
+} = require('mongoose').Types
 
 exports.getApplications = async students => {
   const finalDoc = []
@@ -21,9 +23,10 @@ exports.getApplications = async students => {
       account: student.account,
       _id: student._id,
       application: {
-        // TODO: HIRED / NOT HIRED
-        //statut: application[0].status,
-        number
+        number,
+        statut: application
+          .map(app => app.status)
+          .find(statut => statut === 'hiring' ? 'oui' : 'non') //TODO: ne renvoie pas oui ou non
       }
     })
   }

@@ -1,25 +1,23 @@
 const chai = require('chai')
 const expect = require('chai').expect
-const should = require('chai').should()
 const chaiHttp = require('chai-http')
 const faker = require('faker')
+const uid2 = require('uid2')
 const server = require('../../../../index')
 const User = require('../model')
 const log = console.log
-// const factory = require('../../../utils/modelFactory')
-// const { deleteDB } = require('../../../utils/helpers')
-
 chai.use(chaiHttp)
 
-describe('/users', () => {
+describe.only('/users', () => {
   let student
   let college
+  let admin
 
   beforeEach(async () => {
     await User.remove({})
-    //jwt = signToken(user.id)
     college = await User.create({
       email: faker.internet.email(),
+      token: uid2(32),
       account: {
         address: faker.address.streetAddress(),
         city: faker.address.city(),
@@ -31,6 +29,7 @@ describe('/users', () => {
 
     student = await User.create({
       email: faker.internet.email(),
+      token: uid2(32),
       account: {
         first_name: faker.name.firstName(),
         last_name: faker.name.lastName(),
@@ -38,6 +37,16 @@ describe('/users', () => {
         address: faker.address.streetAddress(),
         type: 'student',
         college: college._id
+      }
+    })
+
+    admin = await User.create({
+      email: faker.internet.email(),
+      token: uid2(32),
+      account: {
+        first_name: faker.name.firstName(),
+        last_name: faker.name.lastName(),
+        type: 'admin',
       }
     })
   })
@@ -48,25 +57,25 @@ describe('/users', () => {
 
   describe('GET /users', () => {
     it('should get an array with one user and one college', async () => {
-      const result = await chai.request(server).get(`/api/users`)
-      //.set('Authorization', `Bearer ${jwt}`)
+      const result = await chai.request(server)
+        .get('/api/users')
+        .set('Authorization', `Bearer ${student.token}`)
 
       expect(result).to.have.status(201)
       expect(result).to.be.json
       expect(result.body).to.be.an('array')
-      expect(result.body).to.have.lengthOf(2)
     })
   })
 
-  describe('GET /users/:id', () => {
+  describe('GET /users/type/:type', () => {
     it('should get a list of users by his type (student, college, rh etc ...)', async () => {
-      const result = await chai.request(server).get(`/api/users/type/student`)
-      //.set('Authorization', `Bearer ${jwt}`)
+      const result = await chai.request(server)
+        .get('/api/users/type/student')
+        .set('Authorization', `Bearer ${student.token}`)
 
       expect(result).to.have.status(201)
       expect(result).to.be.json
       expect(result.body).to.be.an('array')
-      expect(result.body).to.have.lengthOf(1)
     })
   })
 })
