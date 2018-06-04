@@ -3,11 +3,11 @@ const {
   ObjectId
 } = require('mongoose').Types
 
-exports.getApplications = async (students) => {
+exports.getApplications = async students => {
   const finalDoc = []
 
   for (let i = 0; i < students.length; i++) {
-    const student = students[i];
+    const student = students[i]
 
     // le nombre de candidatures
     const number = await Candidature.find({

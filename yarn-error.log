@@ -3,6 +3,10 @@ Arguments:
 
 PATH: 
   ./bin:/Users/bricetessierhuort/.rbenv/shims:/usr/local/opt/rbenv/bin:/Users/bricetessierhuort/.rvm/gems/ruby-2.4.1/bin:/Users/bricetessierhuort/.rvm/gems/ruby-2.4.1@global/bin:/Users/bricetessierhuort/.rvm/rubies/ruby-2.4.1/bin:/usr/local/bin:/usr/bin:/bin:/usr/sbin:/sbin:/Users/bricetessierhuort/.rvm/bin
+  /usr/local/bin/node /usr/local/Cellar/yarn/1.5.1_1/libexec/bin/yarn.js start
+
+PATH: 
+  /Users/kevin/Library/Android/sdk/tools/bin:/Users/kevin/Library/Android/sdk/tools:/Users/kevin/Library/Android/sdk/platform-tools:/usr/local/bin:/usr/bin:/bin:/usr/sbin:/sbin:/Users/kevin/Library/Android/sdk/tools/bin:/Users/kevin/Library/Android/sdk/tools:/Users/kevin/Library/Android/sdk/platform-tools
 
 Yarn version: 
   1.5.1
@@ -4198,6 +4202,8 @@ Trace:
   Command: sh
   Arguments: -c node server/utils/seed.js
   Directory: /Users/bricetessierhuort/code/briceth/Projects/vvmt-api
+  Arguments: -c node index.js
+  Directory: /Users/kevin/Documents/VVMT/vvmt-api
   Output:
   
       at ProcessTermError.MessageError (/usr/local/Cellar/yarn/1.5.1_1/libexec/lib/cli.js:186:110)

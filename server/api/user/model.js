@@ -7,7 +7,11 @@ const UserSchema = new mongoose.Schema({
 
   shortId: Number, // shortId is useful when seeding data, it facilitates associations
 
-  email: String,
+  email: {
+    type: String,
+    lowercase: true,
+    trim: true
+  },
 
   // emailCheck: {
   //   valid: {
@@ -42,7 +46,6 @@ const UserSchema = new mongoose.Schema({
     // student, pro, hr, referent
     first_name: {
       type: String,
-      lowercase: true,
       trim: true
       // required: [
       //   function() {
@@ -55,7 +58,6 @@ const UserSchema = new mongoose.Schema({
     // student, pro, hr, referent
     last_name: {
       type: String,
-      lowercase: true,
       trim: true
       // required: [
       //   function() {
@@ -113,7 +115,8 @@ const UserSchema = new mongoose.Schema({
 
     // college
     college_name: {
-      type: String
+      type: String,
+      trim: true
       // required: [
       //   function() {
       //     return this.account.type === 'college', 'un nom est requis'
