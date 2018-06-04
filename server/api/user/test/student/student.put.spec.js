@@ -9,7 +9,7 @@ const log = console.log
 
 chai.use(chaiHttp)
 
-describe("PUT STUDENT", () => {
+describe.only("PUT STUDENT", () => {
   let student
 
   beforeEach(async () => {
@@ -35,7 +35,7 @@ describe("PUT STUDENT", () => {
     const result = await chai
       .request(server)
       .put(`/api/users/${student._id}`)
-      //.set('Authorization', `Bearer ${jwt}`)
+      .set('Authorization', `Bearer ${student.token}`)
       .send({
         email: faker.internet.email(),
         account: {

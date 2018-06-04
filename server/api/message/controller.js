@@ -133,6 +133,8 @@ exports.messagesStudentAndProForReferent = (req, res, next) => {
       message.sort((a, b) => new Date(b.date) - new Date(a.date))
 
       //console.timeEnd('message.find');
+      console.log(message);
+
       res.status(201).json(message)
     })
     .catch(error => next(error))

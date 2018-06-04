@@ -18,8 +18,10 @@ cloudinary.config({
   api_secret: config.API_SECRET
 })
 
-exports.verifyToken = function(req, res, next) {
-  User.findOne({ token: req.body.token }, (error, user) => {
+exports.verifyToken = function (req, res, next) {
+  User.findOne({
+    token: req.body.token
+  }, (error, user) => {
     if (error || !user) {
       return res.status(400).json({
         error: "We don't have a user with this token in our database"
@@ -32,7 +34,7 @@ exports.verifyToken = function(req, res, next) {
   })
 }
 
-exports.signUp = function(req, res, next) {
+exports.signUp = function (req, res, next) {
   if (req.err) return res.status(401)
 
   User.register(
@@ -45,14 +47,27 @@ exports.signUp = function(req, res, next) {
       },
       oauthID: req.user && req.user.oauthID && req.user.oauthID,
       account: {
+        // everybody
         type: req.body.type,
         first_name: req.body.first_name,
         last_name: req.body.last_name,
+
+        // college, pro, rh
         phone: req.body.phone,
+
+        // student, pro
         address: req.body.address,
         loc: req.body.loc,
+
         //school: req.body.school, //TODO: Mise en place des ID avec la seed
+
+        // student, referent? (pas à la création)
         //class: req.body.class, //TODO: Idem
+
+        // referent
+        college: req.body.college,
+
+        // student
         picture: req.body.picture && req.body.picture,
         curriculum: req.body.curriculum && req.body.curriculum,
         diary_picture: req.body.diary_picture,
@@ -63,21 +78,30 @@ exports.signUp = function(req, res, next) {
       }
     }),
     req.body.password ? req.body.password : uid2(16), // Le mot de passe doit être obligatoirement le deuxième paramètre transmis à `register` afin d'être crypté
-    function(error, user) {
+    function (error, user) {
       if (error) {
-        if (config.ENV !== 'test') console.error('ERROR', error)
-
-        // TODO: test
-        return res.status(400).json({ error: error.message })
+        return next(error)
       } else {
         const url = req.headers.host //pour localhost et pour l'url de production
 
         if (config.ENV !== 'test' && user.account.type === 'referent') {
-          mailgunModule.sendPassword(url, user, password)
+          mailgunModule.sendPassword(url, user, password = "123456")
         }
 
-        const { _id, oauthID, token, email, account } = user
-        const userCreated = { _id, oauthID, email, token, account }
+        const {
+          _id,
+          oauthID,
+          token,
+          email,
+          account
+        } = user
+        const userCreated = {
+          _id,
+          oauthID,
+          email,
+          token,
+          account
+        }
 
         return res.status(201).json({
           message: 'User successfully signed up 🤩',
@@ -98,37 +122,65 @@ exports.logIn = (req, res, next) => {
   }
 
   if (req.authInfo.newUser) {
-    const { oauthID, email, first_name, last_name } = req.user
-    const user = { oauthID, email, first_name, last_name }
+    const {
+      oauthID,
+      email,
+      first_name,
+      last_name
+    } = req.user
+    const user = {
+      oauthID,
+      email,
+      first_name,
+      last_name
+    }
     return res.status(202).json({
       message: 'Welcome to our new user 🤩',
       user
     })
   }
 
-  const { _id, oauthID, email, token, account } = req.user
-  const user = { _id, oauthID, email, token, account }
+  const {
+    _id,
+    oauthID,
+    email,
+    token,
+    account
+  } = req.user
+  const user = {
+    _id,
+    oauthID,
+    email,
+    token,
+    account
+  }
   return res.status(200).json({
     message: 'User successfully signed up 🤩',
     user
   })
 }
 
-exports.upload = function(req, res, next) {
-  //console.log(req.files)
+exports.upload = function (req, res, next) {
   const avatarConfig = {
     folder: 'avatar',
     public_id: uniqid(),
     allowedFormats: ['jpg', 'png'],
-    transformation: [
-      { width: 200, height: 200, crop: 'thumb', gravity: 'face' }
-    ]
+    transformation: [{
+      width: 200,
+      height: 200,
+      crop: 'thumb',
+      gravity: 'face'
+    }]
   }
   const correspondenceBookConfig = {
     folder: 'correspondence_book',
     public_id: uniqid(),
     allowedFormats: ['jpg', 'png'],
-    transformation: [{ width: 400, height: 600, crop: 'thumb' }]
+    transformation: [{
+      width: 400,
+      height: 600,
+      crop: 'thumb'
+    }]
   }
   const cvConfig = {
     public_id: uniqid(),
@@ -156,7 +208,7 @@ exports.upload = function(req, res, next) {
   }
 
   const filePath = req.files.file.path
-  cloudinary.uploader.upload(filePath, config, function(error, result) {
+  cloudinary.uploader.upload(filePath, config, function (error, result) {
     if (error) {
       return res.status(400).json({
         error: `We couldn't upload your file to our database
@@ -178,8 +230,8 @@ exports.upload = function(req, res, next) {
   })
 }
 
-exports.deleteUpload = function(req, res, next) {
-  cloudinary.uploader.destroy(req.query.public_id, function(error, result) {
+exports.deleteUpload = function (req, res, next) {
+  cloudinary.uploader.destroy(req.query.public_id, function (error, result) {
     if (error) {
       return res.status(400).json({
         error: `We couldn't delete your file to our database
@@ -193,12 +245,20 @@ exports.deleteUpload = function(req, res, next) {
 }
 
 exports.forgotPassword = (req, res, next) => {
-  const { email } = req.body
+  const {
+    email
+  } = req.body
 
-  if (!email) return res.status(400).json({ message: 'Email obligatoire' })
-  User.findOne({ email }, (error, user) => {
+  if (!email) return res.status(400).json({
+    message: 'Email obligatoire'
+  })
+  User.findOne({
+    email
+  }, (error, user) => {
     if (error) {
-      return res.status(500).json({ message: 'Erreur serveur' })
+      return res.status(500).json({
+        message: 'Erreur serveur'
+      })
     }
     if (!user) {
       return res.status(400).json({
@@ -216,7 +276,9 @@ exports.forgotPassword = (req, res, next) => {
 
     user.save(error => {
       if (error) {
-        return res.status(500).json({ message: 'Erreur serveur' })
+        return res.status(500).json({
+          message: 'Erreur serveur'
+        })
       }
       //TODO: décommenter le if
       //if (config.ENV === 'production') {
@@ -224,8 +286,7 @@ exports.forgotPassword = (req, res, next) => {
       mailgunModule.forgotPassword(url, user)
       //}
       res.json({
-        message:
-          'Un email vous a été envoyé pour réinitialiser votre mot de passe.'
+        message: 'Un email vous a été envoyé pour réinitialiser votre mot de passe.'
       })
     })
   })
@@ -234,19 +295,30 @@ exports.forgotPassword = (req, res, next) => {
 exports.resetPassword = (req, res, next) => {
   const {
     user,
-    body: { password, token }
+    body: {
+      password,
+      token
+    }
   } = req
 
   if (!password) {
-    return res.status(400).json({ message: 'Mot de passe obligatoire' })
+    return res.status(400).json({
+      message: 'Mot de passe obligatoire'
+    })
   }
 
-  User.findOne({ 'passwordChange.token': token }, function(err, user) {
+  User.findOne({
+    'passwordChange.token': token
+  }, function (err, user) {
     if (err) {
-      return res.status(500).json({ message: 'Erreur serveur' })
+      return res.status(500).json({
+        message: 'Erreur serveur'
+      })
     }
 
-    if (!user) return res.status(401).json({ message: 'Lien invalide' })
+    if (!user) return res.status(401).json({
+      message: 'Lien invalide'
+    })
 
     if (user.passwordChange.expiryDate < Date.now()) {
       return res.status(401).json({
@@ -259,10 +331,14 @@ exports.resetPassword = (req, res, next) => {
 
       user.save(error => {
         if (error) {
-          return res.status(500).json({ message: 'Erreur serveur' })
+          return res.status(500).json({
+            message: 'Erreur serveur'
+          })
         }
       })
-      res.json({ message: 'Mot de passe défini avec succès !' })
+      res.json({
+        message: 'Mot de passe défini avec succès !'
+      })
     })
   })
 }

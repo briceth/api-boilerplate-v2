@@ -161,6 +161,12 @@ const UserSchema = new mongoose.Schema({
 
     curriculum: String, // student
 
+    // student, pro, referent, college, hr, administrator
+    first_connection: {
+      type: Boolean,
+      default: true
+    },
+
     last_connection: String, // pro
 
     type: {
