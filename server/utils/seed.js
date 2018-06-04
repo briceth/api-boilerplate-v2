@@ -1,6 +1,5 @@
 const mongoose = require('mongoose')
 const chalk = require('chalk')
-const uid2 = require('uid2')
 const faker = require('faker')
 faker.locale = 'fr'
 
@@ -79,7 +78,6 @@ const seedColleges = async (number = 5) => {
         phone: faker.phone.phoneNumber(),
         city: faker.address.city(),
         loc: [faker.address.longitude(), faker.address.latitude()],
-        token: uid2(32),
         type: 'college'
       }
     })
@@ -105,7 +103,7 @@ const seedClasses = async (number = 5) => {
     // créer cinq classes (3ème 1, 3ème 2, ...) pour tous les collèges
     for (let j = 0; j < number; j++) {
       const newClass = await Class.create({
-        name: `3ème ${i + 1}`,
+        name: `3ème ${j + 1}`,
         college: collegeIds[i]
       })
 
@@ -328,7 +326,7 @@ const seedMessages = () => {
     // messages venant du pro
     for (let j = 0; j < numMessages; j++) {
       const message = Message.create({
-        title: `Stage d'assistant ${faker.name.jobTitle()}`,
+        title: `Stage d'assistant ${faker.name.jobTitle().split(' ')[2]}`,
         content: faker.lorem.paragraph(),
         date: faker.date.past(),
         sender: proId,
@@ -341,7 +339,7 @@ const seedMessages = () => {
     // messages venant du student
     for (let k = 0; k < numMessages; k++) {
       const message = Message.create({
-        title: `Stage d'assistant ${faker.name.jobTitle()}`,
+        title: `Stage d'assistant ${faker.name.jobTitle().split(' ')[2]}`,
         content: faker.lorem.paragraph(),
         date: faker.date.past(),
         sender: studentIds[i],

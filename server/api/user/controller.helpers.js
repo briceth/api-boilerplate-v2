@@ -1,13 +1,11 @@
 const Candidature = require('../application/model')
-const {
-  ObjectId
-} = require('mongoose').Types
+const { ObjectId } = require('mongoose').Types
 
-exports.getApplications = async (students) => {
+exports.getApplications = async students => {
   const finalDoc = []
 
   for (let i = 0; i < students.length; i++) {
-    const student = students[i];
+    const student = students[i]
 
     // le nombre de candidatures
     const number = await Candidature.find({
@@ -23,7 +21,8 @@ exports.getApplications = async (students) => {
       account: student.account,
       _id: student._id,
       application: {
-        statut: application[0].status,
+        // TODO: HIRED / NOT HIRED
+        //statut: application[0].status,
         number
       }
     })
