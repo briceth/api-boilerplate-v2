@@ -1,7 +1,5 @@
 const Candidature = require('../application/model')
-const {
-  ObjectId
-} = require('mongoose').Types
+const { ObjectId } = require('mongoose').Types
 
 exports.getApplications = async students => {
   const finalDoc = []
@@ -15,18 +13,24 @@ exports.getApplications = async students => {
     }).count()
 
     // les candidatures
-    const application = await Candidature.find({
+    const applications = await Candidature.find({
       student: new ObjectId(student._id)
     })
+
+    const statut = applications.find((o, i) => {
+      if (o.status === 'hiring') {
+        return true // stop searching
+      }
+    })
+      ? true
+      : false
 
     finalDoc.push({
       account: student.account,
       _id: student._id,
       application: {
         number,
-        statut: application
-          .map(app => app.status)
-          .find(statut => statut === 'hiring' ? 'oui' : 'non') //TODO: ne renvoie pas oui ou non
+        statut
       }
     })
   }

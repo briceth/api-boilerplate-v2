@@ -107,7 +107,7 @@ xmlns:o="urn:schemas-microsoft-com:office:office">
       }
 
       .body-wrapper {
-        background: #f2f5f7 url('https://d2yjfm58htokf8.cloudfront.net/static/images/background-v1.png') no-repeat center top;
+        background: #f2f5f7 url('https://res.cloudinary.com/vibein/image/upload/v1528205164/vvmt/background.png') no-repeat center top;
         padding: 0px;
         margin: auto;
       }

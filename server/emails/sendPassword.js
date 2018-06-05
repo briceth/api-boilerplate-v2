@@ -1,8 +1,9 @@
 exports.mailPassword = (url, user, password) => {
+  console.log('URL 2', url)
   return {
     from: '<contact@great-api.mailgun.org>',
     to: user.email,
-    subject: 'Your Password',
+    subject: 'Bienvenue - Création de compte',
     html: `
     <!doctype html>
 <html xmlns="http://www.w3.org/1999/xhtml" xmlns:v="urn:schemas-microsoft-com:vml"
@@ -126,7 +127,7 @@ xmlns:o="urn:schemas-microsoft-com:office:office">
 
       .hero {
         font-family: TW-Averta-Bold, Averta, Helvetica, Arial;
-        color: #37517e;
+        color: #5bc4ba;
         font-size: 22px;
         line-height: 30px;
       }
@@ -160,7 +161,7 @@ xmlns:o="urn:schemas-microsoft-com:office:office">
         border: 0;
         border-radius: 3px;
         color: #fff;
-        background-color: #00b9ff;
+        background-color: #5bc4ba;
         text-decoration: none;
 
         -webkit-transition: all .15s ease-in-out;
@@ -169,11 +170,11 @@ xmlns:o="urn:schemas-microsoft-com:office:office">
       }
       
       .btn:hover {
-        background-color: #00a4df;
+        background-color: #5bc4ba;
       }
       
       .btn:active {
-        background-color: #008ec0;
+        background-color: #5bc4ba;
       }
 
       @media screen and (min-width: 576px) and (max-width: 768px) {
@@ -329,16 +330,24 @@ xmlns:o="urn:schemas-microsoft-com:office:office">
                                                   <tr>
                                                     <td style="word-wrap:break-word;font-size:0px;padding:0px;" align="left">
                                                       <div style="cursor:auto;color:#5d7079;font-family:TW-Averta-Regular, Averta, Helvetica, Arial;font-size:16px;line-height:24px;letter-spacing:0.4px;text-align:left;">
-                                                        <p>Hello, ${user.account
-                                                          .name || ''}</p>
-                                                          <p>Vos identifiants:</p>
-                                                          <p>adresse mail: ${
-                                                            user.email
-                                                          }</p>
-                                                          <p>Mot de passe: ${password}</p>
-                                                          <p>Pour changer le mot de passe, rendez-vous sur votre profil.</p>
-                                         
-                                                          <p>Si vous ne savez pas pourquoi vous avez reçu cet email, contactez nous afin que nous réglions la situation pour vous.</p>
+                                                        <p>Bonjour${
+                                                          user.account
+                                                            .first_name
+                                                            ? ` ${
+                                                                user.account
+                                                                  .first_name
+                                                              },`
+                                                            : ','
+                                                        }</p>
+                                                        <p class="hero">Bienvenue sur ViensVoirMonTaf</p>
+                                                        <p>Pour vous connecter, utilisez votre email et le mot de passe ci-dessous : </p>
+                                                        <p>Mot de passe: ${password}</p>
+                                                        <p>
+                                                          <a href="http://${url}/auth/connexion" class="btn" mc:disable-tracking="">Accéder au site</a>
+                                                        </p>
+                                                        <p>Pour changer le mot de passe, rendez-vous sur votre profil, section "Modifier mon profil".</p>
+                                        
+                                                        <p>Si vous ne savez pas pourquoi vous avez reçu cet email, contactez nous afin que nous réglions la situation pour vous.</p>
                                                         <hr style="margin-top: 56px">
                                                         <p class="mb-0">Merci,</p>
                                                         <p class="mb-0">L'équipe ViensVoirMonTaf</p>
@@ -372,6 +381,7 @@ xmlns:o="urn:schemas-microsoft-com:office:office">
             </td>
           </tr>
         </table>
+        <![endif]-->
     </div>
   </body>
 </html>`
