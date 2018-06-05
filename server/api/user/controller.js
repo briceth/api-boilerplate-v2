@@ -120,7 +120,7 @@ exports.getStudentsFromReferent = (req, res, next) => {
   return User.findById(id)
     .populate({
       path: 'account.students',
-      select: 'account.first_name account.last_name',
+      select: 'account.first_name account.last_name account.first_connection',
       populate: {
         path: 'account.class',
         select: 'name -_id'
