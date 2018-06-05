@@ -10,7 +10,9 @@ const UserSchema = new mongoose.Schema({
   email: {
     type: String,
     lowercase: true,
-    trim: true
+    trim: true,
+    required: true,
+    dropDups: true
   },
 
   // emailCheck: {
@@ -46,85 +48,112 @@ const UserSchema = new mongoose.Schema({
     // student, pro, hr, referent
     first_name: {
       type: String,
-      trim: true
-      // required: [
-      //   function() {
-      //     return this.account.type === 'student' || 'pro' || 'hr' || 'referent'
-      //   },
-      //   'un prénom est requis'
-      // ]
+      trim: true,
+      required: [
+        function() {
+          return ['student', 'pro', 'hr', 'referent'].includes(
+            this.account.type
+          )
+        },
+        'un prénom est requis'
+      ]
     },
 
     // student, pro, hr, referent
     last_name: {
       type: String,
-      trim: true
-      // required: [
-      //   function() {
-      //     return this.account.type === 'student' || 'pro' || 'hr' || 'referent'
-      //   },
-      //   'un nom de famille est requis'
-      // ]
+      trim: true,
+      required: [
+        function() {
+          return ['student', 'pro', 'hr', 'referent'].includes(
+            this.account.type
+          )
+        },
+        'un nom de famille est requis'
+      ]
     },
 
     // student, pro
     address: {
-      type: String
-      // required: [
-      //   function() {
-      //     return this.account.type === 'student' || 'pro'
-      //   },
-      //   'une adresse est requise'
-      // ]
+      type: String,
+      trim: true,
+      required: [
+        function() {
+          return ['student', 'pro'].includes(this.account.type)
+        },
+        'une adresse est requise'
+      ]
     },
 
     // student, pro
     loc: {
       type: [Number], // Array : longitude et latitude
-      index: '2d'
+      index: '2d',
+      required: [
+        function() {
+          return ['student', 'pro'].includes(this.account.type)
+        },
+        'une géolocalisation est requise'
+      ]
     },
 
     // college
     city: {
-      type: String
-      // required: [
-      //   function() {
-      //     return this.account.type === 'college', 'une ville est requise'
-      //   }
-      // ]
+      type: String,
+      required: [
+        function() {
+          return ['college'].includes(this.account.type)
+        },
+        'une ville est requise'
+      ]
     },
 
-    // college, pro, rh,
+    // college, pro, hr,
     phone: {
-      type: String
-      // required: [
-      //   function() return this.type === 'college' || 'pro' || 'rh',
-      //   'une numéro de téléphone requis'
-      // ]
+      type: String,
+      required: [
+        function() {
+          return ['college', 'pro', 'hr'].includes(this.account.type)
+        },
+        'un numéro de téléphone est requis'
+      ]
     },
 
     picture: String, // student
 
+    // all
     color: {
       type: String,
+      required: true,
       default: () => {
         const colors = ['#ef4c31', '#fcb315', '#413091', '#b22672']
         return colors[Math.floor(Math.random() * colors.length)]
       }
-    }, // student
+    },
 
     // college
     college_name: {
       type: String,
-      trim: true
-      // required: [
-      //   function() {
-      //     return this.account.type === 'college', 'un nom est requis'
-      //   }
-      // ]
+      trim: true,
+      required: [
+        function() {
+          return ['college'].includes(this.account.type)
+        },
+        'un nom de collège est requis'
+      ]
     },
 
-    is_active: Boolean, // student, hr
+    // student, hr
+    is_active: {
+      type: Boolean,
+      default: false,
+      required: [
+        function() {
+          return ['student', 'hr'].includes(this.account.type)
+        },
+        "un indicateur d'activité est requis"
+      ]
+    },
 
     diary_picture: String, // student
 
@@ -141,34 +170,44 @@ const UserSchema = new mongoose.Schema({
     last_connection: String, // pro
 
     type: {
-      type: String
-      //TODO: enum doesn't work for type college ...
-      //enum: ['college', 'student', 'hr', 'pro', 'administrator', 'referent', 'admin']
+      type: String,
+      required: true,
+      enum: ['college', 'student', 'hr', 'pro', 'administrator', 'referent']
     },
+
     // Visualisation de tous les élèves d'une classe
     class: {
       type: mongoose.Schema.Types.ObjectId,
       ref: 'Class'
-    }, //student, referent
+    }, // student, referent
 
+    // TODO: student, referent
     // Visualisation de tous les élèves d'un collège avec les informations principales
     // Ratacher des élèves à un collège
     college: {
       type: mongoose.Schema.Types.ObjectId,
       ref: 'User'
-    }, // student, referent
+    },
 
+    // pro, hr
     company: {
       type: mongoose.Schema.Types.ObjectId,
-      ref: 'Company'
-    }, // pro, hr
+      ref: 'Company',
+      required: [
+        function() {
+          return ['pro', 'hr'].includes(this.account.type)
+        },
+        'une société est requise'
+      ]
+    },
 
+    // referent
     students: [
       {
         type: mongoose.Schema.Types.ObjectId,
         ref: 'User'
       }
-    ] // referent
+    ]
   }
 })
 

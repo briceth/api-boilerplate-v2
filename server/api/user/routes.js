@@ -20,7 +20,6 @@ router
   .get(controller.getById)
   .put(controller.update)
 
-// TODO: pq faire une route spéciale pour supprimer un user ?
 router.route('/referent/:id').delete(controller.removeReferent)
 router.route('/college/:id').delete(controller.removeCollege)
 
