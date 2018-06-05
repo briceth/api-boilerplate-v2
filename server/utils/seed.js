@@ -1,6 +1,7 @@
 const mongoose = require('mongoose')
 const chalk = require('chalk')
 const faker = require('faker')
+const uid2 = require('uid2')
 const {
   createUser
 } = require('./modelFactory')

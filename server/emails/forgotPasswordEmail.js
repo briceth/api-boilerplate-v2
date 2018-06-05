@@ -104,12 +104,6 @@ xmlns:o="urn:schemas-microsoft-com:office:office">
         border-radius: 3px;
       }
 
-      .body-wrapper {
-        background: #f2f5f7 url('https://d2yjfm58htokf8.cloudfront.net/static/images/background-v1.png') no-repeat center top;
-        padding: 0px;
-        margin: auto;
-      }
-
       .content-wrapper {
         max-width: 536px;
         padding: 32px;
