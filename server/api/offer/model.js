@@ -16,6 +16,9 @@ const offerSchema = new mongoose.Schema({
     required: true
   },
 
+  //TODO: add loc ?
+  // idem in seed
+
   starts_at: {
     type: Date,
     required: true
