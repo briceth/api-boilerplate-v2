@@ -1,7 +1,3 @@
-const uid2 = require('uid2')
-const passport = require('passport')
-
-const config = require('../../../config')
 const User = require('./model')
 const Class = require('../class/model')
 const {
@@ -216,10 +212,12 @@ exports.updateFirstConnection = (req, res, next) => {
     }, {
       new: true
     })
-    .then(user => res.status(201).json({
-      message: `le user ${user._id} a été modifié`,
-      user
-    }))
+    .then(user => {
+      return res.status(201).json({
+        message: `le user ${user._id} a été modifié`,
+        user
+      })
+    })
     .catch(error => next(error))
 }
 

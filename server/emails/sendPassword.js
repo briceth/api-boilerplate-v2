@@ -248,7 +248,7 @@ xmlns:o="urn:schemas-microsoft-com:office:office">
                                                         <tbody>
                                                           <tr>
                                                             <td style="width:150px;">
-                                                              Logo
+                                                              <img src="https://res.cloudinary.com/vibein/image/upload/v1527759705/vvmt/logo-vvmt-compressor.png" alt="Logo" style="max-width: 250px;" />
                                                             </td>
                                                           </tr>
                                                         </tbody>
@@ -338,11 +338,10 @@ xmlns:o="urn:schemas-microsoft-com:office:office">
                                                           <p>Mot de passe: ${password}</p>
                                                           <p>Pour changer le mot de passe, rendez-vous sur votre profil.</p>
                                          
-                                                        <p>If you don’t know why you got this email, please tell us straight away so we can
-                                                          fix this for you.</p>
+                                                          <p>Si vous ne savez pas pourquoi vous avez reçu cet email, contactez nous afin que nous réglions la situation pour vous.</p>
                                                         <hr style="margin-top: 56px">
-                                                        <p class="mb-0">Thanks,</p>
-                                                        <p class="mb-0">The TransferWise Team</p>
+                                                        <p class="mb-0">Merci,</p>
+                                                        <p class="mb-0">L'équipe ViensVoirMonTaf</p>
                                                       </div>
                                                     </td>
                                                   </tr>
@@ -375,7 +374,6 @@ xmlns:o="urn:schemas-microsoft-com:office:office">
         </table>
     </div>
   </body>
-
 </html>`
   }
 }

@@ -82,58 +82,11 @@ exports.messagesStudentAndProForReferent = (req, res, next) => {
           }
         })
 
-      //const messages = []
-      // trouver tous les messages où le sender est le pro
-      // autrement dit les messages qu'à reçu le student
-      // on les trouve en recherchant les messages où les recipient sont les élèves
-      // for (let i = 0; i < students.length; i++) {
-      //   const student = students[i]
-
-      //   const message = await Message.find({
-      //       recipient: new ObjectId(student._id),
-      //     })
-      //     .select('-files -recipient -__v')
-      //     .populate({
-      //       path: 'sender', // pro
-      //       select: '_id email account.first_name account.last_name account.type account.company',
-      //       populate: {
-      //         path: 'account.company',
-      //         select: 'name logo -_id'
-      //       }
-      //     })
-
-      //   //si il y a un message on le return
-      //   if (Boolean(message.length)) {
-      //     messages.push(...message)
-      //   }
-      // }
-
-      // trouver tous les messages où le sender est le student
-      // autrement dit les messages qu'à reçu le référent
-      // on les trouve en recherchant les messages où les sender sont les élèves
-      // for (let i = 0; i < students.length; i++) {
-      //   const student = students[i]
-
-      //   const message = await Message.find({
-      //       sender: new ObjectId(student._id)
-      //     })
-      //     .select('-files -recipient -__v')
-      //     .populate({
-      //       path: 'sender', // étudiant
-      //       select: '_id email account.picture account.curriculum account.first_name account.last_name account.type',
-      //     })
-
-      //   //si il y a un message on le return
-      //   if (Boolean(message.length)) {
-      //     messages.push(...message)
-      //   }
-      // }
-
       //trier les messages par date
       message.sort((a, b) => new Date(b.date) - new Date(a.date))
 
       //console.timeEnd('message.find');
-      console.log(message);
+
 
       res.status(201).json(message)
     })

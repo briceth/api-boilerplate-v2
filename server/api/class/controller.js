@@ -34,10 +34,14 @@ exports.create = (req, res, next) => {
   const {
     body
   } = req
-  console.log("body", req.body)
 
   return Class.create(body)
-    .then(doc => res.status(201).json(doc))
+    .then(doc => {
+      return res.status(201).json({
+        doc,
+        message: `${doc.name} a été ajouté avec success !`
+      })
+    })
     .catch(error => next(error))
 }
 
@@ -75,12 +79,32 @@ exports.addReferent = (req, res, next) => {
 
   return Class.findByIdAndUpdate(id, {
       $set: {
-        referent: req.body.referent
+        referent
       }
     }, {
       new: true
     })
     .then(doc => res.status(201).json(doc))
+    .catch(error => next(error))
+}
+
+exports.removeReferentFromClass = (req, res, next) => {
+  const {
+    id
+  } = req.params
+
+  return Class.findByIdAndUpdate(id, {
+      $unset: {
+        referent: ''
+      }
+    }, {
+      new: true
+    })
+    .then(doc => {
+      return res.status(201).json({
+        message: "Le référent a bien été supprimé !"
+      })
+    })
     .catch(error => next(error))
 }
 

@@ -121,6 +121,8 @@ exports.logIn = (req, res, next) => {
     return res.status(401)
   }
 
+  console.log("req.user", req.user);
+
   if (req.authInfo.newUser) {
     const {
       oauthID,
@@ -147,6 +149,7 @@ exports.logIn = (req, res, next) => {
     token,
     account
   } = req.user
+
   const user = {
     _id,
     oauthID,
