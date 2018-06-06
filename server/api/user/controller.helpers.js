@@ -22,8 +22,8 @@ exports.getApplications = async students => {
         return true // stop searching
       }
     })
-      ? true
-      : false
+      ? 'oui'
+      : 'non'
 
     finalDoc.push({
       account: student.account,
