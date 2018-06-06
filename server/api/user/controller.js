@@ -201,6 +201,32 @@ exports.updateFirstConnection = (req, res, next) => {
     .catch(error => next(error))
 }
 
+exports.updateCreated = (req, res, next) => {
+  const {
+    id
+  } = req.params
+
+  const is_created = {};
+
+  if (req.body.referent) is_created.referent = req.body.referent;
+  if (req.body.class) is_created.class = req.body.class;
+
+  return User.findByIdAndUpdate(id, {
+      $set: {
+        is_created
+      }
+    }, {
+      new: true
+    })
+    .then(user => {
+      return res.status(201).json({
+        message: `le user ${user._id} a été modifié`,
+        user
+      })
+    })
+    .catch(error => next(error))
+}
+
 // DELETE CONTROLLERS
 exports.removeReferent = (req, res, next) => {
   const { id } = req.params
