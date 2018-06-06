@@ -20,22 +20,24 @@ cloudinary.config({
 
 exports.verifyToken = function (req, res, next) {
   User.findOne({
-    token: req.body.token
-  }, (error, user) => {
-    if (error || !user) {
-      return res.status(400).json({
-        error: "We don't have a user with this token in our database"
+      token: req.body.token
+    },
+    (error, user) => {
+      if (error || !user) {
+        return res.status(400).json({
+          error: "We don't have a user with this token in our database"
+        })
+      }
+
+      return res.status(200).json({
+        user
       })
     }
-
-    return res.status(200).json({
-      user
-    })
-  })
+  )
 }
 
 exports.signUp = function (req, res, next) {
-  if (req.err) return res.status(401)
+  if (req.err) return next(err)
 
   User.register(
     new User({
@@ -227,7 +229,7 @@ exports.upload = function (req, res, next) {
     }
 
     return res.json({
-      message: 'File uploaded',
+      message: 'Fichier téléchargé avec succès !',
       image
     })
   })
@@ -242,7 +244,7 @@ exports.deleteUpload = function (req, res, next) {
       })
     }
     return res.json({
-      message: 'File deleted'
+      message: 'Fichier supprimé avec succès !'
     })
   })
 }
@@ -252,47 +254,50 @@ exports.forgotPassword = (req, res, next) => {
     email
   } = req.body
 
-  if (!email) return res.status(400).json({
-    message: 'Email obligatoire'
-  })
+  if (!email)
+    return res.status(400).json({
+      message: 'Email obligatoire'
+    })
   User.findOne({
-    email
-  }, (error, user) => {
-    if (error) {
-      return res.status(500).json({
-        message: 'Erreur serveur'
-      })
-    }
-    if (!user) {
-      return res.status(400).json({
-        error: "Nous n'avons pas pu trouver votre compte."
-      })
-    }
-    // if (!user.emailCheck.valid) {
-    //   return res.status(400).json({ error: 'Your email is not confirmed' })
-    // }
-
-    user.passwordChange = {
-      token: uid2(20),
-      expiryDate: new Date(Date.now() + 86400000)
-    }
-
-    user.save(error => {
+      email
+    },
+    (error, user) => {
       if (error) {
         return res.status(500).json({
           message: 'Erreur serveur'
         })
       }
-      //TODO: décommenter le if
-      //if (config.ENV === 'production') {
-      const url = req.headers.origin
-      mailgunModule.forgotPassword(url, user)
-      //}
-      res.json({
-        message: 'Un email vous a été envoyé pour réinitialiser votre mot de passe.'
+      if (!user) {
+        return res.status(400).json({
+          error: "Nous n'avons pas pu trouver votre compte."
+        })
+      }
+      // if (!user.emailCheck.valid) {
+      //   return res.status(400).json({ error: 'Your email is not confirmed' })
+      // }
+
+      user.passwordChange = {
+        token: uid2(20),
+        expiryDate: new Date(Date.now() + 86400000)
+      }
+
+      user.save(error => {
+        if (error) {
+          return res.status(500).json({
+            message: 'Erreur serveur'
+          })
+        }
+        //TODO: décommenter le if
+        //if (config.ENV === 'production') {
+        const url = req.headers.origin
+        mailgunModule.forgotPassword(url, user)
+        //}
+        res.json({
+          message: 'Un email vous a été envoyé pour réinitialiser votre mot de passe.'
+        })
       })
-    })
-  })
+    }
+  )
 }
 
 exports.resetPassword = (req, res, next) => {
@@ -306,44 +311,47 @@ exports.resetPassword = (req, res, next) => {
 
   if (!password) {
     return res.status(400).json({
-      message: 'Mot de passe obligatoire'
+      message: 'Le mot de passe est obligatoire.'
     })
   }
 
   User.findOne({
-    'passwordChange.token': token
-  }, function (err, user) {
-    if (err) {
-      return res.status(500).json({
-        message: 'Erreur serveur'
+      'passwordChange.token': token
+    },
+    function (err, user) {
+      if (err) {
+        return res.status(500).json({
+          message: 'Erreur serveur.'
+        })
+      }
+
+      if (!user)
+        return res.status(401).json({
+          message: 'Ce lien est invalide.'
+        })
+
+      if (user.passwordChange.expiryDate < Date.now()) {
+        return res.status(401).json({
+          message: 'Ce lien a expiré (la validité des liens est de 24h).'
+        })
+      }
+
+      user.setPassword(password, () => {
+        user.passwordChange.expiryDate = Date.now()
+
+        user.save(error => {
+          if (error) {
+            return res.status(500).json({
+              message: 'Erreur serveur.'
+            })
+          }
+        })
+        res.json({
+          message: 'Mot de passe défini avec succès !'
+        })
       })
     }
-
-    if (!user) return res.status(401).json({
-      message: 'Lien invalide'
-    })
-
-    if (user.passwordChange.expiryDate < Date.now()) {
-      return res.status(401).json({
-        message: 'La validité de ce lien a expiré (plus de 24h)'
-      })
-    }
-
-    user.setPassword(password, () => {
-      user.passwordChange.expiryDate = Date.now()
-
-      user.save(error => {
-        if (error) {
-          return res.status(500).json({
-            message: 'Erreur serveur'
-          })
-        }
-      })
-      res.json({
-        message: 'Mot de passe défini avec succès !'
-      })
-    })
-  })
+  )
 }
 
 // exports.emailCheck = (req, res) => {
