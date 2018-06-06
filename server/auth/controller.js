@@ -85,7 +85,7 @@ exports.signUp = function (req, res, next) {
         const url = req.headers.host //pour localhost et pour l'url de production
 
         if (config.ENV !== 'test' && user.account.type === 'referent') {
-          mailgunModule.sendPassword(url, user, password = "123456")
+          mailgunModule.sendPassword(url, user, req.body.password)
         }
 
         const {
@@ -93,23 +93,22 @@ exports.signUp = function (req, res, next) {
           oauthID,
           token,
           email,
+          is_created,
           account
         } = user
+
         const userCreated = {
           _id,
           oauthID,
           email,
           token,
+          is_created,
           account
         }
 
         return res.status(201).json({
           message: 'User successfully signed up 🤩',
           user: userCreated, //Besoin de user "en entier" pour context
-          email,
-          account,
-          _id,
-          token
         })
       }
     }
@@ -121,20 +120,20 @@ exports.logIn = (req, res, next) => {
     return res.status(401)
   }
 
-  console.log("req.user", req.user);
-
   if (req.authInfo.newUser) {
     const {
       oauthID,
       email,
       first_name,
-      last_name
+      last_name,
+      is_created
     } = req.user
     const user = {
       oauthID,
       email,
       first_name,
-      last_name
+      last_name,
+      is_created
     }
     return res.status(202).json({
       message: 'Welcome to our new user 🤩',
@@ -147,15 +146,16 @@ exports.logIn = (req, res, next) => {
     oauthID,
     email,
     token,
-    account
+    account,
+    is_created
   } = req.user
-
   const user = {
     _id,
     oauthID,
     email,
     token,
-    account
+    account,
+    is_created
   }
   return res.status(200).json({
     message: 'User successfully signed up 🤩',
