@@ -6,7 +6,8 @@
     "phone": "0607080910",
     "is_created": {
       "class": true,
-      "referent": true
+      "referent": true,
+      "student": true
     }
   },
   {
