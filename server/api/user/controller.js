@@ -1,18 +1,11 @@
 const User = require('./model')
 const Class = require('../class/model')
-const {
-  getApplications
-} = require('./controller.helpers')
-const {
-  ObjectId
-} = require('mongoose').Types
-
+const { getApplications } = require('./controller.helpers')
+const { ObjectId } = require('mongoose').Types
 
 // GET CONTROLLERS
 exports.getById = (req, res, next) => {
-  const {
-    id
-  } = req.params
+  const { id } = req.params
 
   return User.findById(id)
     .then(doc => res.status(201).json(doc))
@@ -26,13 +19,11 @@ exports.getAll = (req, res, next) => {
 }
 
 exports.getAllByType = (req, res, next) => {
-  const {
-    type
-  } = req.params
+  const { type } = req.params
 
   return User.find({
-      'account.type': type
-    })
+    'account.type': type
+  })
     .then(docs => res.status(201).json(docs))
     .catch(error => next(error))
 }
@@ -45,16 +36,14 @@ exports.getAllByType = (req, res, next) => {
  * @return {array} - [{_id, account: { class: { name }, first_name, last_name, type, picture }, application: { number, statut } }]
  */
 exports.getStudentsFromCollege = (req, res, next) => {
-  const {
-    id
-  } = req.params
+  const { id } = req.params
 
   User.findById(id)
     .then(doc => {
       User.find({
-          'account.type': 'student',
-          'account.college': new ObjectId(doc._id)
-        })
+        'account.type': 'student',
+        'account.college': new ObjectId(doc._id)
+      })
         .populate({
           path: 'account.class',
           select: 'name -_id'
@@ -63,7 +52,8 @@ exports.getStudentsFromCollege = (req, res, next) => {
           'account.type': 1,
           'account.first_name': 1,
           'account.last_name': 1,
-          'account.picture': 1
+          'account.picture': 1,
+          'account.first_connection': 1
         })
         .sort({
           'account.last_name': 1
@@ -85,16 +75,14 @@ exports.getStudentsFromCollege = (req, res, next) => {
  * @return {array} - [{_id, email, account: { first_name, last_name, type } }]
  */
 exports.getReferentsFromCollege = (req, res, next) => {
-  const {
-    id
-  } = req.params
+  const { id } = req.params
   return User.findById(id)
     .then(doc => {
       if (doc) {
         User.find({
-            'account.type': 'referent',
-            'account.college': new ObjectId(doc._id)
-          })
+          'account.type': 'referent',
+          'account.college': new ObjectId(doc._id)
+        })
           //.populate({path: "account.class", select: 'name -_id'}) //besoin du nom de la classe de l'élève
           .select({
             email: 1,
@@ -125,16 +113,14 @@ exports.getReferentsFromCollege = (req, res, next) => {
  * @return {array} - [{_id, account, application: { statut, number } }]
  */
 exports.getStudentsFromReferent = (req, res, next) => {
-  const {
-    id
-  } = req.params
+  const { id } = req.params
   // 1 - on cherche le reférent par son id
   // 2 - besoin d'avoir tous les élèves du référent
   // 3 - besoin du nom de la classe pour chaque élève
   return User.findById(id)
     .populate({
       path: 'account.students',
-      select: 'account.first_name account.last_name',
+      select: 'account.first_name account.last_name account.first_connection',
       populate: {
         path: 'account.class',
         select: 'name -_id'
@@ -150,9 +136,7 @@ exports.getStudentsFromReferent = (req, res, next) => {
 
 // POST CONTROLLERS
 exports.create = (req, res, next) => {
-  const {
-    body
-  } = req
+  const { body } = req
 
   return User.create(body)
     .then(doc => res.status(201).json(doc))
@@ -161,22 +145,18 @@ exports.create = (req, res, next) => {
 
 // PUT CONTROLLERS
 exports.update = (req, res, next) => {
-  const {
-    body
-  } = req
-  const {
-    id
-  } = req.params
+  const { body } = req
+  const { id } = req.params
 
   return User.findByIdAndUpdate(id, body, {
-      new: true
-    })
+    new: true
+  })
     .then(doc => {
       // change password if user has provided one
       if (body.password) {
-        doc.setPassword(body.password, function (error) {
+        doc.setPassword(body.password, function(error) {
           if (!error) {
-            doc.save(function (error) {
+            doc.save(function(error) {
               if (error) next(error)
             })
           } else {
@@ -196,22 +176,22 @@ exports.update = (req, res, next) => {
  * @return {object} - message & first_connection
  */
 exports.updateFirstConnection = (req, res, next) => {
-  const {
-    first_connection
-  } = req.body
-  const {
-    id
-  } = req.params
+  const { first_connection } = req.body
+  const { id } = req.params
 
-  return User.findByIdAndUpdate(id, {
+  return User.findByIdAndUpdate(
+    id,
+    {
       $set: {
         account: {
           first_connection
         }
       }
-    }, {
+    },
+    {
       new: true
-    })
+    }
+  )
     .then(user => {
       return res.status(201).json({
         message: `le user ${user._id} a été modifié`,
@@ -223,27 +203,24 @@ exports.updateFirstConnection = (req, res, next) => {
 
 // DELETE CONTROLLERS
 exports.removeReferent = (req, res, next) => {
-  const {
-    id
-  } = req.params
+  const { id } = req.params
 
   return User.findByIdAndRemove(id)
     .then(referent => {
       // on enlève le référent à sa classe
       return Class.findByIdAndUpdate(
-          new ObjectId(referent.account.class), {
-            $unset: {
-              referent: 1
-            }
-          }, {
-            new: true
+        new ObjectId(referent.account.class),
+        {
+          $unset: {
+            referent: 1
           }
-        )
+        },
+        {
+          new: true
+        }
+      )
         .then(doc => {
-          const {
-            first_name,
-            last_name
-          } = referent.account
+          const { first_name, last_name } = referent.account
 
           return res.status(201).json({
             message: 'le référent a été supprimé avec succès!',
@@ -254,25 +231,25 @@ exports.removeReferent = (req, res, next) => {
           })
         })
         .catch(error => next(error))
-
     })
     .catch(error => next(error))
 }
 
 exports.removeCollege = (req, res, next) => {
-  const {
-    id
-  } = req.params
+  const { id } = req.params
 
   User.findById(id)
     .then(college => {
       // supprime le collège et tous les élèves et les référents lié à ce collège
       User.remove({
-        $or: [{
-          _id: college._id
-        }, {
-          'account.college': college._id
-        }]
+        $or: [
+          {
+            _id: college._id
+          },
+          {
+            'account.college': college._id
+          }
+        ]
       }).then(doc => {
         return res.status(201).json({
           message: `le collège a été supprimé avec succès! 

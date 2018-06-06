@@ -163,8 +163,9 @@ const UserSchema = new mongoose.Schema({
 
     // student, pro, referent, college, hr, administrator
     first_connection: {
-      type: Boolean,
-      default: true
+      type: Date,
+      required: true,
+      default: Date.now()
     },
 
     last_connection: String, // pro

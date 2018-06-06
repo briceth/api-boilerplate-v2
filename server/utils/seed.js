@@ -1,10 +1,7 @@
 const mongoose = require('mongoose')
 const chalk = require('chalk')
 const faker = require('faker')
-const uid2 = require('uid2')
-const {
-  createUser
-} = require('./modelFactory')
+const { createUser } = require('./modelFactory')
 const User = require('../api/user/model')
 const Class = require('../api/class/model')
 const Application = require('../api/application/model')
@@ -12,9 +9,7 @@ const Offer = require('../api/offer/model')
 const Company = require('../api/company/model')
 const Message = require('../api/message/model')
 const config = require('../../config')
-const {
-  deleteDB
-} = require('./helpers')
+const { deleteDB } = require('./helpers')
 const log = console.log
 faker.locale = 'fr'
 
@@ -134,9 +129,9 @@ const seedStudents = async (number = 20) => {
     for (let j = 0; j < number; j++) {
       // un élève sur deux n'a pas de photo de profil
       const picture =
-        j % 2 === 0 ?
-        `https://randomuser.me/api/portraits/med/men/${i * 10 + j}.jpg` :
-        'undefined'
+        j % 2 === 0
+          ? `https://randomuser.me/api/portraits/med/men/${i * 10 + j}.jpg`
+          : 'undefined'
 
       const student = User.create({
         email: faker.internet.email(),
@@ -146,7 +141,8 @@ const seedStudents = async (number = 20) => {
           picture,
           address: faker.address.streetAddress(),
           loc: [faker.address.longitude(), faker.address.latitude()],
-          diary_picture: 'https://res.cloudinary.com/djexqgocu/image/upload/v1527068284/container-big_rdwvdp.pdf',
+          diary_picture:
+            'https://res.cloudinary.com/djexqgocu/image/upload/v1527068284/container-big_rdwvdp.pdf',
           type: 'student',
           class: classesIds[i],
           college: collegeId //un seul collège pour tous les élèves
@@ -360,27 +356,6 @@ const seedMessages = () => {
   })
 }
 
-const seedAdmin = async () => {
-  log('creating one admin...')
-
-  const admin = await User.create({
-    email: faker.internet.email(),
-    password: '123456',
-    token: uid2(32),
-    account: {
-      first_name: faker.name.firstName(),
-      last_name: faker.name.lastName(),
-      type: 'admin'
-    }
-  })
-
-  log(
-    chalk.bgYellow.bold(
-      `First admin ${admin.account.first_name} added !! 😁 ❤️`
-    )
-  )
-}
-
 const closeConnection = () => {
   mongoose.connection.close(() => {
     log(chalk.magenta('Password for all accounts: azerty 🤫'))
@@ -399,6 +374,5 @@ deleteDB()
   .then(() => seedOffers())
   .then(() => seedApplications())
   .then(() => seedMessages())
-  .then(() => seedAdmin())
   .then(() => closeConnection())
   .catch(error => log(chalk.red(error, '‼️ 👮🏽')))

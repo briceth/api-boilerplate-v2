@@ -5,17 +5,14 @@ const mailgun = require('mailgun-js')({
 })
 
 // templates
-const {
-  mailPassword
-} = require('./sendPassword')
-const {
-  forgotPasswordEmail
-} = require('./forgotPasswordEmail')
+const { mailPassword } = require('./sendPassword')
+const { forgotPasswordEmail } = require('./forgotPasswordEmail')
 
 const log = console.log
 
 module.exports = {
   sendPassword: async (url, user, password) => {
+    console.log('URL', url)
     try {
       const result = await mailgun
         .messages()
