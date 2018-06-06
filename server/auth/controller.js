@@ -18,24 +18,27 @@ cloudinary.config({
   api_secret: config.API_SECRET
 })
 
-exports.verifyToken = function (req, res, next) {
-  User.findOne({
-    token: req.body.token
-  }, (error, user) => {
-    if (error || !user) {
-      return res.status(400).json({
-        error: "We don't have a user with this token in our database"
+exports.verifyToken = function(req, res, next) {
+  User.findOne(
+    {
+      token: req.body.token
+    },
+    (error, user) => {
+      if (error || !user) {
+        return res.status(400).json({
+          error: "We don't have a user with this token in our database"
+        })
+      }
+
+      return res.status(200).json({
+        user
       })
     }
-
-    return res.status(200).json({
-      user
-    })
-  })
+  )
 }
 
-exports.signUp = function (req, res, next) {
-  if (req.err) return res.status(401)
+exports.signUp = function(req, res, next) {
+  if (req.err) return next(err)
 
   User.register(
     new User({
@@ -78,23 +81,17 @@ exports.signUp = function (req, res, next) {
       }
     }),
     req.body.password ? req.body.password : uid2(16), // Le mot de passe doit être obligatoirement le deuxième paramètre transmis à `register` afin d'être crypté
-    function (error, user) {
+    function(error, user) {
       if (error) {
         return next(error)
       } else {
         const url = req.headers.host //pour localhost et pour l'url de production
 
         if (config.ENV !== 'test' && user.account.type === 'referent') {
-          mailgunModule.sendPassword(url, user, password = "123456")
+          mailgunModule.sendPassword(url, user, (password = '123456'))
         }
 
-        const {
-          _id,
-          oauthID,
-          token,
-          email,
-          account
-        } = user
+        const { _id, oauthID, token, email, account } = user
         const userCreated = {
           _id,
           oauthID,
@@ -117,19 +114,10 @@ exports.signUp = function (req, res, next) {
 }
 
 exports.logIn = (req, res, next) => {
-  if (req.err) {
-    return res.status(401)
-  }
-
-  console.log("req.user", req.user);
+  if (req.err) return next(err)
 
   if (req.authInfo.newUser) {
-    const {
-      oauthID,
-      email,
-      first_name,
-      last_name
-    } = req.user
+    const { oauthID, email, first_name, last_name } = req.user
     const user = {
       oauthID,
       email,
@@ -142,13 +130,7 @@ exports.logIn = (req, res, next) => {
     })
   }
 
-  const {
-    _id,
-    oauthID,
-    email,
-    token,
-    account
-  } = req.user
+  const { _id, oauthID, email, token, account } = req.user
 
   const user = {
     _id,
@@ -163,27 +145,31 @@ exports.logIn = (req, res, next) => {
   })
 }
 
-exports.upload = function (req, res, next) {
+exports.upload = function(req, res, next) {
   const avatarConfig = {
     folder: 'avatar',
     public_id: uniqid(),
     allowedFormats: ['jpg', 'png'],
-    transformation: [{
-      width: 200,
-      height: 200,
-      crop: 'thumb',
-      gravity: 'face'
-    }]
+    transformation: [
+      {
+        width: 200,
+        height: 200,
+        crop: 'thumb',
+        gravity: 'face'
+      }
+    ]
   }
   const correspondenceBookConfig = {
     folder: 'correspondence_book',
     public_id: uniqid(),
     allowedFormats: ['jpg', 'png'],
-    transformation: [{
-      width: 400,
-      height: 600,
-      crop: 'thumb'
-    }]
+    transformation: [
+      {
+        width: 400,
+        height: 600,
+        crop: 'thumb'
+      }
+    ]
   }
   const cvConfig = {
     public_id: uniqid(),
@@ -211,7 +197,7 @@ exports.upload = function (req, res, next) {
   }
 
   const filePath = req.files.file.path
-  cloudinary.uploader.upload(filePath, config, function (error, result) {
+  cloudinary.uploader.upload(filePath, config, function(error, result) {
     if (error) {
       return res.status(400).json({
         error: `We couldn't upload your file to our database
@@ -227,14 +213,14 @@ exports.upload = function (req, res, next) {
     }
 
     return res.json({
-      message: 'File uploaded',
+      message: 'Fichier téléchargé avec succès !',
       image
     })
   })
 }
 
-exports.deleteUpload = function (req, res, next) {
-  cloudinary.uploader.destroy(req.query.public_id, function (error, result) {
+exports.deleteUpload = function(req, res, next) {
+  cloudinary.uploader.destroy(req.query.public_id, function(error, result) {
     if (error) {
       return res.status(400).json({
         error: `We couldn't delete your file to our database
@@ -242,95 +228,41 @@ exports.deleteUpload = function (req, res, next) {
       })
     }
     return res.json({
-      message: 'File deleted'
+      message: 'Fichier supprimé avec succès !'
     })
   })
 }
 
 exports.forgotPassword = (req, res, next) => {
-  const {
-    email
-  } = req.body
+  const { email } = req.body
 
-  if (!email) return res.status(400).json({
-    message: 'Email obligatoire'
-  })
-  User.findOne({
-    email
-  }, (error, user) => {
-    if (error) {
-      return res.status(500).json({
-        message: 'Erreur serveur'
-      })
-    }
-    if (!user) {
-      return res.status(400).json({
-        error: "Nous n'avons pas pu trouver votre compte."
-      })
-    }
-    // if (!user.emailCheck.valid) {
-    //   return res.status(400).json({ error: 'Your email is not confirmed' })
-    // }
-
-    user.passwordChange = {
-      token: uid2(20),
-      expiryDate: new Date(Date.now() + 86400000)
-    }
-
-    user.save(error => {
+  if (!email)
+    return res.status(400).json({
+      message: 'Email obligatoire'
+    })
+  User.findOne(
+    {
+      email
+    },
+    (error, user) => {
       if (error) {
         return res.status(500).json({
           message: 'Erreur serveur'
         })
       }
-      //TODO: décommenter le if
-      //if (config.ENV === 'production') {
-      const url = req.headers.origin
-      mailgunModule.forgotPassword(url, user)
-      //}
-      res.json({
-        message: 'Un email vous a été envoyé pour réinitialiser votre mot de passe.'
-      })
-    })
-  })
-}
+      if (!user) {
+        return res.status(400).json({
+          error: "Nous n'avons pas pu trouver votre compte."
+        })
+      }
+      // if (!user.emailCheck.valid) {
+      //   return res.status(400).json({ error: 'Your email is not confirmed' })
+      // }
 
-exports.resetPassword = (req, res, next) => {
-  const {
-    user,
-    body: {
-      password,
-      token
-    }
-  } = req
-
-  if (!password) {
-    return res.status(400).json({
-      message: 'Mot de passe obligatoire'
-    })
-  }
-
-  User.findOne({
-    'passwordChange.token': token
-  }, function (err, user) {
-    if (err) {
-      return res.status(500).json({
-        message: 'Erreur serveur'
-      })
-    }
-
-    if (!user) return res.status(401).json({
-      message: 'Lien invalide'
-    })
-
-    if (user.passwordChange.expiryDate < Date.now()) {
-      return res.status(401).json({
-        message: 'La validité de ce lien a expiré (plus de 24h)'
-      })
-    }
-
-    user.setPassword(password, () => {
-      user.passwordChange.expiryDate = Date.now()
+      user.passwordChange = {
+        token: uid2(20),
+        expiryDate: new Date(Date.now() + 86400000)
+      }
 
       user.save(error => {
         if (error) {
@@ -338,12 +270,70 @@ exports.resetPassword = (req, res, next) => {
             message: 'Erreur serveur'
           })
         }
+        //TODO: décommenter le if
+        //if (config.ENV === 'production') {
+        const url = req.headers.origin
+        mailgunModule.forgotPassword(url, user)
+        //}
+        res.json({
+          message:
+            'Un email vous a été envoyé pour réinitialiser votre mot de passe.'
+        })
       })
-      res.json({
-        message: 'Mot de passe défini avec succès !'
-      })
+    }
+  )
+}
+
+exports.resetPassword = (req, res, next) => {
+  const {
+    user,
+    body: { password, token }
+  } = req
+
+  if (!password) {
+    return res.status(400).json({
+      message: 'Le mot de passe est obligatoire.'
     })
-  })
+  }
+
+  User.findOne(
+    {
+      'passwordChange.token': token
+    },
+    function(err, user) {
+      if (err) {
+        return res.status(500).json({
+          message: 'Erreur serveur.'
+        })
+      }
+
+      if (!user)
+        return res.status(401).json({
+          message: 'Ce lien est invalide.'
+        })
+
+      if (user.passwordChange.expiryDate < Date.now()) {
+        return res.status(401).json({
+          message: 'Ce lien a expiré (la validité des liens est de 24h).'
+        })
+      }
+
+      user.setPassword(password, () => {
+        user.passwordChange.expiryDate = Date.now()
+
+        user.save(error => {
+          if (error) {
+            return res.status(500).json({
+              message: 'Erreur serveur.'
+            })
+          }
+        })
+        res.json({
+          message: 'Mot de passe défini avec succès !'
+        })
+      })
+    }
+  )
 }
 
 // exports.emailCheck = (req, res) => {

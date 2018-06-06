@@ -3,10 +3,6 @@ const LocalStrategy = require('passport-local')
 
 const User = require('../../api/user/model')
 
-function cbi(done, user) {
-  return done(null, user)
-}
-
 passport.use(
   new LocalStrategy(
     {
