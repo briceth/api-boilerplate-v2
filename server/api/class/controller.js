@@ -1,4 +1,5 @@
 const Class = require('./model')
+const User = require('../user/model')
 const ObjectId = require('mongoose').Types.ObjectId
 
 //GET CONTROLLERS
@@ -68,6 +69,8 @@ exports.addStudent = (req, res, next) => {
     .catch(error => next(error))
 }
 
+// 1 - Ajoute un référent à une classe
+// 2 - Ajoute les élèves de la classe à ce référent
 exports.addReferent = (req, res, next) => {
   const {
     id
@@ -84,16 +87,48 @@ exports.addReferent = (req, res, next) => {
     }, {
       new: true
     })
-    .then(doc => res.status(201).json(doc))
+    .then(doc => {
+
+      User.find({
+          'account.class': new ObjectId(id)
+        })
+        .select('_id')
+        .then(students => {
+          console.log("students", students)
+          User.findByIdAndUpdate(referent, {
+              $addToSet: {
+                'account.students': students
+              }
+            }, {
+              new: true
+            })
+            .then(referent => {
+              console.log('referent', referent);
+            })
+            .catch(error => next(error))
+        })
+        .catch(error => next(error))
+
+      return res.status(201).json(doc)
+
+
+    })
     .catch(error => next(error))
 }
 
+// 1 - Supprime le référent d'une classe 
+// 2 - Supprime également les élèves de la classe au référent
 exports.removeReferentFromClass = (req, res, next) => {
   const {
     id
   } = req.params
 
-  return Class.findByIdAndUpdate(id, {
+  const {
+    referent
+  } = req.body
+
+  // 1
+  Class.findByIdAndUpdate(id, {
       $unset: {
         referent: ''
       }
@@ -101,6 +136,26 @@ exports.removeReferentFromClass = (req, res, next) => {
       new: true
     })
     .then(doc => {
+      User.find({
+          'account.class': new ObjectId(id)
+        })
+        .select('_id')
+        .then(students => {
+          // 2 
+          User.findByIdAndUpdate(referent, {
+              $pull: {
+                'account.students': {
+                  $in: students
+                }
+              }
+            }, {
+              new: true
+            })
+            .catch(error => next(error))
+        })
+        .catch(error => next(error))
+
+
       return res.status(201).json({
         message: "Le référent a bien été supprimé !"
       })
