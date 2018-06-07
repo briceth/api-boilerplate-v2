@@ -94,7 +94,7 @@ exports.addReferent = (req, res, next) => {
         })
         .select('_id')
         .then(students => {
-          console.log("students", students)
+          // console.log("students", students)
           User.findByIdAndUpdate(referent, {
               $addToSet: {
                 'account.students': students
@@ -103,7 +103,7 @@ exports.addReferent = (req, res, next) => {
               new: true
             })
             .then(referent => {
-              console.log('referent', referent);
+              //console.log('referent', referent);
             })
             .catch(error => next(error))
         })
