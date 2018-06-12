@@ -1,5 +1,4 @@
 exports.mailPassword = (url, user, password) => {
-  console.log('URL 2', url)
   return {
     from: '<contact@great-api.mailgun.org>',
     to: user.email,
@@ -343,7 +342,7 @@ xmlns:o="urn:schemas-microsoft-com:office:office">
                                                         <p>Pour vous connecter, utilisez votre email et le mot de passe ci-dessous : </p>
                                                         <p>Mot de passe: ${password}</p>
                                                         <p>
-                                                          <a href="http://${url}/auth/connexion" class="btn" mc:disable-tracking="">Accéder au site</a>
+                                                          <a href="${url}/auth/connexion" class="btn" mc:disable-tracking="">Accéder au site</a>
                                                         </p>
                                                         <p>Pour changer le mot de passe, rendez-vous sur votre profil, section "Modifier mon profil".</p>
                                         

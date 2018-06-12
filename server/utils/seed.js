@@ -1,7 +1,9 @@
 const mongoose = require('mongoose')
 const chalk = require('chalk')
 const faker = require('faker')
+
 const { createUser } = require('./modelFactory')
+
 const User = require('../api/user/model')
 const Class = require('../api/class/model')
 const Application = require('../api/application/model')
@@ -31,7 +33,7 @@ const companyIds = []
 const proIds = []
 
 // ADMINISTRATOR
-const seedAdministrators = async (number = 5) => {
+const seedAdministrators = async () => {
   log('creating administrators...')
   const promises = []
 
@@ -328,7 +330,9 @@ const seedMessages = () => {
     for (let j = 0; j < numMessages; j++) {
       const message = Message.create({
         title: `Stage d'assistant ${faker.name.jobTitle().split(' ')[2]}`,
-        content: faker.lorem.paragraph() + 'Aut ut quibusdam. Totam possimus pariatur sed. Eaque aut odio accusantium. Temporibus et molestiae voluptas sunt minima sint eum omnis.Sit non culpa similique voluptatem et id eligendi deserunt. Quasi voluptate sed illum officiis velit. Illum quidem et aut iure ipsa pariatur corrupti consequuntur.Aut ut quibusdam. Totam possimus pariatur sed. Eaque aut odio accusantium. Temporibus et molestiae voluptas sunt minima sint eum omnis.Sit non culpa similique voluptatem et id eligendi deserunt. Quasi voluptate sed illum officiis velit. Illum quidem et aut iure ipsa pariatur corrupti consequuntur.Aut ut quibusdam. Totam possimus pariatur sed. Eaque aut odio accusantium. Temporibus et molestiae voluptas sunt minima sint eum omnis.Sit non culpa similique voluptatem et id eligendi deserunt. Quasi voluptate sed illum officiis velit. Illum quidem et aut iure ipsa pariatur corrupti consequuntur.Aut ut quibusdam. Totam possimus pariatur sed. Eaque aut odio accusantium. Temporibus et molestiae voluptas sunt minima sint eum omnis.Sit non culpa similique voluptatem et id eligendi deserunt. Quasi voluptate sed illum officiis velit. Illum quidem et aut iure ipsa pariatur corrupti consequuntur.Aut ut quibusdam. Totam possimus pariatur sed. Eaque aut odio accusantium. Temporibus et molestiae voluptas sunt minima sint eum omnis.Sit non culpa similique voluptatem et id eligendi deserunt. Quasi voluptate sed illum officiis velit. Illum quidem et aut iure ipsa pariatur corrupti consequuntur.Aut ut quibusdam. Totam possimus pariatur sed. Eaque aut odio accusantium. Temporibus et molestiae voluptas sunt minima sint eum omnis.Sit non culpa similique voluptatem et id eligendi deserunt. Quasi voluptate sed illum officiis velit.',
+        content:
+          faker.lorem.paragraph() +
+          'Aut ut quibusdam. Totam possimus pariatur sed. Eaque aut odio accusantium. Temporibus et molestiae voluptas sunt minima sint eum omnis.Sit non culpa similique voluptatem et id eligendi deserunt. Quasi voluptate sed illum officiis velit. Illum quidem et aut iure ipsa pariatur corrupti consequuntur.Aut ut quibusdam. Totam possimus pariatur sed. Eaque aut odio accusantium. Temporibus et molestiae voluptas sunt minima sint eum omnis.Sit non culpa similique voluptatem et id eligendi deserunt. Quasi voluptate sed illum officiis velit. Illum quidem et aut iure ipsa pariatur corrupti consequuntur.Aut ut quibusdam. Totam possimus pariatur sed. Eaque aut odio accusantium. Temporibus et molestiae voluptas sunt minima sint eum omnis.Sit non culpa similique voluptatem et id eligendi deserunt. Quasi voluptate sed illum officiis velit. Illum quidem et aut iure ipsa pariatur corrupti consequuntur.Aut ut quibusdam. Totam possimus pariatur sed. Eaque aut odio accusantium. Temporibus et molestiae voluptas sunt minima sint eum omnis.Sit non culpa similique voluptatem et id eligendi deserunt. Quasi voluptate sed illum officiis velit. Illum quidem et aut iure ipsa pariatur corrupti consequuntur.Aut ut quibusdam. Totam possimus pariatur sed. Eaque aut odio accusantium. Temporibus et molestiae voluptas sunt minima sint eum omnis.Sit non culpa similique voluptatem et id eligendi deserunt. Quasi voluptate sed illum officiis velit. Illum quidem et aut iure ipsa pariatur corrupti consequuntur.Aut ut quibusdam. Totam possimus pariatur sed. Eaque aut odio accusantium. Temporibus et molestiae voluptas sunt minima sint eum omnis.Sit non culpa similique voluptatem et id eligendi deserunt. Quasi voluptate sed illum officiis velit.',
         date: faker.date.past(),
         sender: proId,
         recipient: studentIds[i]

@@ -18,8 +18,9 @@ cloudinary.config({
   api_secret: config.API_SECRET
 })
 
-exports.verifyToken = function (req, res, next) {
-  User.findOne({
+exports.verifyToken = function(req, res, next) {
+  User.findOne(
+    {
       token: req.body.token
     },
     (error, user) => {
@@ -36,7 +37,7 @@ exports.verifyToken = function (req, res, next) {
   )
 }
 
-exports.signUp = function (req, res, next) {
+exports.signUp = function(req, res, next) {
   if (req.err) return next(err)
 
   User.register(
@@ -80,24 +81,17 @@ exports.signUp = function (req, res, next) {
       }
     }),
     req.body.password ? req.body.password : uid2(16), // Le mot de passe doit être obligatoirement le deuxième paramètre transmis à `register` afin d'être crypté
-    function (error, user) {
+    function(error, user) {
       if (error) {
         return next(error)
       } else {
-        const url = req.headers.host //pour localhost et pour l'url de production
+        const url = req.headers.origin //pour localhost et pour l'url de production
 
         if (config.ENV !== 'test' && user.account.type === 'referent') {
           mailgunModule.sendPassword(url, user, req.body.password)
         }
 
-        const {
-          _id,
-          oauthID,
-          token,
-          email,
-          is_created,
-          account
-        } = user
+        const { _id, oauthID, token, email, is_created, account } = user
 
         const userCreated = {
           _id,
@@ -110,7 +104,7 @@ exports.signUp = function (req, res, next) {
 
         return res.status(201).json({
           message: 'User successfully signed up 🤩',
-          user: userCreated, //Besoin de user "en entier" pour context
+          user: userCreated //Besoin de user "en entier" pour context
         })
       }
     }
@@ -123,13 +117,7 @@ exports.logIn = (req, res, next) => {
   }
 
   if (req.authInfo.newUser) {
-    const {
-      oauthID,
-      email,
-      first_name,
-      last_name,
-      is_created
-    } = req.user
+    const { oauthID, email, first_name, last_name, is_created } = req.user
     const user = {
       oauthID,
       email,
@@ -143,14 +131,7 @@ exports.logIn = (req, res, next) => {
     })
   }
 
-  const {
-    _id,
-    oauthID,
-    email,
-    token,
-    account,
-    is_created
-  } = req.user
+  const { _id, oauthID, email, token, account, is_created } = req.user
   const user = {
     _id,
     oauthID,
@@ -165,27 +146,31 @@ exports.logIn = (req, res, next) => {
   })
 }
 
-exports.upload = function (req, res, next) {
+exports.upload = function(req, res, next) {
   const avatarConfig = {
     folder: 'avatar',
     public_id: uniqid(),
     allowedFormats: ['jpg', 'png'],
-    transformation: [{
-      width: 200,
-      height: 200,
-      crop: 'thumb',
-      gravity: 'face'
-    }]
+    transformation: [
+      {
+        width: 200,
+        height: 200,
+        crop: 'thumb',
+        gravity: 'face'
+      }
+    ]
   }
   const correspondenceBookConfig = {
     folder: 'correspondence_book',
     public_id: uniqid(),
     allowedFormats: ['jpg', 'png'],
-    transformation: [{
-      width: 400,
-      height: 600,
-      crop: 'thumb'
-    }]
+    transformation: [
+      {
+        width: 400,
+        height: 600,
+        crop: 'thumb'
+      }
+    ]
   }
   const cvConfig = {
     public_id: uniqid(),
@@ -213,7 +198,7 @@ exports.upload = function (req, res, next) {
   }
 
   const filePath = req.files.file.path
-  cloudinary.uploader.upload(filePath, config, function (error, result) {
+  cloudinary.uploader.upload(filePath, config, function(error, result) {
     if (error) {
       return res.status(400).json({
         error: `We couldn't upload your file to our database
@@ -235,8 +220,8 @@ exports.upload = function (req, res, next) {
   })
 }
 
-exports.deleteUpload = function (req, res, next) {
-  cloudinary.uploader.destroy(req.query.public_id, function (error, result) {
+exports.deleteUpload = function(req, res, next) {
+  cloudinary.uploader.destroy(req.query.public_id, function(error, result) {
     if (error) {
       return res.status(400).json({
         error: `We couldn't delete your file to our database
@@ -250,15 +235,14 @@ exports.deleteUpload = function (req, res, next) {
 }
 
 exports.forgotPassword = (req, res, next) => {
-  const {
-    email
-  } = req.body
+  const { email } = req.body
 
   if (!email)
     return res.status(400).json({
       message: 'Email obligatoire'
     })
-  User.findOne({
+  User.findOne(
+    {
       email
     },
     (error, user) => {
@@ -293,7 +277,8 @@ exports.forgotPassword = (req, res, next) => {
         mailgunModule.forgotPassword(url, user)
         //}
         res.json({
-          message: 'Un email vous a été envoyé pour réinitialiser votre mot de passe.'
+          message:
+            'Un email vous a été envoyé pour réinitialiser votre mot de passe.'
         })
       })
     }
@@ -303,10 +288,7 @@ exports.forgotPassword = (req, res, next) => {
 exports.resetPassword = (req, res, next) => {
   const {
     user,
-    body: {
-      password,
-      token
-    }
+    body: { password, token }
   } = req
 
   if (!password) {
@@ -315,10 +297,11 @@ exports.resetPassword = (req, res, next) => {
     })
   }
 
-  User.findOne({
+  User.findOne(
+    {
       'passwordChange.token': token
     },
-    function (err, user) {
+    function(err, user) {
       if (err) {
         return res.status(500).json({
           message: 'Erreur serveur.'

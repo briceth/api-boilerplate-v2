@@ -290,7 +290,7 @@ xmlns:o="urn:schemas-microsoft-com:office:office">
                                                         <p class="hero">Il est temps de confirmer ton adresse mail.</p>
                                                         <p>Pour confirmer que vous pouvez recevoir nos emails, cliquez simplement sur le bouton ci-dessous.</p>
                                                         <p>
-                                                          <a href="http://${url}/auth/email_check?token=${
+                                                          <a href="${url}/auth/email_check?token=${
       user.emailCheck.token
     }&email=${
       user.email
