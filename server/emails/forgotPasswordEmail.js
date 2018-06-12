@@ -1,6 +1,6 @@
 exports.forgotPasswordEmail = (url, user) => {
   return {
-    from: '<contact@great-api.mailgun.org>',
+    from: '<contact@viensvoirmontaf.fr>',
     to: user.email,
     subject: 'Mot de passe oublié',
     html: `
@@ -102,6 +102,12 @@ xmlns:o="urn:schemas-microsoft-com:office:office">
         word-wrap: break-word;
         background-color: #f2f5f7;
         border-radius: 3px;
+      }
+
+      .body-wrapper {
+        background: #f2f5f7 url('https://d2yjfm58htokf8.cloudfront.net/static/images/background-v1.png') no-repeat center top;
+        padding: 0px;
+        margin: auto;
       }
 
       .content-wrapper {

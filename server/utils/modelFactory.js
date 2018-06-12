@@ -76,11 +76,11 @@ const createStudent = (options, user, callback, resolve) => {
     faker.address.longitude(),
     faker.address.latitude()
   ]
-  user.account.picture = options.picture ?
-    options.picture === 'undefined' ?
-    undefined :
-    options.picture :
-    faker.image.imageUrl()
+  user.account.picture = options.picture
+    ? options.picture === 'undefined'
+      ? undefined
+      : options.picture
+    : faker.image.imageUrl()
   user.account.diary_picture = options.diary_picture || faker.image.imageUrl()
 
   userRegister(user, password, callback, resolve)
