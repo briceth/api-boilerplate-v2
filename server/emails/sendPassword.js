@@ -1,6 +1,6 @@
 exports.mailPassword = (url, user, password) => {
   return {
-    from: '<contact@great-api.mailgun.org>',
+    from: '<contact@viensvoirmontaf.fr>',
     to: user.email,
     subject: 'Bienvenue - Création de compte',
     html: `

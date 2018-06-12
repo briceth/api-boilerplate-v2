@@ -1,6 +1,6 @@
 exports.forgotPasswordEmail = (url, user) => {
   return {
-    from: '<contact@great-api.mailgun.org>',
+    from: '<contact@viensvoirmontaf.fr>',
     to: user.email,
     subject: 'Mot de passe oublié',
     html: `
