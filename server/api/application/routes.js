@@ -4,6 +4,8 @@ const controller = require('./controller')
 
 router.route('/').post(controller.create)
 
+router.route('/students/:id').get(controller.getApplicationsFromStudent)
+
 router
   .route('/:id')
   .put(controller.update)

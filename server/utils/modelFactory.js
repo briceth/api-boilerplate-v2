@@ -1,102 +1,119 @@
 const uid = require('uid2')
 const User = require('../api/user/model')
 const faker = require('faker')
+faker.locale = 'fr'
 
-exports.createUser = (type, options = {}) => {
-  const user = new User({
-    email: options.email || faker.internet.email(),
-    token: options.token || uid(32),
-    emailCheck: {
-      valid: options.emailCheckValid === false ? false : true,
-      token: options.emailCheckToken || uid(20),
-      createdAt: options.emailCheckCreatedAt || new Date()
-    },
-    passwordChange: {
-      valid: options.passwordChangeValid === false ? false : true,
-      token: options.passwordChangeToken || uid(20),
-      createdAt: options.passwordChangeCreatedAt || new Date()
+exports.createUser = async (options = {}, callback) => {
+  const promise = new Promise((resolve, reject) => {
+    const user = new User({
+      email: options.email || faker.internet.email(),
+      token: options.token || uid(32),
+      emailCheck: {
+        valid: options.emailCheckValid === false ? false : true,
+        token: options.emailCheckToken || uid(20),
+        createdAt: options.emailCheckCreatedAt || new Date()
+      },
+      passwordChange: {
+        valid: options.passwordChangeValid === false ? false : true,
+        token: options.passwordChangeToken || uid(20),
+        createdAt: options.passwordChangeCreatedAt || new Date()
+      },
+      account: {
+        type: options.type
+      }
+    })
+
+    switch (options.type) {
+      case 'administrator':
+        createAdministrator(options, user, callback, resolve)
+        break
+      case 'student':
+        createStudent(options, user, callback, resolve)
+        break
+      case 'college':
+        createCollege(options, user, callback, resolve)
+        break
+      case 'referent':
+        createReferent(options, user, callback, resolve)
+        break
+      default:
+        break
     }
   })
-
-  switch (type) {
-    case 'student':
-      return createStudent(options, user)
-      break
-    case 'college':
-      break
-      return createCollege(options, user)
-    default:
-      break
-  }
+  return promise
 }
 
-async function createStudent(options, user) {
-  const password = options.password || 'password'
+const createAdministrator = (options, user, callback, resolve) => {
+  const password = options.password || 'azerty'
+  user.account.first_name = options.name || faker.name.firstName()
+
+  userRegister(user, password, callback, resolve)
+}
+
+const createReferent = (options, user, callback, resolve) => {
+  const password = options.password || 'azerty'
+  // paramètres obligatoires
+  user.account.class = options.class
+  user.account.college = options.college
+  user.account.students = options.students
 
   user.account.first_name = options.name || faker.name.firstName()
   user.account.last_name = options.last_name || faker.name.lastName()
-  user.account.picture = options.picture || faker.image.imageUrl()
+
+  userRegister(user, password, callback, resolve)
+}
+
+const createStudent = (options, user, callback, resolve) => {
+  const password = options.password || 'azerty'
+  // paramètres obligatoires
+  user.account.class = options.class
+  user.account.college = options.college
+
+  user.account.first_name = options.name || faker.name.firstName()
+  user.account.last_name = options.last_name || faker.name.lastName()
   user.account.address = options.address || faker.address.streetAddress()
-  user.account.type = 'student'
+  user.account.loc = options.loc || [
+    faker.address.longitude(),
+    faker.address.latitude()
+  ]
+  user.account.picture = options.picture
+    ? options.picture === 'undefined'
+      ? undefined
+      : options.picture
+    : faker.image.imageUrl()
+  user.account.diary_picture = options.diary_picture || faker.image.imageUrl()
 
-  const newUser = await User.register(user, password)
-  return newUser
+  userRegister(user, password, callback, resolve)
 }
 
-async function createCollege(user) {
-  const password = options.password || 'password'
+const createCollege = (options, user, callback, resolve) => {
+  const password = options.password || 'azerty'
 
-  user.account.address = options.name || faker.address.streetAddress()
-  user.account.city = options.last_name || faker.address.city()
-  user.account.college_name = options.picture || faker.name.findName()
-  user.account.phone = options.address || faker.phone.phoneNumber()
-  user.account.type = 'college'
+  user.is_created = options.is_created
+  user.account.city = options.city || faker.address.city()
+  user.account.loc = options.loc || [
+    faker.address.longitude(),
+    faker.address.latitude()
+  ]
+  user.account.college_name =
+    options.college_name || `Collège ${faker.name.findName()}`
+  user.account.phone = options.phone || faker.phone.phoneNumber()
 
-  const newUser = await User.register(newUser, password)
-  return newUser
+  userRegister(user, password, callback, resolve)
 }
 
-// options: email, token, password, emailCheckValid, emailCheckToken,
-//          emailCheckCreatedAt, name, description
-// exports.user = (options, callback) => {
-//   return new Promise((resolve, reject) => {
-//     const password = options.password || 'password'
-//     const newUser = new User({
-//       email: options.email || faker.internet.email(),
-//       token: options.token || uid(32),
-//       emailCheck: {
-//         valid: options.emailCheckValid === false ? false : true,
-//         token: options.emailCheckToken || uid(20),
-//         createdAt: options.emailCheckCreatedAt || new Date()
-//       },
-//       passwordChange: {
-//         valid: options.passwordChangeValid === false ? false : true,
-//         token: options.passwordChangeToken || uid(20),
-//         createdAt: options.passwordChangeCreatedAt || new Date()
-//       },
-//       account: {
-//         first_name: options.name || faker.name.firstName(),
-//         last_name: options.last_name || faker.name.lastName(),
-//         picture: options.picture || faker.image.imageUrl(),
-//         address: options.address || faker.address.streetAddress(),
-//         type: options.type
-//       }
-//     })
-
-//     User.register(newUser, password, function(err, user) {
-//       if (err) {
-//         if (!callback) {
-//           reject('Could not create user : ' + err)
-//         } else {
-//           console.error('Could not create user : ' + err)
-//         }
-//       } else {
-//         if (!callback) {
-//           resolve(user)
-//         } else {
-//           callback(user)
-//         }
-//       }
-//     })
-//   })
-// }
+userRegister = async (user, password, callback, resolve) => {
+  await User.register(user, password, (err, user) => {
+    if (err) {
+      if (!callback) {
+        reject(new Error(`Could not create user : ${err}`))
+      } else {
+        console.error(`Could not create user :  ${err}`)
+      }
+    } else if (!callback) {
+      resolve(user)
+    } else {
+      callback(user)
+    }
+  })
+}

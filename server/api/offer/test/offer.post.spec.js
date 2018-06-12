@@ -1,6 +1,5 @@
 const chai = require('chai')
 const expect = require('chai').expect
-const should = require('chai').should()
 const chaiHttp = require('chai-http')
 const faker = require('faker')
 const server = require('../../../../index')

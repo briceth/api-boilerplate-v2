@@ -1,0 +1,16 @@
+[
+  {
+    "email": "college@mail.com",
+    "city": "Paris, France",
+    "loc": [2.3522219000000177, 48.856614],
+    "college_name": "Collège Françoise-Dolto",
+    "phone": "0607080910"
+  },
+  {
+    "email": "collegedeouf@mail.com",
+    "city": "Paris, France",
+    "loc": [2.3522219000000177, 48.856614],
+    "college_name": "Collège De-Ouf",
+    "phone": "0607080910"
+  }
+]

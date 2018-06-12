@@ -6,7 +6,7 @@ const offerSchema = new mongoose.Schema({
     required: true
   },
 
-  content: {
+  description: {
     type: String,
     required: true
   },
@@ -15,6 +15,9 @@ const offerSchema = new mongoose.Schema({
     type: String,
     required: true
   },
+
+  //TODO: add loc ?
+  // idem in seed
 
   starts_at: {
     type: Date,

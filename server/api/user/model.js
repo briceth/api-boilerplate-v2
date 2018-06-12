@@ -1,43 +1,140 @@
 const mongoose = require('mongoose')
 const passportLocalMongoose = require('passport-local-mongoose')
+const uid2 = require('uid2')
 
 const UserSchema = new mongoose.Schema({
+  oauthID: String,
+
   shortId: Number, // shortId is useful when seeding data, it facilitates associations
 
-  email: String,
-
-  emailCheck: {
-    valid: { type: Boolean, default: true }, // change to false to activate emailCheck
-    token: String,
-    createdAt: Date
+  email: {
+    type: String,
+    lowercase: true,
+    trim: true,
+    required: true,
+    dropDups: true
   },
-
-  password: String, //A supprimer
 
   passwordChange: {
-    valid: { type: Boolean, default: true },
     token: String,
-    createdAt: Date
+    expiryDate: Date
   },
 
-  token: String, // Le token permettra d'authentifier l'utilisateur à l'aide du package `passport-http-bearer`
+  token: {
+    type: String,
+    default: uid2(32)
+  }, // Token created with uid2. Will be used for Bear strategy. Should be regenerated when password is changed.}
 
+  // student, pro, hr, referent
   account: {
-    first_name: String, // student, pro, hr, referent
+    first_name: {
+      type: String,
+      trim: true,
+      required: [
+        function() {
+          return ['student', 'pro', 'hr', 'referent'].includes(
+            this.account.type
+          )
+        },
+        'un prénom est requis'
+      ]
+    },
 
-    last_name: String, // student, pro, hr, referent
+    // student, pro, hr, referent
+    last_name: {
+      type: String,
+      trim: true,
+      required: [
+        function() {
+          return ['student', 'pro', 'hr', 'referent'].includes(
+            this.account.type
+          )
+        },
+        'un nom de famille est requis'
+      ]
+    },
 
-    address: String, // student, pro
+    // student, pro
+    address: {
+      type: String,
+      trim: true,
+      required: [
+        function() {
+          return ['student', 'pro'].includes(this.account.type)
+        },
+        'une adresse est requise'
+      ]
+    },
 
-    city: String, // college
+    // student, pro
+    loc: {
+      type: [Number], // Array : longitude et latitude
+      index: '2d',
+      required: [
+        function() {
+          return ['student', 'pro'].includes(this.account.type)
+        },
+        'une géolocalisation est requise'
+      ]
+    },
 
-    phone: String, // college, pro, rh,
+    // college
+    city: {
+      type: String,
+      required: [
+        function() {
+          return ['college'].includes(this.account.type)
+        },
+        'une ville est requise'
+      ]
+    },
+
+    // college, pro, hr,
+    phone: {
+      type: String,
+      required: [
+        function() {
+          return ['college', 'pro', 'hr'].includes(this.account.type)
+        },
+        'un numéro de téléphone est requis'
+      ]
+    },
 
     picture: String, // student
 
-    college_name: String, // college
+    // all
+    color: {
+      type: String,
+      required: true,
+      default: () => {
+        const colors = ['#ef4c31', '#fcb315', '#413091', '#b22672']
+        return colors[Math.floor(Math.random() * colors.length)]
+      }
+    },
 
-    is_active: Boolean, // student, hr
+    // college
+    college_name: {
+      type: String,
+      trim: true,
+      required: [
+        function() {
+          return ['college'].includes(this.account.type)
+        },
+        'un nom de collège est requis'
+      ]
+    },
+
+    // student, hr
+    is_active: {
+      type: Boolean,
+      default: false,
+      required: [
+        function() {
+          return ['student', 'hr'].includes(this.account.type)
+        },
+        "un indicateur d'activité est requis"
+      ]
+    },
 
     diary_picture: String, // student
 
@@ -45,22 +142,94 @@ const UserSchema = new mongoose.Schema({
 
     curriculum: String, // student
 
+    // student, pro, referent, college, hr, administrator
+    first_connection: {
+      type: Date,
+      required: true,
+      default: Date.now()
+    },
+
     last_connection: String, // pro
 
     type: {
       type: String,
-      enum: ['college', 'student', 'hr', 'pro', 'administrator', 'referent']
+      required: true,
+      enum: [
+        'college',
+        'student',
+        'hr',
+        'pro',
+        'administrator',
+        'referent',
+        'admin'
+      ]
     },
-    // Visualisation de tous les élèves d'une classe
-    class: { type: mongoose.Schema.Types.ObjectId, ref: 'Class' }, //student, referent
 
+    // Visualisation de tous les élèves d'une classe
+    class: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: 'Class'
+    }, // student, referent
+
+    // TODO: student, referent
     // Visualisation de tous les élèves d'un collège avec les informations principales
     // Ratacher des élèves à un collège
-    college: { type: mongoose.Schema.Types.ObjectId, ref: 'User' }, // student, referent
+    college: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: 'User'
+    },
 
-    company: { type: mongoose.Schema.Types.ObjectId, ref: 'Company' } // pro, hr
+    // pro, hr
+    company: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: 'Company',
+      required: [
+        function() {
+          return ['pro', 'hr'].includes(this.account.type)
+        },
+        'une société est requise'
+      ]
+    },
+
+    // referent
+    students: [
+      {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: 'User'
+      }
+    ]
   }
 })
+
+// UserSchema.path('email').set(function (value, schemaType) {
+//   // return value + " test";
+//   console.log("value", value);
+//   console.log("schemaType", schemaType);
+//   //this.machin = value
+//   // console.log("value:", this.machin);
+
+// });
+
+// UserSchema.on('update', function (doc, next) {
+//   console.log('post save 1');
+//   console.log(doc);
+
+//   // const user = this
+//   // console.log("email", user.email);
+
+//   // if (!this.isModified('is_created.referent')) {
+
+//   // }
+//   next();
+// });
+
+// UserSchema.on('save', function (doc, next) {
+//   console.log(doc);
+//   // const user = this
+//   // console.log("email", user.email);
+
+//   next();
+// });
 
 UserSchema.plugin(passportLocalMongoose, {
   usernameField: 'email', // Authentification will use `email` instead of `username`
@@ -89,13 +258,33 @@ UserSchema.statics.authenticateBearer = function() {
     if (!token) {
       cb(null, false)
     } else {
-      _self.findOne({ token }, function(err, user) {
-        if (err) return cb(err)
-        if (!user) return cb(null, false)
-        return cb(null, user)
-      })
+      _self.findOne(
+        {
+          token
+        },
+        function(err, user) {
+          if (err) return cb(err)
+          if (!user) return cb(null, false)
+          return cb(null, user)
+        }
+      )
     }
   }
 }
 
 module.exports = mongoose.model('User', UserSchema, 'users')
+
+// emailCheck: {
+//   valid: {
+//     type: Boolean,
+//     default: true
+//   }, // change to false to activate emailCheck
+//   token: {
+//     type: String,
+//     default: uid2(20)
+//   },
+//   createdAt: {
+//     type: Date,
+//     default: Date.now
+//   }
+// },

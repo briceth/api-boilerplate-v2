@@ -1,6 +1,5 @@
 const chai = require('chai')
 const expect = require('chai').expect
-const should = require('chai').should()
 const chaiHttp = require('chai-http')
 const faker = require('faker')
 const server = require('../../../../index')
@@ -50,6 +49,7 @@ describe(`/classes`, () => {
         'students',
         'date',
         '_id',
+        'name',
         'college'
       )
       Object.keys(result.body[0]).every(key => expect(key).to.exist)
@@ -61,7 +61,7 @@ describe(`/classes`, () => {
   })
 
   describe('GET /classes/college/:id', () => {
-    it('should get a list of classes of given college', async () => {
+    it('should get a list of classes of given college => controlleur: getClassFromCollege', async () => {
       const result = await chai
         .request(server)
         .get(`/api/classes/college/${college._id}`)
@@ -71,18 +71,15 @@ describe(`/classes`, () => {
       expect(result.body).to.be.an('array')
       expect(result.body[0]).to.include.all.keys(
         'is_active',
-        'students',
         'date',
         '_id',
-        'college'
+        'name',
       )
       Object.keys(result.body[0]).every(key => expect(key).to.exist)
       expect(result.body[0]._id).to.be.a('string')
       expect(result.body[0].name).to.be.a('string')
-      expect(result.body[0].college).to.be.a('string')
       expect(result.body[0].date).to.be.a('string')
-      expect(result.body[0].students).to.be.an('array')
-      expect(result.body[0].students).to.be.empty
+      expect(result.body[0].is_active).to.be.a('boolean')
     })
   })
 })

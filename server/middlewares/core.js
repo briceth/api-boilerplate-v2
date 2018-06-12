@@ -1,27 +1,41 @@
 const passport = require('passport')
+const config = require('../../config')
+const User = require('../api/user/model')
+const {
+  ObjectId
+} = require('mongoose').Types
 
-exports.errorHandler = function(err, req, res) {
+
+exports.errorHandler = (error, req, res, next) => {
   if (res.statusCode === 200) res.status(400)
-  console.error(err)
-
-  if (config.ENV === 'production') err = 'An error occurred'
-  res.json({ error: err })
+  if (config.ENV === 'production') error = 'An error occurred'
+  return res.json({
+    error
+  })
 }
 
-exports.checkLoggedIn = function(req, res, next) {
-  passport.authenticate('bearer', { session: false }, function(
-    err,
-    user,
-    info
-  ) {
-    if (err) {
-      res.status(400)
-      return _errorHandler(err.message)
-    }
-    if (!user) {
-      return res.status(401).json({ error: 'Unauthorized' })
-    }
-    req.currentUser = user
-    next()
-  })(req, res, next)
+/**
+ * Vérifie si req.user._id (from token) match avec le req.params.id qui doit être modifié
+ * @param {string} req.params.id
+ * @param {string} req.user._id
+ * @return {next()} 
+ */
+exports.canUser = (req, res, next) => {
+  const Id = req.params.id || req.body.id
+
+  if (new ObjectId(req.user._id).equals(Id)) {
+    return next()
+  } else if (req.user.account.type === 'admin') {
+    return next()
+  } else {
+    res.send("this is not the good user")
+  }
+}
+
+exports.isAdmin = (req, res, next) => {
+  if (req.user.account.type === 'admin') {
+    return next()
+  } else {
+    res.send("you are not admin")
+  }
 }

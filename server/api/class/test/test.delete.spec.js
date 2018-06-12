@@ -1,6 +1,5 @@
 const chai = require('chai')
 const expect = require('chai').expect
-const should = require('chai').should()
 const chaiHttp = require('chai-http')
 const faker = require('faker')
 const server = require('../../../../index')
@@ -12,6 +11,7 @@ describe(`/classes`, () => {
   let newClass
   let student
   let college
+
   beforeEach(async () => {
     await Class.remove()
     await User.remove()
@@ -57,7 +57,9 @@ describe(`/classes`, () => {
 
       expect(result).to.have.status(201)
       expect(result).to.be.json
-      expect(result.body.students).to.be.an('array')
+      expect(result.body).to.be.an('object')
+      expect(result.body.id).to.be.a('string')
+      expect(result.body.message).to.be.a('string')
     })
   })
 })
