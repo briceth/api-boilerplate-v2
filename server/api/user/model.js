@@ -15,24 +15,6 @@ const UserSchema = new mongoose.Schema({
     dropDups: true
   },
 
-  // permet de savoir si un college
-  // a créer sa première classe ou référent
-  // et de lui afficher le tuto en fonction
-  is_created: {
-    class: {
-      type: Boolean,
-        default: false
-    },
-    referent: {
-      type: Boolean,
-      default: false
-    },
-    student: {
-      type: Boolean,
-      default: false
-    }
-  },
-
   passwordChange: {
     token: String,
     expiryDate: Date
@@ -49,7 +31,7 @@ const UserSchema = new mongoose.Schema({
       type: String,
       trim: true,
       required: [
-        function () {
+        function() {
           return ['student', 'pro', 'hr', 'referent'].includes(
             this.account.type
           )
@@ -63,7 +45,7 @@ const UserSchema = new mongoose.Schema({
       type: String,
       trim: true,
       required: [
-        function () {
+        function() {
           return ['student', 'pro', 'hr', 'referent'].includes(
             this.account.type
           )
@@ -77,7 +59,7 @@ const UserSchema = new mongoose.Schema({
       type: String,
       trim: true,
       required: [
-        function () {
+        function() {
           return ['student', 'pro'].includes(this.account.type)
         },
         'une adresse est requise'
@@ -89,7 +71,7 @@ const UserSchema = new mongoose.Schema({
       type: [Number], // Array : longitude et latitude
       index: '2d',
       required: [
-        function () {
+        function() {
           return ['student', 'pro'].includes(this.account.type)
         },
         'une géolocalisation est requise'
@@ -100,7 +82,7 @@ const UserSchema = new mongoose.Schema({
     city: {
       type: String,
       required: [
-        function () {
+        function() {
           return ['college'].includes(this.account.type)
         },
         'une ville est requise'
@@ -111,7 +93,7 @@ const UserSchema = new mongoose.Schema({
     phone: {
       type: String,
       required: [
-        function () {
+        function() {
           return ['college', 'pro', 'hr'].includes(this.account.type)
         },
         'un numéro de téléphone est requis'
@@ -135,7 +117,7 @@ const UserSchema = new mongoose.Schema({
       type: String,
       trim: true,
       required: [
-        function () {
+        function() {
           return ['college'].includes(this.account.type)
         },
         'un nom de collège est requis'
@@ -147,7 +129,7 @@ const UserSchema = new mongoose.Schema({
       type: Boolean,
       default: false,
       required: [
-        function () {
+        function() {
           return ['student', 'hr'].includes(this.account.type)
         },
         "un indicateur d'activité est requis"
@@ -172,13 +154,21 @@ const UserSchema = new mongoose.Schema({
     type: {
       type: String,
       required: true,
-      enum: ['college', 'student', 'hr', 'pro', 'administrator', 'referent', 'admin']
+      enum: [
+        'college',
+        'student',
+        'hr',
+        'pro',
+        'administrator',
+        'referent',
+        'admin'
+      ]
     },
 
     // Visualisation de tous les élèves d'une classe
     class: {
       type: mongoose.Schema.Types.ObjectId,
-        ref: 'Class'
+      ref: 'Class'
     }, // student, referent
 
     // TODO: student, referent
@@ -194,7 +184,7 @@ const UserSchema = new mongoose.Schema({
       type: mongoose.Schema.Types.ObjectId,
       ref: 'Company',
       required: [
-        function () {
+        function() {
           return ['pro', 'hr'].includes(this.account.type)
         },
         'une société est requise'
@@ -202,13 +192,14 @@ const UserSchema = new mongoose.Schema({
     },
 
     // referent
-    students: [{
-      type: mongoose.Schema.Types.ObjectId,
-      ref: 'User'
-    }]
+    students: [
+      {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: 'User'
+      }
+    ]
   }
 })
-
 
 // UserSchema.path('email').set(function (value, schemaType) {
 //   // return value + " test";
@@ -228,7 +219,6 @@ const UserSchema = new mongoose.Schema({
 
 //   // if (!this.isModified('is_created.referent')) {
 
-
 //   // }
 //   next();
 // });
@@ -241,19 +231,16 @@ const UserSchema = new mongoose.Schema({
 //   next();
 // });
 
-
-
-
 UserSchema.plugin(passportLocalMongoose, {
   usernameField: 'email', // Authentification will use `email` instead of `username`
   session: false // no session in API
 })
 
 // Cette méthode sera utilisée par la strategie `passport-local` pour trouver un utilisateur en fonction de son `email` et `password`
-UserSchema.statics.authenticateLocal = function () {
+UserSchema.statics.authenticateLocal = function() {
   const _self = this
-  return function (req, email, password, cb) {
-    _self.findByUsername(email, true, function (err, user) {
+  return function(req, email, password, cb) {
+    _self.findByUsername(email, true, function(err, user) {
       if (err) return cb(err)
       if (user) {
         return user.authenticate(password, cb)
@@ -265,16 +252,17 @@ UserSchema.statics.authenticateLocal = function () {
 }
 
 // Cette méthode sera utilisée par la strategie `passport-http-bearer` pour trouver un utilisateur en fonction de son `token`
-UserSchema.statics.authenticateBearer = function () {
+UserSchema.statics.authenticateBearer = function() {
   const _self = this
-  return function (token, cb) {
+  return function(token, cb) {
     if (!token) {
       cb(null, false)
     } else {
-      _self.findOne({
+      _self.findOne(
+        {
           token
         },
-        function (err, user) {
+        function(err, user) {
           if (err) return cb(err)
           if (!user) return cb(null, false)
           return cb(null, user)
@@ -285,7 +273,6 @@ UserSchema.statics.authenticateBearer = function () {
 }
 
 module.exports = mongoose.model('User', UserSchema, 'users')
-
 
 // emailCheck: {
 //   valid: {
