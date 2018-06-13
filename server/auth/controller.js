@@ -38,7 +38,11 @@ exports.verifyToken = function(req, res, next) {
 }
 
 exports.signUp = function(req, res, next) {
+  console.log('COUCOU')
+  console.log('req.err', req.err)
   if (req.err) return next(err)
+
+  console.log('ICI CEST BIEN')
 
   User.register(
     new User({
