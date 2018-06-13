@@ -1,6 +1,6 @@
 exports.forgotPasswordEmail = (url, user) => {
   return {
-    from: '<contact@great-api.mailgun.org>',
+    from: '<contact@viensvoirmontaf.fr>',
     to: user.email,
     subject: 'Mot de passe oublié',
     html: `
@@ -102,6 +102,12 @@ xmlns:o="urn:schemas-microsoft-com:office:office">
         word-wrap: break-word;
         background-color: #f2f5f7;
         border-radius: 3px;
+      }
+
+      .body-wrapper {
+        background: #ffffff url('https://res.cloudinary.com/vvmt/image/upload/v1528808279/assets/motif_1-compressor.png') no-repeat center top;
+        padding: 0px;
+        margin: auto;
       }
 
       .content-wrapper {
@@ -242,7 +248,7 @@ xmlns:o="urn:schemas-microsoft-com:office:office">
                                                         <tbody>
                                                           <tr>
                                                             <td>
-                                                              <img src="https://res.cloudinary.com/vibein/image/upload/v1527759705/vvmt/logo-vvmt-compressor.png" alt="Logo" style="max-width: 250px;" />
+                                                              <img src="https://res.cloudinary.com/vvmt/image/upload/v1528897029/logo-vvmt-compressor.png" alt="Logo" style="max-width: 250px;" />
                                                             </td>
                                                           </tr>
                                                         </tbody>

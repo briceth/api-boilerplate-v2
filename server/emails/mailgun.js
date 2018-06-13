@@ -8,11 +8,8 @@ const mailgun = require('mailgun-js')({
 const { mailPassword } = require('./sendPassword')
 const { forgotPasswordEmail } = require('./forgotPasswordEmail')
 
-const log = console.log
-
 module.exports = {
   sendPassword: async (url, user, password) => {
-    console.log('URL', url)
     try {
       const result = await mailgun
         .messages()
@@ -27,7 +24,7 @@ module.exports = {
       const result = await mailgun
         .messages()
         .send(forgotPasswordEmail(url, user))
-      log('Mail body:', result)
+      console.log('Mail body:', result)
     } catch (error) {
       console.error('Mail error:', error)
     }
