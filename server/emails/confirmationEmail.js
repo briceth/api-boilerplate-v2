@@ -107,7 +107,7 @@ xmlns:o="urn:schemas-microsoft-com:office:office">
       }
 
       .body-wrapper {
-        background: #f2f5f7 url('https://res.cloudinary.com/vibein/image/upload/v1528205164/vvmt/background.png') no-repeat center top;
+        background: #ffffff url('https://res.cloudinary.com/vvmt/image/upload/v1528808279/assets/motif_1-compressor.png') no-repeat center top;
         padding: 0px;
         margin: auto;
       }

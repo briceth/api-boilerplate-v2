@@ -29,6 +29,11 @@ switch (ENV) {
     config.MONGODB_URI = 'mongodb://localhost/api-vvmt-test'
     break
 
+  case 'staging':
+    config.PORT = parseInt(process.env.PORT)
+    config.MONGODB_URI = process.env.MONGODB_URI
+    break
+
   case 'production':
   case 'prod':
     config.PORT = parseInt(process.env.PORT)
