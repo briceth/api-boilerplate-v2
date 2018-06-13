@@ -107,7 +107,7 @@ xmlns:o="urn:schemas-microsoft-com:office:office">
       }
 
       .body-wrapper {
-        background: #f2f5f7 url('https://res.cloudinary.com/vibein/image/upload/v1528205164/vvmt/background.png') no-repeat center top;
+        background: #ffffff url('https://res.cloudinary.com/vvmt/image/upload/v1528808279/assets/motif_1-compressor.png') no-repeat center top;
         padding: 0px;
         margin: auto;
       }
@@ -290,7 +290,7 @@ xmlns:o="urn:schemas-microsoft-com:office:office">
                                                         <p class="hero">Il est temps de confirmer ton adresse mail.</p>
                                                         <p>Pour confirmer que vous pouvez recevoir nos emails, cliquez simplement sur le bouton ci-dessous.</p>
                                                         <p>
-                                                          <a href="http://${url}/auth/email_check?token=${
+                                                          <a href="${url}/auth/email_check?token=${
       user.emailCheck.token
     }&email=${
       user.email

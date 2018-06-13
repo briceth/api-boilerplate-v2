@@ -6,9 +6,9 @@ const config = {
   MAILGUN_API_KEY: process.env.MAILGUN_API_KEY,
   MAILGUN_DOMAIN: process.env.MAILGUN_DOMAIN,
 
-  CLOUD_NAME: process.env.CLOUD_NAME,
-  API_KEY: process.env.API_KEY,
-  API_SECRET: process.env.API_SECRET,
+  CLOUDINARY_CLOUD_NAME: process.env.CLOUDINARY_CLOUD_NAME,
+  CLOUDINARY_API_KEY: process.env.CLOUDINARY_API_KEY,
+  CLOUDINARY_API_SECRET: process.env.CLOUDINARY_API_SECRET,
 
   FACEBOOK_CLIENT_ID: process.env.FACEBOOK_CLIENT_ID,
   FACEBOOK_CLIENT_SECRET: process.env.FACEBOOK_CLIENT_SECRET,
@@ -27,6 +27,11 @@ switch (ENV) {
   case 'test':
     config.PORT = parseInt(process.env.APP_PORT_TEST)
     config.MONGODB_URI = 'mongodb://localhost/api-vvmt-test'
+    break
+
+  case 'staging':
+    config.PORT = parseInt(process.env.PORT)
+    config.MONGODB_URI = process.env.MONGODB_URI
     break
 
   case 'production':

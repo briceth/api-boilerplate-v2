@@ -1,7 +1,6 @@
 exports.mailPassword = (url, user, password) => {
-  console.log('URL 2', url)
   return {
-    from: '<contact@great-api.mailgun.org>',
+    from: '<contact@viensvoirmontaf.fr>',
     to: user.email,
     subject: 'Bienvenue - Création de compte',
     html: `
@@ -106,7 +105,7 @@ xmlns:o="urn:schemas-microsoft-com:office:office">
       }
 
       .body-wrapper {
-        background: #f2f5f7 url('https://d2yjfm58htokf8.cloudfront.net/static/images/background-v1.png') no-repeat center top;
+        background: #ffffff url('https://res.cloudinary.com/vvmt/image/upload/v1528808279/assets/motif_1-compressor.png') no-repeat center top;
         padding: 0px;
         margin: auto;
       }
@@ -249,7 +248,7 @@ xmlns:o="urn:schemas-microsoft-com:office:office">
                                                         <tbody>
                                                           <tr>
                                                             <td style="width:150px;">
-                                                              <img src="https://res.cloudinary.com/vibein/image/upload/v1527759705/vvmt/logo-vvmt-compressor.png" alt="Logo" style="max-width: 250px;" />
+                                                              <img src="https://res.cloudinary.com/vvmt/image/upload/v1528897029/logo-vvmt-compressor.png" alt="Logo" style="max-width: 250px;" />
                                                             </td>
                                                           </tr>
                                                         </tbody>
@@ -343,7 +342,7 @@ xmlns:o="urn:schemas-microsoft-com:office:office">
                                                         <p>Pour vous connecter, utilisez votre email et le mot de passe ci-dessous : </p>
                                                         <p>Mot de passe: ${password}</p>
                                                         <p>
-                                                          <a href="http://${url}/auth/connexion" class="btn" mc:disable-tracking="">Accéder au site</a>
+                                                          <a href="${url}/auth/connexion" class="btn" mc:disable-tracking="">Accéder au site</a>
                                                         </p>
                                                         <p>Pour changer le mot de passe, rendez-vous sur votre profil, section "Modifier mon profil".</p>
                                         

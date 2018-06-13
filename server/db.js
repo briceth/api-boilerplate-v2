@@ -5,8 +5,7 @@ exports.connect = () => {
   return mongoose.connect(
     config.MONGODB_URI,
     error => {
-      if (error)
-        console.error('Could not connect to mongodb...💩 💩', error.message)
+      if (error) console.error('Could not connect to mongodb...💩 💩', error)
     }
   )
 }
