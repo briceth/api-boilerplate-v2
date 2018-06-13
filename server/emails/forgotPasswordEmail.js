@@ -105,7 +105,7 @@ xmlns:o="urn:schemas-microsoft-com:office:office">
       }
 
       .body-wrapper {
-        background: #f2f5f7 url('https://d2yjfm58htokf8.cloudfront.net/static/images/background-v1.png') no-repeat center top;
+        background: #ffffff url('https://res.cloudinary.com/vvmt/image/upload/v1528808279/assets/motif_1-compressor.png') no-repeat center top;
         padding: 0px;
         margin: auto;
       }
@@ -248,7 +248,7 @@ xmlns:o="urn:schemas-microsoft-com:office:office">
                                                         <tbody>
                                                           <tr>
                                                             <td>
-                                                              <img src="https://res.cloudinary.com/vibein/image/upload/v1527759705/vvmt/logo-vvmt-compressor.png" alt="Logo" style="max-width: 250px;" />
+                                                              <img src="https://res.cloudinary.com/vvmt/image/upload/v1528897029/logo-vvmt-compressor.png" alt="Logo" style="max-width: 250px;" />
                                                             </td>
                                                           </tr>
                                                         </tbody>
