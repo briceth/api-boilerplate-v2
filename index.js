@@ -5,7 +5,7 @@ const server = app.listen(config.PORT, () => {
   console.log(
     `API running on port ${
       config.PORT
-    } | ${config.ENV.toUpperCase()} environnement | MONGO_URI: ${
+    } | ${config.ENV.toUpperCase()} environnement | MONGOD_URI: ${
       config.MONGODB_URI
     } \n`
   )
