@@ -9,7 +9,7 @@ const log = console.log
 
 chai.use(chaiHttp)
 
-describe.only("PUT STUDENT", () => {
+describe('PUT STUDENT', () => {
   let student
 
   beforeEach(async () => {

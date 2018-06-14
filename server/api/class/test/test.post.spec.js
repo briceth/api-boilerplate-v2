@@ -2,13 +2,13 @@ const chai = require('chai')
 const expect = require('chai').expect
 const chaiHttp = require('chai-http')
 const faker = require('faker')
+const uid2 = require('uid2')
 const server = require('../../../../index')
 const User = require('../../user/model')
 const Class = require('../model')
 const log = console.log
 
-describe(`/classes`, () => {
-  let newClass
+describe('/classes', () => {
   let college
 
   beforeEach(async () => {
@@ -18,9 +18,10 @@ describe(`/classes`, () => {
     college = await User.create({
       email: faker.internet.email(),
       account: {
+        token: uid2(32),
         address: faker.address.streetAddress(),
         city: faker.address.city(),
-        college_name: faker.name.findName(),
+        college_name: `Collège ${faker.name.findName()}`,
         phone: faker.phone.phoneNumber(),
         type: 'college'
       }
@@ -36,18 +37,18 @@ describe(`/classes`, () => {
     it('should create a class with his college id', async () => {
       const result = await chai
         .request(server)
-        .post(`/api/classes`)
+        .post('/api/classes')
         .send({
           name: faker.name.findName(),
           college: college._id
         })
-
+        .set('Authorization', `Bearer ${college.token}`)
 
       expect(result).to.have.status(201)
       expect(result).to.be.json
-      expect(result.body.students).to.be.an('array')
-      expect(result.body.students).to.be.empty
-      expect(result.body).to.include.all.keys(
+      expect(result.body.doc.students).to.be.an('array')
+      expect(result.body.doc.students).to.be.empty
+      expect(result.body.doc).to.include.all.keys(
         'is_active',
         'students',
         'date',
@@ -55,10 +56,10 @@ describe(`/classes`, () => {
         'college'
       )
       Object.keys(result.body).every(key => expect(key).to.exist)
-      expect(result.body._id).to.be.a('string')
-      expect(result.body.name).to.be.a('string')
-      expect(result.body.college).to.be.a('string')
-      expect(result.body.date).to.be.a('string')
+      expect(result.body.doc._id).to.be.a('string')
+      expect(result.body.doc.name).to.be.a('string')
+      expect(result.body.doc.college).to.be.a('string')
+      expect(result.body.doc.date).to.be.a('string')
     })
   })
 })

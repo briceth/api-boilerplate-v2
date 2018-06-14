@@ -9,7 +9,7 @@ const usersSpec = require('./users.utils')
 chai.use(chaiHttp)
 const log = console.log
 
-describe.only('/users', () => {
+describe('/users', () => {
   let student
   let college
   let admin
@@ -29,14 +29,13 @@ describe.only('/users', () => {
       }
     })
 
-
     admin = await User.create({
       email: faker.internet.email(),
       token: uid2(32),
       account: {
         first_name: faker.name.firstName(),
         last_name: faker.name.lastName(),
-        type: 'admin',
+        type: 'admin'
       }
     })
   })
@@ -66,7 +65,8 @@ describe.only('/users', () => {
 
   describe('PUT /api/users/first-connection/:id', () => {
     it('users should update his first_connection from TRUE to FALSE', async () => {
-      const result = await chai.request(server)
+      const result = await chai
+        .request(server)
         .put(`/api/users/first-connection/${college._id}`)
         .send({
           first_connection: false

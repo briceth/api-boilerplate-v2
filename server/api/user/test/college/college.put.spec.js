@@ -10,7 +10,7 @@ const log = console.log
 
 chai.use(chaiHttp)
 
-describe.only("PUT COLLEGE", () => {
+describe('PUT COLLEGE', () => {
   let college
 
   beforeEach(async () => {
@@ -41,10 +41,10 @@ describe.only("PUT COLLEGE", () => {
       .send({
         email: faker.internet.email(),
         account: {
-          address: "5 passage Mont-fermeil",
-          city: "Magny les Hameaux",
-          college_name: "college lereacteur",
-          phone: "0145879065"
+          address: '5 passage Mont-fermeil',
+          city: 'Magny les Hameaux',
+          college_name: 'college lereacteur',
+          phone: '0145879065'
         }
       })
 
@@ -52,10 +52,10 @@ describe.only("PUT COLLEGE", () => {
     expect(result).to.be.json
     expect(result.body).to.be.an('object')
     usersSpec(result.body)
-    expect(result.body.account.college_name).to.equal("college lereacteur")
-    expect(result.body.account.address).to.equal("5 passage Mont-fermeil")
-    expect(result.body.account.city).to.equal("Magny les Hameaux")
-    expect(result.body.account.phone).to.equal("0145879065")
+    expect(result.body.account.college_name).to.equal('college lereacteur')
+    expect(result.body.account.address).to.equal('5 passage Mont-fermeil')
+    expect(result.body.account.city).to.equal('Magny les Hameaux')
+    expect(result.body.account.phone).to.equal('0145879065')
 
     // expect(result).to.have.status(201)
     // expect(result).to.be.json

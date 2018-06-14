@@ -2,12 +2,13 @@ const chai = require('chai')
 const expect = require('chai').expect
 const chaiHttp = require('chai-http')
 const faker = require('faker')
+const uid2 = require('uid2')
 const server = require('../../../../index')
 const User = require('../../user/model')
 const Class = require('../model')
 const log = console.log
 
-describe(`/classes`, () => {
+describe('/classes', () => {
   let newClass
   let college
 
@@ -18,6 +19,7 @@ describe(`/classes`, () => {
     college = await User.create({
       email: faker.internet.email(),
       account: {
+        token: uid2(32),
         address: faker.address.streetAddress(),
         city: faker.address.city(),
         college_name: faker.name.findName(),
@@ -39,7 +41,10 @@ describe(`/classes`, () => {
 
   describe('GET /classes', () => {
     it('should get a list of all classes of all colleges', async () => {
-      const result = await chai.request(server).get(`/api/classes`)
+      const result = await chai
+        .request(server)
+        .get('/api/classes')
+        .set('Authorization', `Bearer ${college.token}`)
 
       expect(result).to.have.status(201)
       expect(result).to.be.json
@@ -65,6 +70,7 @@ describe(`/classes`, () => {
       const result = await chai
         .request(server)
         .get(`/api/classes/college/${college._id}`)
+        .set('Authorization', `Bearer ${college.token}`)
 
       expect(result).to.have.status(201)
       expect(result).to.be.json
@@ -73,7 +79,7 @@ describe(`/classes`, () => {
         'is_active',
         'date',
         '_id',
-        'name',
+        'name'
       )
       Object.keys(result.body[0]).every(key => expect(key).to.exist)
       expect(result.body[0]._id).to.be.a('string')

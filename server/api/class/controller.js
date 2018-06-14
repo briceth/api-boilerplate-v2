@@ -2,6 +2,22 @@ const Class = require('./model')
 const User = require('../user/model')
 const { ObjectId } = require('mongoose').Types
 
+//PARAM
+exports.findByParam = (req, res, next, id) => {
+  return Class.findById(id)
+    .then(doc => {
+      if (!doc) {
+        next(new Error('No doc Found'))
+      } else {
+        // console.log('doc', doc)
+
+        req.doc = doc
+        next()
+      }
+    })
+    .catch(error => next(error))
+}
+
 //GET CONTROLLERS
 exports.getAll = (req, res, next) => {
   return Class.find({})
@@ -10,10 +26,10 @@ exports.getAll = (req, res, next) => {
 }
 
 exports.getClassFromCollege = (req, res, next) => {
-  const { id } = req.params
+  const { college } = req.params
 
   return Class.find({
-    college: new ObjectId(id)
+    college: new ObjectId(college)
   })
     .populate({
       path: 'referent',
@@ -62,14 +78,11 @@ exports.create = (req, res, next) => {
 
 //PUT CONTROLLERS
 exports.addStudent = (req, res, next) => {
-  const {
-    params: { student },
-    id
-  } = req
+  const { student } = req.body
 
   //addToSet only update if element is not present
   return Class.findByIdAndUpdate(
-    id,
+    req.doc._id,
     {
       $addToSet: {
         students: student
@@ -86,12 +99,10 @@ exports.addStudent = (req, res, next) => {
 // 1 - Ajoute un référent à une classe
 // 2 - Ajoute les élèves de la classe à ce référent
 exports.addReferent = (req, res, next) => {
-  const { id } = req.params
-
   const { referent } = req.body
 
   return Class.findByIdAndUpdate(
-    id,
+    req.doc._id,
     {
       $set: {
         referent
@@ -103,7 +114,7 @@ exports.addReferent = (req, res, next) => {
   )
     .then(doc => {
       User.find({
-        'account.class': new ObjectId(id)
+        'account.class': new ObjectId(req.doc._id)
       })
         .select('_id')
         .then(students => {
@@ -134,13 +145,11 @@ exports.addReferent = (req, res, next) => {
 // 1 - Supprime le référent d'une classe
 // 2 - Supprime également les élèves de la classe au référent
 exports.removeReferentFromClass = (req, res, next) => {
-  const { id } = req.params
-
   const { referent } = req.body
 
   // 1
-  Class.findByIdAndUpdate(
-    id,
+  return Class.findByIdAndUpdate(
+    req.body._id,
     {
       $unset: {
         referent: ''
@@ -152,7 +161,7 @@ exports.removeReferentFromClass = (req, res, next) => {
   )
     .then(doc => {
       User.find({
-        'account.class': new ObjectId(id)
+        'account.class': new ObjectId(req.body._id)
       })
         .select('_id')
         .then(students => {
@@ -173,7 +182,7 @@ exports.removeReferentFromClass = (req, res, next) => {
         })
         .catch(error => next(error))
 
-      return res.status(201).json({
+      res.status(201).json({
         message: 'Le référent a bien été supprimé !'
       })
     })
@@ -181,13 +190,10 @@ exports.removeReferentFromClass = (req, res, next) => {
 }
 
 exports.toggleActive = (req, res, next) => {
-  const {
-    body: { boolean },
-    params: { id }
-  } = req
+  const { boolean } = req.body
 
   return Class.findByIdAndUpdate(
-    id,
+    req.doc._id,
     {
       $set: {
         is_active: boolean
@@ -197,38 +203,10 @@ exports.toggleActive = (req, res, next) => {
       new: true
     }
   )
-    .then(doc =>
+    .then(doc => {
       res.status(201).json({
         is_active: true
       })
-    )
-    .catch(error => next(error))
-}
-
-//DELETE CONTROLLERS
-exports.removeReferent = (req, res, next) => {
-  const { id } = req.body
-
-  return Class.findByIdAndUpdate(
-    id,
-    {},
-    {
-      new: true
-    }
-  )
-    .then(doc => res.status(201).json(doc))
-    .catch(error => next(error))
-}
-
-exports.delete = (req, res, next) => {
-  const { id } = req.params
-
-  return Class.findByIdAndRemove(id)
-    .then(doc =>
-      res.status(201).json({
-        id: doc.id,
-        message: 'class has been removed'
-      })
-    )
+    })
     .catch(error => next(error))
 }
