@@ -11,7 +11,7 @@ const Offer = require('../../../offer/model')
 const Company = require('../../../company/model')
 const log = console.log
 
-describe.only('GET REFERENT', () => {
+describe('GET REFERENT', () => {
   let referent
   let admin
   let student
@@ -42,7 +42,6 @@ describe.only('GET REFERENT', () => {
       }
     })
 
-
     newClass = await Class.create({
       name: faker.name.findName(),
       college: college._id,
@@ -66,7 +65,7 @@ describe.only('GET REFERENT', () => {
       account: {
         first_name: faker.name.firstName(),
         last_name: faker.name.lastName(),
-        type: 'admin',
+        type: 'admin'
       }
     })
   })

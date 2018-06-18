@@ -12,7 +12,7 @@ const log = console.log
 
 chai.use(chaiHttp)
 
-describe.only('GET COLLEGE', () => {
+describe('GET COLLEGE', () => {
   let student
   let college
   let application
@@ -110,7 +110,6 @@ describe.only('GET COLLEGE', () => {
     await Application.remove({})
   })
 
-
   describe('GET /users/college/:college/students => controlleur: getStudentsFromCollege', () => {
     it('should get a list of students by their college id and with number of applications and statut', async () => {
       const result = await chai
@@ -146,8 +145,6 @@ describe.only('GET COLLEGE', () => {
     })
   })
 
-
-
   describe('GET /users/college/:college/referents => controlleur: getReferentsFromCollege', () => {
     it('should get one referent by his college id', async () => {
       const result = await chai
@@ -161,11 +158,7 @@ describe.only('GET COLLEGE', () => {
       expect(result.body).to.be.an('array')
       expect(result.body).to.have.lengthOf(1)
 
-      expect(result.body[0]).to.include.all.keys(
-        'account',
-        '_id',
-        'email'
-      )
+      expect(result.body[0]).to.include.all.keys('account', '_id', 'email')
       Object.keys(result.body[0]).every(key => expect(key).to.exist) //not empty and not false
 
       expect(result.body[0]._id).to.be.a('string')

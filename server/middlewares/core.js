@@ -26,7 +26,20 @@ exports.canUser = (req, res, next) => {
 
   if (new ObjectId(req.user._id).equals(Id)) {
     return next()
-  } else if (req.user.account.type === 'admin') {
+  } else if (req.user.account.type === 'administrator') {
+    return next()
+  } else {
+    res.send('this is not the good user')
+  }
+}
+
+// Est-ce que l'id college dans le model Class correspond au req.user._id renvoyé par passport (token)
+// req.doc.college vient du middleware findByParam dans class/routes.js
+// intérêt de ce middleware: besoin du college pour savoir si il peut requêter telle ou telle classe
+exports.canCollege = (req, res, next) => {
+  if (new ObjectId(req.user._id).equals(req.doc.college)) {
+    return next()
+  } else if (req.user.account.type === 'administrator') {
     return next()
   } else {
     res.send('this is not the good user')

@@ -11,7 +11,7 @@ const log = console.log
 
 chai.use(chaiHttp)
 
-describe.only('REMOVE REFERENT', () => {
+describe('REMOVE REFERENT', () => {
   let referent
   let classe
   let college
@@ -52,7 +52,6 @@ describe.only('REMOVE REFERENT', () => {
     await Class.remove({})
   })
 
-
   describe('DELETE /users/referent/:id', () => {
     it('should remove the referent and remove it if from the class', async () => {
       const result = await chai
@@ -63,10 +62,7 @@ describe.only('REMOVE REFERENT', () => {
       expect(result).to.have.status(201)
       expect(result).to.be.json
 
-      expect(result.body).to.include.all.keys(
-        'message',
-        'referent'
-      )
+      expect(result.body).to.include.all.keys('message', 'referent')
 
       expect(result.body.referent).to.include.all.keys(
         'first_name',

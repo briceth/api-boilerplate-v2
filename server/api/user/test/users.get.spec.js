@@ -8,7 +8,7 @@ const User = require('../model')
 const log = console.log
 chai.use(chaiHttp)
 
-describe.only('/users', () => {
+describe('/users', () => {
   let student
   let college
   let admin
@@ -46,7 +46,7 @@ describe.only('/users', () => {
       account: {
         first_name: faker.name.firstName(),
         last_name: faker.name.lastName(),
-        type: 'admin',
+        type: 'admin'
       }
     })
   })
@@ -57,7 +57,8 @@ describe.only('/users', () => {
 
   describe('GET /users', () => {
     it('should get an array with one user and one college', async () => {
-      const result = await chai.request(server)
+      const result = await chai
+        .request(server)
         .get('/api/users')
         .set('Authorization', `Bearer ${student.token}`)
 
@@ -69,7 +70,8 @@ describe.only('/users', () => {
 
   describe('GET /users/type/:type', () => {
     it('should get a list of users by his type (student, college, rh etc ...)', async () => {
-      const result = await chai.request(server)
+      const result = await chai
+        .request(server)
         .get('/api/users/type/student')
         .set('Authorization', `Bearer ${student.token}`)
 
