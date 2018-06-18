@@ -35,7 +35,8 @@ exports.getClassFromCollege = (req, res, next) => {
     })
     .select('name date _id is_active')
     .sort({
-      date: 1
+      is_active: -1, // on sort en premier les éléments à true ensuite ceux à false
+      name: 1 // une fois que le sort true/false, on sort par le nom
     })
     .then(async classes => {
       const finalArray = []
