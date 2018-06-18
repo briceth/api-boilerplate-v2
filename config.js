@@ -42,7 +42,7 @@ switch (ENV) {
 
   default:
     console.error(
-      `${env} is not a recognized NODE_ENV (only development, test and production are accepted) ‼️ 😱 `
+      `${env} is not a recognized NODE_ENV (only development, test, staging, and production are accepted) ‼️ 😱 `
     )
 }
 

@@ -154,15 +154,7 @@ const UserSchema = new mongoose.Schema({
     type: {
       type: String,
       required: true,
-      enum: [
-        'college',
-        'student',
-        'hr',
-        'pro',
-        'administrator',
-        'referent',
-        'admin'
-      ]
+      enum: ['college', 'student', 'hr', 'pro', 'administrator', 'referent']
     },
 
     // Visualisation de tous les élèves d'une classe
@@ -231,9 +223,18 @@ const UserSchema = new mongoose.Schema({
 //   next();
 // });
 
+const errorMessages = {
+  MissingPasswordError: 'Mot de passe manquant',
+  MissingUsernameError: 'Email manquant',
+  IncorrectPasswordError: 'Mot de passe ou email invalide',
+  IncorrectUsernameError: 'Mot de passe ou email invalide',
+  UserExistsError: 'Un utilisateur avec cet email existe déjà'
+}
+
 UserSchema.plugin(passportLocalMongoose, {
   usernameField: 'email', // Authentification will use `email` instead of `username`
-  session: false // no session in API
+  session: false, // no session in API
+  errorMessages
 })
 
 // Cette méthode sera utilisée par la strategie `passport-local` pour trouver un utilisateur en fonction de son `email` et `password`

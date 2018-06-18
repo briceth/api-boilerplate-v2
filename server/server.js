@@ -8,6 +8,7 @@ const app = express()
 setupAppMiddleware(app)
 connect()
 
+
 //agenda treats months as 0-11 where as normally, cron months are parsed as 1-12.
 agenda.on('ready', () => {
   agenda.start()
@@ -16,7 +17,7 @@ agenda.on('ready', () => {
 
 app.get('/', (_, res) => {
   res.send('Welcome to the  API.')
-})
+
 
 app.use('/auth', require('./auth/routes'))
 app.use('/api', require('./api'))
