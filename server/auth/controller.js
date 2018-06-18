@@ -1,14 +1,11 @@
 const uid2 = require('uid2')
-const passport = require('passport')
 const cloudinary = require('cloudinary').v2
 const uniqid = require('uniqid')
 
 const config = require('../../config')
 const User = require('../api/user/model')
-const confirmEmail = require('../emails/confirmationEmail')
+// const confirmEmail = require('../emails/confirmationEmail')
 
-const log = console.log
-const error = console.error
 const mailgunModule = require('../emails/mailgun')
 
 // cloudinary credentials
