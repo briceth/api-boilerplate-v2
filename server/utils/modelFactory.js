@@ -45,7 +45,7 @@ exports.createUser = async (options = {}, callback) => {
 
 const createAdministrator = (options, user, callback, resolve) => {
   const password = options.password || 'azerty'
-  user.account.first_name = options.name || faker.name.firstName()
+  user.account.first_name = options.first_name || faker.name.firstName()
 
   userRegister(user, password, callback, resolve)
 }
