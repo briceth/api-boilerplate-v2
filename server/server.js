@@ -1,13 +1,12 @@
 const express = require('express')
 const { connect } = require('./db')
-const { errorHandler, canUser } = require('./middlewares/core')
+const { errorHandler } = require('./middlewares/core')
 const agenda = require('./jobs/agenda')
 const setupAppMiddleware = require('./middlewares/app')
 
 const app = express()
 setupAppMiddleware(app)
 connect()
-
 
 //agenda treats months as 0-11 where as normally, cron months are parsed as 1-12.
 agenda.on('ready', () => {
@@ -17,7 +16,7 @@ agenda.on('ready', () => {
 
 app.get('/', (_, res) => {
   res.send('Welcome to the  API.')
-
+})
 
 app.use('/auth', require('./auth/routes'))
 app.use('/api', require('./api'))
@@ -31,7 +30,6 @@ app.use('/api', require('./api'))
 //     console.log('caching')
 //     return next()
 //   }
-//   console.log('caching')
 
 //   res.setHeader('Cache-Control', 'public, max-age=31557600')
 //   res.json(res.JSONResponse)
