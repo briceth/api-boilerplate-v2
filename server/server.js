@@ -36,13 +36,14 @@ app.use('/api', require('./api'))
 //   res.setHeader('Cache-Control', 'public, max-age=31557600')
 //   res.json(res.JSONResponse)
 // })
-// // Error 404 for all verbs (GET, POST, etc.) when page not found.
-// app.all('*', (req, res) => {
-//   res.status(404).json({
-//     status: 404,
-//     error: 'Not Found'
-//   })
-// })
+
+// Error 404 for all verbs (GET, POST, etc.) when page not found.
+app.all('*', (_, res) => {
+  res.status(404).json({
+    status: 404,
+    error: 'Not Found'
+  })
+})
 
 // Error handling middleware
 // This middleware is call with next(err_msg) within a route
