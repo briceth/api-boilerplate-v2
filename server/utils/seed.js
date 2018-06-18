@@ -134,7 +134,7 @@ const seedStudents = async (number = 20) => {
       const picture =
         j % 2 === 0
           ? `https://randomuser.me/api/portraits/med/men/${i * 10 + j}.jpg`
-          : 'undefined'
+          : undefined
 
       const student = User.create({
         email: faker.internet.email(),
