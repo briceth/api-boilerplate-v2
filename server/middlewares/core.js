@@ -1,16 +1,17 @@
 const passport = require('passport')
 const config = require('../../config')
 const User = require('../api/user/model')
-const {
-  ObjectId
-} = require('mongoose').Types
-
+const { ObjectId } = require('mongoose').Types
 
 exports.errorHandler = (error, req, res, next) => {
-  if (res.statusCode === 200) res.status(400)
-  if (config.ENV === 'production') error = 'An error occurred'
-  return res.json({
-    error
+  // if (res.statusCode === 200) res.status(400)
+  // if (config.ENV === 'production') error = 'An error occurred'
+  // return res.json({
+  //   error
+  // })
+
+  res.status(400).json({
+    error: error
   })
 }
 
@@ -18,7 +19,7 @@ exports.errorHandler = (error, req, res, next) => {
  * Vérifie si req.user._id (from token) match avec le req.params.id qui doit être modifié
  * @param {string} req.params.id
  * @param {string} req.user._id
- * @return {next()} 
+ * @return {next()}
  */
 exports.canUser = (req, res, next) => {
   const Id = req.params.id || req.body.id
@@ -28,7 +29,7 @@ exports.canUser = (req, res, next) => {
   } else if (req.user.account.type === 'admin') {
     return next()
   } else {
-    res.send("this is not the good user")
+    res.send('this is not the good user')
   }
 }
 
@@ -36,6 +37,6 @@ exports.isAdmin = (req, res, next) => {
   if (req.user.account.type === 'admin') {
     return next()
   } else {
-    res.send("you are not admin")
+    res.send('you are not admin')
   }
 }

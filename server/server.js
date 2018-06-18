@@ -9,7 +9,7 @@ setupAppMiddleware(app)
 connect()
 
 app.get('/', (req, res) => {
-  res.send('Welcome to the  API.')
+  res.json({ message: 'Welcome to the  API.' })
 })
 
 app.use('/api', require('./api'))

@@ -1,16 +1,12 @@
-const config = require('../../config')
 const express = require('express')
 const router = express.Router()
 const multipart = require('connect-multiparty')
 const multipartMiddleware = multipart()
 
-const passport = require('passport')
 const passportLocal = require('./strategies/local')
 const passportFacebook = require('./strategies/facebook')
 const passportGoogle = require('./strategies/google')
 
-const { handleResetPasswordErrors } = require('../middlewares/user')
-const { checkLoggedIn } = require('../middlewares/core')
 const controller = require('./controller')
 
 // routes
