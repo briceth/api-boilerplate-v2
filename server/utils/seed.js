@@ -105,6 +105,7 @@ const seedClasses = async (number = 5) => {
     for (let j = 0; j < number; j++) {
       const newClass = await Class.create({
         name: `3ème ${j + 1}`,
+        date: '2017-2018',
         college: collegeIds[i]
       })
 

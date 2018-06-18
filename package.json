@@ -15,6 +15,7 @@
   "author": "LeReacteur",
   "license": "ISC",
   "dependencies": {
+    "agenda": "^1.0.3",
     "body-parser": "^1.18.2",
     "chalk": "^2.4.1",
     "cloudinary": "^1.11.0",
