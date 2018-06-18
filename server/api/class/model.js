@@ -7,7 +7,7 @@ const classSchema = new Schema({
     required: [true, 'un nom est requis']
   },
 
-  date: { type: String, required: true },
+  date: { type: String, required: [true, 'une date est requise'] },
 
   is_active: { type: Boolean, default: true },
 
