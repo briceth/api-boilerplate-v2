@@ -9,8 +9,6 @@ exports.findByParam = (req, res, next, id) => {
       if (!doc) {
         next(new Error('No doc Found'))
       } else {
-        // console.log('doc', doc)
-
         req.doc = doc
         next()
       }
@@ -118,7 +116,6 @@ exports.addReferent = (req, res, next) => {
       })
         .select('_id')
         .then(students => {
-          // console.log("students", students)
           User.findByIdAndUpdate(
             referent,
             {
