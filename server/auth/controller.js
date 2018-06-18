@@ -37,6 +37,12 @@ exports.verifyToken = function(req, res, next) {
 exports.signUp = function(req, res, next) {
   if (req.err) return next(err)
 
+  // rendre la création d'un compte administrateur impossible via cette route
+  const authorizedTypes = ['college', 'student', 'hr', 'pro', 'referent']
+  if (!authorizedTypes.includes(req.body.type)) {
+    return res.status(401).json({ message: 'Unauthorized type' })
+  }
+
   User.register(
     new User({
       email: req.user && req.user.email ? req.user.email : req.body.email,

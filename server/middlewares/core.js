@@ -10,7 +10,6 @@ exports.errorHandler = (error, req, res, next) => {
   //   error
   // })
 
-  console.log('COUCOU ERROR', error)
   res.status(400).json({
     error: error
   })

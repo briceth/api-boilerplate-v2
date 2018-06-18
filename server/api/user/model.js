@@ -154,15 +154,7 @@ const UserSchema = new mongoose.Schema({
     type: {
       type: String,
       required: true,
-      enum: [
-        'college',
-        'student',
-        'hr',
-        'pro',
-        'administrator',
-        'referent',
-        'admin'
-      ]
+      enum: ['college', 'student', 'hr', 'pro', 'administrator', 'referent']
     },
 
     // Visualisation de tous les élèves d'une classe
