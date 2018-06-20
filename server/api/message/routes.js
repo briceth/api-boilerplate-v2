@@ -14,7 +14,7 @@ router.route('/:id/read').put(controller.updateRead)
 
 //retourne les messages des étudiants et des pros pour les référents
 router
-  .route('/referent/:referent/students/pros')
+  .route('/referent/:id/students/pros')
   .get(controller.messagesStudentAndProForReferent)
 
 module.exports = router

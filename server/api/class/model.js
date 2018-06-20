@@ -13,8 +13,6 @@ const classSchema = new Schema({
 
   college: { type: Schema.Types.ObjectId, ref: 'User', required: true },
 
-  students: [{ type: Schema.Types.ObjectId, ref: 'User' }],
-
   referent: { type: Schema.Types.ObjectId, ref: 'User' }
 })
 

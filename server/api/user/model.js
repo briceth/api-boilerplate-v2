@@ -161,7 +161,7 @@ const UserSchema = new mongoose.Schema({
     class: {
       type: mongoose.Schema.Types.ObjectId,
       ref: 'Class'
-    }, // student, referent
+    }, // student (optionnel)
 
     // TODO: student, referent
     // Visualisation de tous les élèves d'un collège avec les informations principales

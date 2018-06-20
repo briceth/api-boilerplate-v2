@@ -1,5 +1,6 @@
 const Message = require('./model')
 const User = require('../user/model')
+const Class = require('../class/model')
 const { ObjectId } = require('mongoose').Types
 
 const { PerformanceObserver, performance } = require('perf_hooks')
@@ -42,46 +43,89 @@ exports.getAll = (req, res, next) => {
 // performance.mark('start')
 exports.messagesStudentAndProForReferent = (req, res, next) => {
   //console.time('message.find');
-  const { referent } = req.params
+  const { id } = req.params
 
-  User.findById(referent)
-    .populate('account.students')
-    .then(async referent => {
-      const { students } = referent.account
+  User.findById(id)
+    .then(referent => {
+      Class.find({ referent: referent._id })
+        .then(classes => {
+          User.find({ 'account.class': { $in: classes } })
+            .then(async students => {
+              const message = await Message.find({
+                $or: [
+                  {
+                    recipient: {
+                      $in: students
+                    }
+                  },
+                  {
+                    sender: {
+                      $in: students
+                    }
+                  }
+                ]
+              })
+                .select('-files -recipient -__v')
+                .populate({
+                  path: 'sender',
+                  select:
+                    '_id email account.color account.picture account.curriculum account.first_name account.last_name account.type account.company',
+                  populate: {
+                    path: 'account.company',
+                    select: 'name logo -_id'
+                  }
+                })
 
-      const message = await Message.find({
-        $or: [
-          {
-            recipient: {
-              $in: students
-            }
-          },
-          {
-            sender: {
-              $in: students
-            }
-          }
-        ]
-      })
-        .select('-files -recipient -__v')
-        .populate({
-          path: 'sender',
-          select:
-            '_id email account.color account.picture account.curriculum account.first_name account.last_name account.type account.company',
-          populate: {
-            path: 'account.company',
-            select: 'name logo -_id'
-          }
+              //trier les messages par date
+              message.sort((a, b) => new Date(b.date) - new Date(a.date))
+
+              //console.timeEnd('message.find');
+
+              res.status(201).json(message)
+            })
+            .catch(error => next(error))
         })
-
-      //trier les messages par date
-      message.sort((a, b) => new Date(b.date) - new Date(a.date))
-
-      //console.timeEnd('message.find');
-
-      res.status(201).json(message)
+        .catch(error => next(error))
     })
     .catch(error => next(error))
+
+  // .populate('account.students')
+  // .then(async referent => {
+  //   const { students } = referent.account
+
+  //   const message = await Message.find({
+  //     $or: [
+  //       {
+  //         recipient: {
+  //           $in: students
+  //         }
+  //       },
+  //       {
+  //         sender: {
+  //           $in: students
+  //         }
+  //       }
+  //     ]
+  //   })
+  //     .select('-files -recipient -__v')
+  //     .populate({
+  //       path: 'sender',
+  //       select:
+  //         '_id email account.color account.picture account.curriculum account.first_name account.last_name account.type account.company',
+  //       populate: {
+  //         path: 'account.company',
+  //         select: 'name logo -_id'
+  //       }
+  //     })
+
+  //   //trier les messages par date
+  //   message.sort((a, b) => new Date(b.date) - new Date(a.date))
+
+  //   //console.timeEnd('message.find');
+
+  //   res.status(201).json(message)
+  // })
+  // .catch(error => next(error))
 }
 
 // performance.mark('end')

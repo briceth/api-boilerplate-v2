@@ -40,6 +40,4 @@ router.get(
   controller.getStudentsFromReferent
 )
 
-router.route('/referent/:id').delete(canUser, controller.removeReferent)
-
 module.exports = router
