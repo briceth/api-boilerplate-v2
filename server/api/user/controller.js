@@ -114,22 +114,27 @@ exports.getReferentsFromCollege = (req, res, next) => {
  */
 exports.getStudentsFromReferent = (req, res, next) => {
   const { id } = req.params
-  // 1 - on cherche le reférent par son id
-  // 2 - besoin d'avoir tous les élèves du référent
+  // 1 - on cherche les classes ayant ce référent
+  // 2 - on cherche les users ayant cette classe
   // 3 - besoin du nom de la classe pour chaque élève
-  return User.findById(id)
-    .populate({
-      path: 'account.students',
-      select: 'account.first_name account.last_name account.first_connection',
-      populate: {
-        path: 'account.class',
-        select: 'name -_id'
+  Class.find({ referent: id })
+    .then(classes => {
+      if (classes.length < 1) {
+        return res.status(201).json({
+          message: 'Aucune classe ne vous a été attribuée'
+        })
       }
-    })
-    .then(async docs => {
-      const result = await getApplications(docs.account.students)
 
-      return res.status(201).json(result)
+      User.find({ 'account.class': { $in: classes } })
+        .populate({
+          path: 'account.class',
+          select: 'name -_id'
+        })
+        .then(async students => {
+          const result = await getApplications(students)
+          return res.status(201).json(result)
+        })
+        .catch(error => next(error))
     })
     .catch(error => next(error))
 }
@@ -202,22 +207,24 @@ exports.updateFirstConnection = (req, res, next) => {
 }
 
 exports.updateCreated = (req, res, next) => {
-  const {
-    id
-  } = req.params
+  const { id } = req.params
 
-  const is_created = {};
+  const is_created = {}
 
-  if (req.body.referent) is_created.referent = req.body.referent;
-  if (req.body.class) is_created.class = req.body.class;
+  if (req.body.referent) is_created.referent = req.body.referent
+  if (req.body.class) is_created.class = req.body.class
 
-  return User.findByIdAndUpdate(id, {
+  return User.findByIdAndUpdate(
+    id,
+    {
       $set: {
         is_created
       }
-    }, {
+    },
+    {
       new: true
-    })
+    }
+  )
     .then(user => {
       return res.status(201).json({
         message: `le user ${user._id} a été modifié`,

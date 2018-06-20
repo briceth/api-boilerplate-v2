@@ -75,33 +75,12 @@ exports.create = (req, res, next) => {
     .catch(error => next(error))
 }
 
-//PUT CONTROLLERS
-exports.addStudent = (req, res, next) => {
-  const { student } = req.body
-
-  //addToSet only update if element is not present
-  return Class.findByIdAndUpdate(
-    req.doc._id,
-    {
-      $addToSet: {
-        students: student
-      }
-    },
-    {
-      new: true
-    }
-  )
-    .then(doc => res.status(201).json(doc))
-    .catch(error => next(error))
-}
-
-// 1 - Ajoute un référent à une classe
-// 2 - Ajoute les élèves de la classe à ce référent
+// Ajoute un référent à une classe
 exports.addReferent = (req, res, next) => {
   const { referent } = req.body
 
   return Class.findByIdAndUpdate(
-    req.doc._id,
+    req.params.id,
     {
       $set: {
         referent
@@ -112,42 +91,16 @@ exports.addReferent = (req, res, next) => {
     }
   )
     .then(doc => {
-      User.find({
-        'account.class': new ObjectId(req.doc._id)
-      })
-        .select('_id')
-        .then(students => {
-          User.findByIdAndUpdate(
-            referent,
-            {
-              $addToSet: {
-                'account.students': students
-              }
-            },
-            {
-              new: true
-            }
-          )
-            .then(referent => {
-              //console.log('referent', referent);
-            })
-            .catch(error => next(error))
-        })
-        .catch(error => next(error))
-
       return res
         .status(201)
-        .json({ doc, message: 'Le référent a bien été ajouté !' })
+        .json({ message: 'Le référent a bien été ajouté !' })
     })
+
     .catch(error => next(error))
 }
 
 // 1 - Supprime le référent d'une classe
-// 2 - Supprime également les élèves de la classe au référent
 exports.removeReferentFromClass = (req, res, next) => {
-  const { referent } = req.body
-
-  // 1
   return Class.findByIdAndUpdate(
     req.params.id,
     {
@@ -160,52 +113,36 @@ exports.removeReferentFromClass = (req, res, next) => {
     }
   )
     .then(doc => {
-      User.find({
-        'account.class': new ObjectId(req.body._id)
-      })
-        .select('_id')
-        .then(students => {
-          // 2
-          User.findByIdAndUpdate(
-            referent,
-            {
-              $pull: {
-                'account.students': {
-                  $in: students
-                }
-              }
-            },
-            {
-              new: true
-            }
-          ).catch(error => next(error))
-        })
-        .catch(error => next(error))
-
-      res.status(201).json({
-        message: 'Le référent a bien été supprimé !'
-      })
+      res.status(201).json({ message: 'Le référent a bien été supprimé !' })
     })
     .catch(error => next(error))
 }
 
+// - Si la classe devient active on ne supprime pas le référent
 exports.toggleActive = (req, res, next) => {
-  const { boolean } = req.body
+  const { is_active } = req.body
 
-  return Class.findByIdAndUpdate(
-    req.params.id,
-    {
-      $set: {
-        is_active: boolean
+  const query = is_active
+    ? {
+        $set: {
+          is_active
+        }
       }
-    },
-    {
-      new: true
-    }
-  )
+    : {
+        $set: {
+          is_active
+        },
+        $unset: {
+          referent: ''
+        }
+      }
+
+  Class.findByIdAndUpdate(req.params.id, query, {
+    new: true
+  })
     .then(doc => {
       res.status(201).json({
-        is_active: true
+        message: 'La changement a bien été effectué'
       })
     })
     .catch(error => next(error))

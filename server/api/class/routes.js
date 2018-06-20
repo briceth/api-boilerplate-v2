@@ -16,8 +16,6 @@ router.put(
   controller.removeReferentFromClass
 )
 
-router.route('/:id').put(canCollege, controller.addStudent)
-
 router.route('/:id/isactive').put(canCollege, controller.toggleActive)
 
 router.route('/:id/referent').put(canCollege, controller.addReferent)
