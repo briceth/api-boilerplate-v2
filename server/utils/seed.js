@@ -177,11 +177,7 @@ const seedReferents = async () => {
       type: 'referent',
       email: `referent${i + 1}@mail.com`,
       class: classesIds[i],
-      college: collegeId,
-      students: studentIds.slice(
-        i * studentsPerClass,
-        (i + 1) * studentsPerClass
-      )
+      college: collegeId
     })
     log(
       chalk.magenta(

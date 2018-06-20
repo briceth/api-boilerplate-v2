@@ -135,7 +135,9 @@ exports.addReferent = (req, res, next) => {
         })
         .catch(error => next(error))
 
-      return res.status(201).json(doc)
+      return res
+        .status(201)
+        .json({ doc, message: 'Le référent a bien été ajouté !' })
     })
     .catch(error => next(error))
 }
@@ -147,7 +149,7 @@ exports.removeReferentFromClass = (req, res, next) => {
 
   // 1
   return Class.findByIdAndUpdate(
-    req.body._id,
+    req.params.id,
     {
       $unset: {
         referent: ''
@@ -191,7 +193,7 @@ exports.toggleActive = (req, res, next) => {
   const { boolean } = req.body
 
   return Class.findByIdAndUpdate(
-    req.doc._id,
+    req.params.id,
     {
       $set: {
         is_active: boolean
