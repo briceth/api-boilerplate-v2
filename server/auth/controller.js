@@ -35,6 +35,8 @@ exports.verifyToken = function(req, res, next) {
 }
 
 exports.signUp = function(req, res, next) {
+  console.log('req.err', req.err)
+  console.log('BODY', req.body)
   if (req.err) return next(err)
 
   // rendre la création d'un compte administrateur impossible via cette route
