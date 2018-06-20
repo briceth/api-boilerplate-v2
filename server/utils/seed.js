@@ -26,6 +26,7 @@ log('db url:', config.MONGODB_URI)
 
 let collegeId
 const collegeIds = []
+const referentIds = []
 const classesIds = []
 const studentIds = []
 const offerIds = []
@@ -95,6 +96,38 @@ const seedColleges = async (number = 5) => {
   })
 }
 
+// REFERENTS
+const seedReferents = async (number = 5) => {
+  log('creating referents...')
+  const promises = []
+
+  // créer un référent par classe
+  for (let i = 0; i < number; i++) {
+    const referent = await createUser({
+      type: 'referent',
+      email: `referent${i + 1}@mail.com`,
+      college: collegeId
+    })
+    log(
+      chalk.magenta(
+        `>> Référent ${i + 1}: ${referent.email} ${
+          referent.account.first_name
+        } ${referent.account.last_name}`
+      )
+    )
+
+    promises.push(referent)
+  }
+
+  return Promise.all(promises).then(referents => {
+    for (let i = 0; i < referents.length; i++) {
+      referentIds.push(referents[i]._id)
+    }
+
+    log(chalk.green(`${referents.length} referents added !! 😁 ❤️`))
+  })
+}
+
 // CLASSES
 const seedClasses = async (number = 5) => {
   log('creating classes for 1st college...')
@@ -106,6 +139,7 @@ const seedClasses = async (number = 5) => {
       const newClass = await Class.create({
         name: `3ème ${j + 1}`,
         date: '2017-2018',
+        ...(i === 0 && { referent: referentIds[j] }),
         college: collegeIds[i]
       })
 
@@ -162,36 +196,6 @@ const seedStudents = async (number = 20) => {
     for (let i = 0; i < students.length; i++) {
       studentIds.push(students[i]._id)
     }
-  })
-}
-
-// REFERENTS
-const seedReferents = async () => {
-  log('creating referents...')
-  const promises = []
-  const studentsPerClass = studentIds.length / classesIds.length
-
-  // créer un référent par classe
-  for (let i = 0; i < classesIds.length; i++) {
-    const referent = await createUser({
-      type: 'referent',
-      email: `referent${i + 1}@mail.com`,
-      class: classesIds[i],
-      college: collegeId
-    })
-    log(
-      chalk.magenta(
-        `>> Référent ${i + 1}: ${referent.email} ${
-          referent.account.first_name
-        } ${referent.account.last_name}`
-      )
-    )
-
-    promises.push(referent)
-  }
-
-  return Promise.all(promises).then(referents => {
-    log(chalk.green(`${referents.length} referents added !! 😁 ❤️`))
   })
 }
 
@@ -367,9 +371,9 @@ const closeConnection = () => {
 deleteDB()
   .then(() => seedAdministrators())
   .then(() => seedColleges(200))
+  .then(() => seedReferents())
   .then(() => seedClasses())
   .then(() => seedStudents())
-  .then(() => seedReferents())
   .then(() => seedCompanies())
   .then(() => seedPros())
   .then(() => seedOffers())
