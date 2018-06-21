@@ -14,7 +14,7 @@ module.exports = {
       const result = await mailgun
         .messages()
         .send(mailPassword(url, user, password))
-      log('Mail body:', result)
+      console.log('Mail body:', result)
     } catch (error) {
       console.error('Mail error:', error)
     }
