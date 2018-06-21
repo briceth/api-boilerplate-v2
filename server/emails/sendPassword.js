@@ -367,6 +367,9 @@ exports.mailPassword = (url, user, password) => {
                                         <p class="hero">Bienvenue sur ViensVoirMonTaf</p>
                                         <p>Pour vous connecter, utilisez votre email et le mot de passe ci-dessous :</p>
                                         <p>Mot de passe: ${password}</p>
+                                        <p>
+                                          <a href="${url}/auth/connexion" class="btn" mc:disable-tracking="">Accéder au site</a>
+                                        </p>
                                         <p>Pour changer le mot de passe, rendez-vous sur votre profil, section "Modifier mon profil".</p>
                                         <p>Si vous ne savez pas pourquoi vous avez reçu cet email, contactez nous afin que nous réglions la situation
                                           pour vous.</p>
