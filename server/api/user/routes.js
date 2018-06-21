@@ -1,8 +1,6 @@
 const express = require('express')
 const router = express.Router()
-const config = require('../../../config')
 const controller = require('./controller')
-const { handleResetPasswordErrors } = require('../../middlewares/user')
 const { canUser } = require('../../middlewares/core')
 
 // Controllers de developpement
