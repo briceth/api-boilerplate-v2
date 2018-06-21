@@ -11,6 +11,7 @@ const UserSchema = new mongoose.Schema({
     type: String,
     lowercase: true,
     trim: true,
+    unique: true,
     required: true,
     dropDups: true
   },
@@ -222,6 +223,14 @@ const UserSchema = new mongoose.Schema({
 
 //   next();
 // });
+
+UserSchema.post('save', function(error, doc, next) {
+  if (error.name === 'MongoError' && error.code === 11000) {
+    next(new Error('email must be unique'))
+  } else {
+    next(error)
+  }
+})
 
 const errorMessages = {
   MissingPasswordError: 'Mot de passe manquant',
