@@ -24,7 +24,7 @@ const UserSchema = new mongoose.Schema({
   token: {
     type: String,
     default: uid2(32)
-  }, // Token created with uid2. Will be used for Bear strategy. Should be regenerated when password is changed.}
+  }, // Token created with uid2. Will be used for Bear strategy. Should be regenerated when password is changed.
 
   // student, pro, hr, referent
   account: {
@@ -137,7 +137,15 @@ const UserSchema = new mongoose.Schema({
       ]
     },
 
-    diary_picture: String, // student
+    diary_picture: {
+      type: String,
+      required: [
+        function() {
+          return ['student'].includes(this.account.type)
+        },
+        'une photo du carnet de correspondance est requise'
+      ]
+    }, // student
 
     motivation_letter: String, // student
 
@@ -158,20 +166,23 @@ const UserSchema = new mongoose.Schema({
       enum: ['college', 'student', 'hr', 'pro', 'administrator', 'referent']
     },
 
-    // STUDENT
+    // student, referent
+    college: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: 'User',
+      required: [
+        function() {
+          return ['student', 'referent'].includes(this.account.type)
+        },
+        'un collège est requis'
+      ]
+    },
+
     // Visualisation de tous les élèves d'une classe
     //(optionnel)
     class: {
       type: mongoose.Schema.Types.ObjectId,
       ref: 'Class'
-    },
-
-    // TODO: student, referent
-    // Visualisation de tous les élèves d'un collège avec les informations principales
-    // Ratacher des élèves à un collège
-    college: {
-      type: mongoose.Schema.Types.ObjectId,
-      ref: 'User'
     },
 
     // pro, hr
@@ -184,15 +195,7 @@ const UserSchema = new mongoose.Schema({
         },
         'une société est requise'
       ]
-    },
-
-    // referent
-    students: [
-      {
-        type: mongoose.Schema.Types.ObjectId,
-        ref: 'User'
-      }
-    ]
+    }
   }
 })
 

@@ -16,6 +16,7 @@ faker.locale = 'fr'
 
 // seed data
 const seedDataColleges = require('./seedData/seedColleges.json')
+const seedDataStudents = require('./seedData/seedStudents.json')
 const seedDataCompagnies = require('./seedData/seedCompanies.json')
 const seedDataAdministrators = require('./seedData/seedAdministrators.json')
 
@@ -180,6 +181,7 @@ const seedStudents = async (number = 20) => {
   log('creating students for 1st college...')
 
   const promises = []
+  const numSeedStudents = seedDataStudents.length
 
   for (let i = 0; i < classesIds.length; i++) {
     for (let j = 0; j < number; j++) {
@@ -188,6 +190,19 @@ const seedStudents = async (number = 20) => {
         j % 2 === 0
           ? `https://randomuser.me/api/portraits/med/men/${i * 10 + j}.jpg`
           : undefined
+
+      // créer des élèves à partir de seedDataStudents
+      if (i === 0 && j < numSeedStudents) {
+        const student = await createUser({
+          ...seedDataStudents[i],
+          picture,
+          college: collegeId, //un seul collège pour tous les élèves
+          class: classesIds[i],
+          type: 'student'
+        })
+        promises.push(student)
+        continue
+      }
 
       const student = User.create({
         email: faker.internet.email(),
@@ -200,8 +215,8 @@ const seedStudents = async (number = 20) => {
           diary_picture:
             'https://res.cloudinary.com/djexqgocu/image/upload/v1527068284/container-big_rdwvdp.pdf',
           type: 'student',
-          class: classesIds[i],
-          college: collegeId //un seul collège pour tous les élèves,
+          college: collegeId, //un seul collège pour tous les élèves
+          class: classesIds[i]
         }
       })
 
@@ -214,6 +229,16 @@ const seedStudents = async (number = 20) => {
 
     for (let i = 0; i < students.length; i++) {
       studentIds.push(students[i]._id)
+
+      if (i < numSeedStudents) {
+        log(
+          chalk.magenta(
+            `>> Élève ${i + 1}: ${students[i].email} ${
+              students[i].account.first_name
+            } ${students[i].account.last_name}`
+          )
+        )
+      }
     }
   })
 }
