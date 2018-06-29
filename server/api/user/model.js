@@ -165,13 +165,6 @@ const UserSchema = new mongoose.Schema({
       type: mongoose.Schema.Types.ObjectId,
       ref: 'Class'
     },
-    //student
-    favorite_offers: [
-      {
-        type: mongoose.Schema.Types.ObjectId,
-        ref: 'Offer'
-      }
-    ],
 
     // TODO: student, referent
     // Visualisation de tous les élèves d'un collège avec les informations principales
@@ -202,36 +195,6 @@ const UserSchema = new mongoose.Schema({
     ]
   }
 })
-
-// UserSchema.path('email').set(function (value, schemaType) {
-//   // return value + " test";
-//   console.log("value", value);
-//   console.log("schemaType", schemaType);
-//   //this.machin = value
-//   // console.log("value:", this.machin);
-
-// });
-
-// UserSchema.on('update', function (doc, next) {
-//   console.log('post save 1');
-//   console.log(doc);
-
-//   // const user = this
-//   // console.log("email", user.email);
-
-//   // if (!this.isModified('is_created.referent')) {
-
-//   // }
-//   next();
-// });
-
-// UserSchema.on('save', function (doc, next) {
-//   console.log(doc);
-//   // const user = this
-//   // console.log("email", user.email);
-
-//   next();
-// });
 
 const errorMessages = {
   MissingPasswordError: 'Mot de passe manquant',

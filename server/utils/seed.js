@@ -321,7 +321,7 @@ const seedApplications = async () => {
 
     for (let j = 0; j < schema.length; j++) {
       const application = await Application.create({
-        statut: schema[j],
+        status: schema[j],
         starts_at: schema[j] === 'hiring' ? faker.date.recent() : undefined,
         student: studentIds[i], // une candidature a un étudiant
         offer: offerIds[Math.floor(Math.random() * offerIds.length)] // lie une candidature a une offre au hazard

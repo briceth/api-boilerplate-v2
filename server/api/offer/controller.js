@@ -22,6 +22,7 @@ exports.getOne = (req, res, next) => {
 // - 1 trouve la lng et lat du student
 // - 2 trouve les offres en fonction
 // - 3 si le student a des offres favorites, on les place en premier dans l'array final
+// TODO: add rayon 10 km
 exports.getAllByLoc = async (req, res, next) => {
   const { id: studentId } = req.params
   let student

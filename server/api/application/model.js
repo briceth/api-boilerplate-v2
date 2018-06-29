@@ -1,14 +1,14 @@
 const mongoose = require('mongoose')
 
 const applicationSchema = new mongoose.Schema({
-  statut: {
+  status: {
     type: String,
     enum: ['hiring', 'declined', 'pending'],
     default: 'pending',
     required: [true, 'un statut est requis']
   },
 
-  starts_at: { type: Date },
+  //starts_at: { type: Date },
 
   student: {
     type: mongoose.Schema.Types.ObjectId,

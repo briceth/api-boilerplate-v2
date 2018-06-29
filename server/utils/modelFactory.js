@@ -68,7 +68,6 @@ const createStudent = (options, user, callback, resolve, reject) => {
   // paramètres obligatoires
   user.account.class = options.class
   user.account.college = options.college
-  user.account.color = options.color
   user.account.first_name = options.name || faker.name.firstName()
   user.account.last_name = options.last_name || faker.name.lastName()
   user.account.address = options.address || faker.address.streetAddress()
@@ -76,7 +75,7 @@ const createStudent = (options, user, callback, resolve, reject) => {
     faker.address.longitude(),
     faker.address.latitude()
   ]
-  user.account.favorite_offers = [options.favorite_offers]
+
   user.account.picture = options.picture
     ? options.picture === 'undefined'
       ? undefined
