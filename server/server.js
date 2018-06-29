@@ -1,8 +1,8 @@
 const express = require('express')
 const { connect } = require('./db')
-const { errorHandler } = require('./middlewares/core')
-const agenda = require('./jobs/agenda')
 const setupAppMiddleware = require('./middlewares/app')
+const agenda = require('./jobs/agenda')
+const { errorHandler } = require('./middlewares/core')
 
 const app = express()
 setupAppMiddleware(app)
@@ -44,8 +44,8 @@ app.all('*', (_, res) => {
 })
 
 // Error handling middleware
-// This middleware is call with next(err_msg) within a route
-// to be put at the end
+// This middleware is call with next(error) within a route
+// must be put at the end
 app.use(errorHandler)
 
 module.exports = app

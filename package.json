@@ -4,12 +4,12 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "delete": "node server/utils/remove.js",
+    "remove": "node server/script/removeDB.js",
     "start": "node index.js",
     "dev": "NODE_ENV=development nodemon index.js",
     "seed": "node server/utils/seed.js",
     "college": "node server/utils/college/seed.js",
-    "test": "NODE_ENV=test mocha --recursive **/**.spec.js",
+    "test": "NODE_ENV=test mocha --recursive **/**.spec.js --exit",
     "testCover": "NODE_ENV=test nyc --reporter=html --reporter=text mocha --recursive **/**.spec.js"
   },
   "author": "LeReacteur",

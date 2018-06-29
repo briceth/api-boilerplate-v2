@@ -166,6 +166,7 @@ const UserSchema = new mongoose.Schema({
       enum: ['college', 'student', 'hr', 'pro', 'administrator', 'referent']
     },
 
+
     // student, referent
     college: {
       type: mongoose.Schema.Types.ObjectId,
@@ -179,10 +180,11 @@ const UserSchema = new mongoose.Schema({
     },
 
     // Visualisation de tous les élèves d'une classe
+    //(optionnel)
     class: {
       type: mongoose.Schema.Types.ObjectId,
       ref: 'Class'
-    }, // student (optionnel)
+    },
 
     // pro, hr
     company: {

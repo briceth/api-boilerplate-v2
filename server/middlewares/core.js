@@ -1,18 +1,7 @@
-const passport = require('passport')
-const config = require('../../config')
-const User = require('../api/user/model')
 const { ObjectId } = require('mongoose').Types
 
 exports.errorHandler = (error, req, res, next) => {
-  // if (res.statusCode === 200) res.status(400)
-  // if (config.ENV === 'production') error = 'An error occurred'
-  // return res.json({
-  //   error
-  // })
-
-  res.status(400).json({
-    error: error
-  })
+  return res.status(400).json({ error })
 }
 
 /**

@@ -1,22 +1,34 @@
 const Candidature = require('./model')
+const User = require('../user/model')
 
 //GET CONTROLLERS
-exports.getApplicationsFromStudent = (req, res, next) => {
-  const { id } = req.params
-
-  return Candidature.find({
-    student: id
-  }).count()
-  // .then(doc => res.status(201).json(doc))
-  // .then(error => next(error))
+exports.getApplicationsFromStudent = req => {
+  const { id: student } = req.params
+  return Candidature.find({ student }).count()
 }
 
 //POST CONTROLLERS
-exports.create = (req, res, next) => {
-  const { body } = req
+exports.create = async (req, res, next) => {
+  const { offer, student, motivation_letter } = req.body
 
-  return Candidature.create(body)
-    .then(doc => res.status(201).json(doc))
+  try {
+    await User.findByIdAndUpdate(
+      student,
+      { 'account.motivation_lette': motivation_letter },
+      { new: true }
+    )
+  } catch (error) {
+    return next(
+      "Une erreur est survenue lors de l'enregistrement de votre lettre de motivation"
+    )
+  }
+
+  Candidature.create({ offer, student })
+    .then(() => {
+      return res
+        .status(201)
+        .json({ message: 'Votre candidature a été envoyée !' })
+    })
     .catch(error => next(error))
 }
 

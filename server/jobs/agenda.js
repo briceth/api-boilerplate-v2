@@ -9,7 +9,7 @@ jobTypes.forEach(type => {
   require('./jobs/' + type)(agenda)
 })
 
-function graceful() {
+const graceful = () => {
   agenda.stop(() => {
     process.exit(0)
   })

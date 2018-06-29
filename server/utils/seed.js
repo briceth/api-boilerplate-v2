@@ -1,9 +1,7 @@
 const mongoose = require('mongoose')
 const chalk = require('chalk')
 const faker = require('faker')
-
 const { createUser } = require('./modelFactory')
-
 const User = require('../api/user/model')
 const Class = require('../api/class/model')
 const Application = require('../api/application/model')
@@ -12,6 +10,7 @@ const Company = require('../api/company/model')
 const Message = require('../api/message/model')
 const config = require('../../config')
 const { deleteDB } = require('./helpers')
+const { connect, mongooseDisconnect } = require('../db')
 const log = console.log
 faker.locale = 'fr'
 
@@ -21,7 +20,7 @@ const seedDataStudents = require('./seedData/seedStudents.json')
 const seedDataCompagnies = require('./seedData/seedCompanies.json')
 const seedDataAdministrators = require('./seedData/seedAdministrators.json')
 
-mongoose.connect(config.MONGODB_URI)
+connect()
 
 log('db url:', config.MONGODB_URI)
 
@@ -158,9 +157,29 @@ const seedClasses = async (number = 5) => {
   })
 }
 
+const createAStudent = async () => {
+  const me = await createUser({
+    email: 'tessierhuort@gmail.com',
+    name: 'brice',
+    last_name: 'tessier',
+    color: '#ef4c31',
+    picture: `https://randomuser.me/api/portraits/med/men/${9}.jpg`,
+    address: faker.address.streetAddress(),
+    loc: [48.86, 2.21],
+    diary_picture:
+      'https://res.cloudinary.com/djexqgocu/image/upload/v1527068284/container-big_rdwvdp.pdf',
+    type: 'student',
+    class: classesIds[8],
+    college: collegeId, //un seul collège pour tous les élèves
+    favorite_offers: [offerIds[0]]
+  })
+  log(`student ${me.email} was created`)
+}
+
 //STUDENTS
 const seedStudents = async (number = 20) => {
   log('creating students for 1st college...')
+
   const promises = []
   const numSeedStudents = seedDataStudents.length
 
@@ -287,12 +306,13 @@ const seedOffers = (number = 5) => {
 
   for (let i = 0; i < number; i++) {
     const offer = Offer.create({
-      title: faker.name.title(),
-      description: faker.name.jobDescriptor(),
+      title: faker.name.jobType(),
+      description: faker.lorem.sentences(),
       address: faker.address.streetAddress(),
       starts_at: faker.date.recent(),
       end_at: faker.date.future(),
       profession: faker.name.jobTitle(),
+      loc: [faker.address.longitude(), faker.address.latitude()],
       number_application: i,
       company: companyIds[i],
       pro: proIds[i]
@@ -386,11 +406,8 @@ const seedMessages = () => {
   })
 }
 
-const closeConnection = () => {
-  mongoose.connection.close(() => {
-    log(chalk.magenta('Password for all accounts: azerty 🤫'))
-    log('\n \n close connection')
-  })
+const printPassword = () => {
+  log(chalk.magenta('Password for all accounts: azerty 🤫'))
 }
 
 deleteDB()
@@ -398,11 +415,14 @@ deleteDB()
   .then(() => seedColleges(200))
   .then(() => seedReferents())
   .then(() => seedClasses())
-  .then(() => seedStudents())
   .then(() => seedCompanies())
   .then(() => seedPros())
   .then(() => seedOffers())
+  .then(() => createAStudent())
+  .then(() => seedStudents())
   .then(() => seedApplications())
   .then(() => seedMessages())
-  .then(() => closeConnection())
+  .then(() => printPassword())
+  .then(() => mongooseDisconnect())
+  .then(() => process.exit(0))
   .catch(error => log(chalk.red(error, '‼️ 👮🏽')))

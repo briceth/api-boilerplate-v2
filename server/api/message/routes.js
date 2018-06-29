@@ -13,8 +13,12 @@ router
 router.route('/:id/read').put(controller.updateRead)
 
 //retourne les messages des étudiants et des pros pour les référents
-router
-  .route('/referent/:id/students/pros')
-  .get(controller.messagesStudentAndProForReferent)
+router.get('/user/:id', controller.getUserMessages)
+
+//retourne les messages des étudiants et des pros pour les référents
+// router.get(
+//   '/referent/:id/students/pros',
+//   controller.messagesStudentAndProForReferent
+// )
 
 module.exports = router
