@@ -63,7 +63,6 @@ const createStudent = (options, user, callback, resolve, reject) => {
   // paramètres obligatoires
   user.account.class = options.class
   user.account.college = options.college
-
   user.account.first_name = options.first_name || faker.name.firstName()
   user.account.last_name = options.last_name || faker.name.lastName()
   user.account.address = options.address || faker.address.streetAddress()
