@@ -9,9 +9,10 @@ const passportGoogle = require('./strategies/google')
 
 const controller = require('./controller')
 
-// routes
+// verify token
 router.post('/verify_token', controller.verifyToken)
 
+// signup
 router.post('/sign_up', controller.signUp)
 router.post(
   '/sign_up_facebook',
@@ -24,6 +25,7 @@ router.post(
   controller.signUp
 )
 
+// login
 router.post('/log_in', passportLocal.authenticate('local'), controller.logIn)
 router.post(
   '/log_in_facebook',
@@ -36,12 +38,22 @@ router.post(
   controller.logIn
 )
 
+// password
+router.route('/forgot_password').post(controller.forgotPassword)
+router.route('/reset_password').post(controller.resetPassword)
+
+// upload
 router.post('/upload', multipartMiddleware, controller.upload)
 router.delete('/upload', controller.deleteUpload)
 
-router.post('/forgot_password', controller.forgotPassword)
-router.post('/reset_password', controller.resetPassword)
+router.post('/upload', multipartMiddleware, controller.upload)
+router.delete('/upload', controller.deleteUpload)
 
+// others
+router.route('/companies/all').get(controller.getAllCompanyNames)
+router.route('/companies/add').post(controller.createCompany)
+
+router.route('/colleges/all').get(controller.getAllCollegeNames)
 //router.route('/email_check').get(controller.emailCheck)
 
 module.exports = router

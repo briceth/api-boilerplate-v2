@@ -9,12 +9,12 @@ const { mailPassword } = require('./sendPassword')
 const { forgotPasswordEmail } = require('./forgotPasswordEmail')
 
 module.exports = {
-  sendPassword: async (url, user, password) => {
+  sendPassword: async (url, user, passwordChangeToken) => {
     try {
       const result = await mailgun
         .messages()
-        .send(mailPassword(url, user, password))
-      log('Mail body:', result)
+        .send(mailPassword(url, user, passwordChangeToken))
+      console.log('Mail body:', result)
     } catch (error) {
       console.error('Mail error:', error)
     }
