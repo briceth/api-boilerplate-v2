@@ -11,9 +11,7 @@ exports.getAll = (req, res, next) => {
 
 //POST CONTROLLERS
 exports.create = (req, res, next) => {
-  const {
-    body
-  } = req
+  const { body } = req
 
   return Company.create(body)
     .then(doc => res.status(201).json(doc))

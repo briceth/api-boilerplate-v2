@@ -2,7 +2,8 @@ const express = require('express')
 const router = express.Router()
 const controller = require('./controller')
 
-router.route('/')
+router
+  .route('/')
   .get(controller.getAll)
   .post(controller.create)
 

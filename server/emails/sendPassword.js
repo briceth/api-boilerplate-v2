@@ -1,4 +1,4 @@
-exports.mailPassword = (url, user, password) => {
+exports.mailPassword = (url, user, passwordChangeToken) => {
   return {
     from: '<contact@viensvoirmontaf.fr>',
     to: user.email,
@@ -364,13 +364,16 @@ exports.mailPassword = (url, user, password) => {
                                   <tr>
                                     <td style="word-wrap:break-word;font-size:0px;padding:0px;" align="left">
                                       <div style="cursor:auto;color:#5d7079;font-family:TW-Averta-Regular, Averta, Helvetica, Arial;font-size:16px;line-height:24px;letter-spacing:0.4px;text-align:left;">
+                                        <p>Bonjour${
+                                          user.account.first_name
+                                            ? ` ${user.account.first_name},`
+                                            : ','
+                                        }</p>
                                         <p class="hero">Bienvenue sur ViensVoirMonTaf</p>
-                                        <p>Pour vous connecter, utilisez votre email et le mot de passe ci-dessous :</p>
-                                        <p>Mot de passe: ${password}</p>
+                                        <p>Pour vous connecter, utilisez votre email et définisez un mot de passe en cliquant sur le lien ci-dessous :</p>
                                         <p>
-                                          <a href="${url}/auth/connexion" class="btn" mc:disable-tracking="">Accéder au site</a>
+                                          <a href="${url}/auth/nouveau-mot-de-passe?token=${passwordChangeToken}" class="btn" mc:disable-tracking="">Définir un mot de passe</a>
                                         </p>
-                                        <p>Pour changer le mot de passe, rendez-vous sur votre profil, section "Modifier mon profil".</p>
                                         <p>Si vous ne savez pas pourquoi vous avez reçu cet email, contactez nous afin que nous réglions la situation
                                           pour vous.</p>
                                         <hr style="margin-top: 56px">

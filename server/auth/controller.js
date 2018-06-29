@@ -4,6 +4,7 @@ const uniqid = require('uniqid')
 
 const config = require('../../config')
 const User = require('../api/user/model')
+const Company = require('../api/company/model')
 // const confirmEmail = require('../emails/confirmationEmail')
 
 const mailgunModule = require('../emails/mailgun')
@@ -16,27 +17,19 @@ cloudinary.config({
 })
 
 exports.verifyToken = function(req, res, next) {
-  User.findOne(
-    {
-      token: req.body.token
-    },
-    (error, user) => {
-      if (error || !user) {
-        return res.status(400).json({
-          error: "We don't have a user with this token in our database"
-        })
-      }
+  User.findOne({ token: req.body.token })
+    .populate({
+      path: 'account.company'
+    })
+    .then(doc => {
+      if (!doc) return res.status(400)
 
-      return res.status(200).json({
-        user
-      })
-    }
-  )
+      res.json({ user: doc })
+    })
+    .catch(error => next(error))
 }
 
 exports.signUp = function(req, res, next) {
-  console.log('req.err', req.err)
-  console.log('BODY', req.body)
   if (req.err) return next(err)
 
   // rendre la création d'un compte administrateur impossible via cette route
@@ -44,79 +37,44 @@ exports.signUp = function(req, res, next) {
   if (!authorizedTypes.includes(req.body.type)) {
     return res.status(401).json({ message: 'Unauthorized type' })
   }
+  // bloquer la création d'un compte actif
+  const { type } = req.body
+  const is_active = type === 'hr' || type === 'student' ? false : true
+
+  const { password, email, oauthID, ...rest } = req.body
+
+  console.log('TYPE', req.body.type)
 
   User.register(
     new User({
       email: req.user && req.user.email ? req.user.email : req.body.email,
       token: uid2(32), // Token created with uid2. Will be used for Bear strategy. Should be regenerated when password is changed.
-      emailCheck: {
+      oauthID: req.user && req.user.oauthID,
+      account: { ...rest, is_active },
+
+      passwordChange: req.body.type === 'referent' && {
         token: uid2(24),
-        createdAt: new Date()
-      },
-      oauthID: req.user && req.user.oauthID && req.user.oauthID,
-      account: {
-        // everybody
-        type: req.body.type,
-        first_name: req.body.first_name,
-        last_name: req.body.last_name,
-
-        // college, pro, rh
-        phone: req.body.phone,
-
-        // student, pro
-        address: req.body.address,
-        loc: req.body.loc,
-
-        //school: req.body.school, //TODO: Mise en place des ID avec la seed
-
-        // student, referent? (pas à la création)
-        //class: req.body.class, //TODO: Idem
-
-        // referent
-        college: req.body.college,
-
-        // student
-        picture: req.body.picture && req.body.picture,
-        curriculum: req.body.curriculum && req.body.curriculum,
-        diary_picture: req.body.diary_picture,
-
-        // College
-        college_name: req.body.college_name,
-        city: req.body.city
+        expiryDate: new Date(Date.now() + 604800000)
       }
     }),
     req.body.password ? req.body.password : uid2(16), // Le mot de passe doit être obligatoirement le deuxième paramètre transmis à `register` afin d'être crypté
-    function(error, user) {
+    async (error, user) => {
       if (error) {
         return next(error)
       } else {
         const url = req.headers.origin //pour localhost et pour l'url de production
 
         if (config.ENV !== 'test' && user.account.type === 'referent') {
-          mailgunModule.sendPassword(url, user, req.body.password)
+          mailgunModule.sendPassword(url, user, user.passwordChange.token)
         }
 
-        const { _id, oauthID, token, email, is_created, account } = user
-
-        const userCreated = {
-          _id,
-          oauthID,
-          email,
-          token,
-          is_created,
-          account
-        }
-
-        return res.status(201).json({
-          message: 'User successfully signed up 🤩',
-          user: userCreated //Besoin de user "en entier" pour context
-        })
+        resLoginAndSignUp(res, next, user, 201)
       }
     }
   )
 }
 
-exports.logIn = (req, res, next) => {
+exports.logIn = async (req, res, next) => {
   if (req.err) {
     return res.status(401)
   }
@@ -136,7 +94,11 @@ exports.logIn = (req, res, next) => {
     })
   }
 
-  const { _id, oauthID, email, token, account, is_created } = req.user
+  resLoginAndSignUp(res, next, req.user, 200)
+}
+
+async function resLoginAndSignUp(res, next, newUser, status) {
+  const { _id, oauthID, email, token, account, is_created } = newUser
   const user = {
     _id,
     oauthID,
@@ -145,7 +107,16 @@ exports.logIn = (req, res, next) => {
     account,
     is_created
   }
-  return res.status(200).json({
+
+  if (account.type === 'pro' || 'hr') {
+    await Company.findById(account.company)
+      .then(doc => {
+        user.account.company = doc
+      })
+      .catch(error => next(error))
+  }
+
+  return res.status(status).json({
     message: 'User successfully signed up 🤩',
     user
   })
@@ -165,8 +136,8 @@ exports.upload = function(req, res, next) {
       }
     ]
   }
-  const correspondenceBookConfig = {
-    folder: 'correspondence_book',
+  const diaryConfig = {
+    folder: 'diary',
     public_id: uniqid(),
     allowedFormats: ['jpg', 'png'],
     transformation: [
@@ -177,9 +148,15 @@ exports.upload = function(req, res, next) {
       }
     ]
   }
-  const cvConfig = {
+  const curriculumConfig = {
+    folder: 'curriculum',
     public_id: uniqid(),
     resource_type: 'raw'
+  }
+  const logoConfig = {
+    folder: 'logo',
+    public_id: uniqid(),
+    allowedFormats: ['jpg', 'png']
   }
   const defaultConfig = {
     folder: 'other',
@@ -193,10 +170,13 @@ exports.upload = function(req, res, next) {
       config = avatarConfig
       break
     case 'diary':
-      config = correspondenceBookConfig
+      config = diaryConfig
       break
     case 'curriculum':
-      config = cvConfig
+      config = curriculumConfig
+      break
+    case 'logo':
+      config = logoConfig
       break
     default:
       config = defaultConfig
@@ -239,6 +219,44 @@ exports.deleteUpload = function(req, res, next) {
   })
 }
 
+// COMPANY controllers
+exports.getAllCompanyNames = (req, res, next) => {
+  Company.find({})
+    .select('name')
+    .then(doc => {
+      res.json(doc)
+    })
+    .catch(error => next(error))
+}
+
+exports.createCompany = (req, res, next) => {
+  const { body } = req
+
+  Company.create(body)
+    .then(doc => res.status(201).json(doc))
+    .catch(error => next(error))
+}
+
+// COLLEGE controllers
+exports.getAllCollegeNames = (req, res, next) => {
+  User.aggregate([
+    {
+      $match: { 'account.type': 'college' }
+    },
+    {
+      $group: {
+        _id: '$_id',
+        name: { $first: '$account.college_name' }
+      }
+    }
+  ])
+    .then(doc => {
+      res.json(doc)
+    })
+    .catch(error => next(error))
+}
+
+// PASSWORD controllers
 exports.forgotPassword = (req, res, next) => {
   const { email } = req.body
 
@@ -276,11 +294,10 @@ exports.forgotPassword = (req, res, next) => {
             message: 'Erreur serveur'
           })
         }
-        //TODO: décommenter le if
-        //if (config.ENV === 'production') {
-        const url = req.headers.origin
-        mailgunModule.forgotPassword(url, user)
-        //}
+        if (config.ENV !== 'test') {
+          const url = req.headers.origin
+          mailgunModule.forgotPassword(url, user)
+        }
         res.json({
           message:
             'Un email vous a été envoyé pour réinitialiser votre mot de passe.'
@@ -291,10 +308,7 @@ exports.forgotPassword = (req, res, next) => {
 }
 
 exports.resetPassword = (req, res, next) => {
-  const {
-    user,
-    body: { password, token }
-  } = req
+  const { password, token } = req.body
 
   if (!password) {
     return res.status(400).json({

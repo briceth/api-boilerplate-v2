@@ -1,0 +1,12 @@
+[
+  {
+    "email": "eleve@mail.com",
+    "first_name": "John",
+    "last_name": "Doe",
+    "phone": "0607080910",
+    "address": "1 rue de Paris, Paris, France",
+    "loc": [2.3522219000000177, 48.856614],
+    "diary_picture":
+      "https://bateliers.com/files/subscribers/5f277edb-c630-4c57-8206-690790e04665/sites/01efb0d6-0ea7-439e-8ae2-41177eb9d249/products/Product_e986e5c1-84ae-4746-af73-0888b76007c0_xlarge.png?stamp=634968271120000000"
+  }
+]
