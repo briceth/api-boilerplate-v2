@@ -1,8 +1,14 @@
 const uid2 = require('uid2')
 const cloudinary = require('cloudinary').v2
-const uniqid = require('uniqid')
 
 const config = require('../../config')
+const {
+  avatarConfig,
+  diaryConfig,
+  curriculumConfig,
+  logoConfig,
+  defaultConfig
+} = require('./upload/cloudinary')
 const User = require('../api/user/model')
 const Company = require('../api/company/model')
 // const confirmEmail = require('../emails/confirmationEmail')
@@ -43,8 +49,6 @@ exports.signUp = function(req, res, next) {
 
   const { password, email, oauthID, ...rest } = req.body
 
-  console.log('TYPE', req.body.type)
-
   User.register(
     new User({
       email: req.user && req.user.email ? req.user.email : req.body.email,
@@ -74,7 +78,7 @@ exports.signUp = function(req, res, next) {
   )
 }
 
-exports.logIn = async (req, res, next) => {
+exports.logIn = (req, res, next) => {
   if (req.err) {
     return res.status(401)
   }
@@ -97,7 +101,7 @@ exports.logIn = async (req, res, next) => {
   resLoginAndSignUp(res, next, req.user, 200)
 }
 
-async function resLoginAndSignUp(res, next, newUser, status) {
+function resLoginAndSignUp(res, next, newUser, status) {
   const { _id, oauthID, email, token, account, is_created } = newUser
   const user = {
     _id,
@@ -108,62 +112,27 @@ async function resLoginAndSignUp(res, next, newUser, status) {
     is_created
   }
 
-  if (account.type === 'pro' || 'hr') {
-    await Company.findById(account.company)
-      .then(doc => {
-        user.account.company = doc
-      })
-      .catch(error => next(error))
+  if (account.type !== 'pro' || 'hr') {
+    return res.status(status).json({
+      message: 'User successfully signed up 🤩',
+      user
+    })
   }
 
-  return res.status(status).json({
-    message: 'User successfully signed up 🤩',
-    user
-  })
+  Company.findById(account.company)
+    .then(doc => {
+      user.account.company = doc
+
+      return res.status(status).json({
+        message: 'User successfully signed up 🤩',
+        user
+      })
+    })
+    .catch(error => next(error))
 }
 
+// UPLOAD controllers
 exports.upload = function(req, res, next) {
-  const avatarConfig = {
-    folder: 'avatar',
-    public_id: uniqid(),
-    allowedFormats: ['jpg', 'png'],
-    transformation: [
-      {
-        width: 200,
-        height: 200,
-        crop: 'thumb',
-        gravity: 'face'
-      }
-    ]
-  }
-  const diaryConfig = {
-    folder: 'diary',
-    public_id: uniqid(),
-    allowedFormats: ['jpg', 'png'],
-    transformation: [
-      {
-        width: 400,
-        height: 600,
-        crop: 'thumb'
-      }
-    ]
-  }
-  const curriculumConfig = {
-    folder: 'curriculum',
-    public_id: uniqid(),
-    resource_type: 'raw'
-  }
-  const logoConfig = {
-    folder: 'logo',
-    public_id: uniqid(),
-    allowedFormats: ['jpg', 'png']
-  }
-  const defaultConfig = {
-    folder: 'other',
-    public_id: uniqid(),
-    allowedFormats: ['jpg', 'png']
-  }
-
   let config
   switch (req.body.type) {
     case 'picture':

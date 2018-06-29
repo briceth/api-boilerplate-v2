@@ -17,10 +17,7 @@ const UserSchema = new mongoose.Schema({
   },
 
   passwordChange: {
-    token: {
-      type: String,
-      default: uid2(24)
-    },
+    token: String,
     expiryDate: Date
   },
 
