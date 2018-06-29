@@ -8,7 +8,7 @@ const User = require('../../user/model')
 const Class = require('../model')
 const log = console.log
 
-describe.only('/classes', () => {
+describe('/classes', () => {
   let classe
   let student
   let college

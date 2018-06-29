@@ -158,11 +158,20 @@ const UserSchema = new mongoose.Schema({
       enum: ['college', 'student', 'hr', 'pro', 'administrator', 'referent']
     },
 
+    // STUDENT
     // Visualisation de tous les élèves d'une classe
+    //(optionnel)
     class: {
       type: mongoose.Schema.Types.ObjectId,
       ref: 'Class'
-    }, // student (optionnel)
+    },
+    //student
+    favorite_offers: [
+      {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: 'Offer'
+      }
+    ],
 
     // TODO: student, referent
     // Visualisation de tous les élèves d'un collège avec les informations principales

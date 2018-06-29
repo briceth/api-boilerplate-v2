@@ -1,6 +1,5 @@
 const chai = require('chai')
 const expect = require('chai').expect
-const should = require('chai').should()
 const chaiHttp = require('chai-http')
 const faker = require('faker')
 const server = require('../../../../index')
@@ -48,7 +47,7 @@ describe('GET MESSAGES', () => {
     company = await Company.create({
       name: faker.company.companyName(),
       industry: faker.commerce.product(),
-      logo: "https://picsum.photos/80/120"
+      logo: 'https://picsum.photos/80/120'
     })
 
     pro = await User.create({
@@ -69,8 +68,6 @@ describe('GET MESSAGES', () => {
       recipient: student._id,
       sender: pro._id
     })
-
-
   })
 
   afterEach(async () => {
@@ -81,8 +78,8 @@ describe('GET MESSAGES', () => {
 
   describe('GET /referent/:id/students/pros', () => {
     it('should get an array of messages from students/pros that belong to a referent', async () => {
-      const result =
-        await chai.request(server)
+      const result = await chai
+        .request(server)
         .get(`/api/messages/referent/${referent._id}/students/pros`)
       //.set('Authorization', `Bearer ${jwt}`)
 
@@ -99,7 +96,7 @@ describe('GET MESSAGES', () => {
         'date',
         'title',
         'content',
-        'sender',
+        'sender'
       )
 
       expect(result.body[0].read).to.be.a('boolean')
@@ -114,9 +111,11 @@ describe('GET MESSAGES', () => {
       expect(result.body[0].sender.account.last_name).to.be.a('string')
       expect(result.body[0].sender.account.type).to.be.a('string')
 
-      if (result.body[0].sender.account.type === "pro") {
+      if (result.body[0].sender.account.type === 'pro') {
         expect(result.body[0].sender.account.company).to.be.an('object')
-        Object.keys(result.body[0].sender.account.company).every(key => expect(key).to.exist)
+        Object.keys(result.body[0].sender.account.company).every(
+          key => expect(key).to.exist
+        )
         expect(result.body[0].sender.account.company.name).to.be.a('string')
         expect(result.body[0].sender.account.company.logo).to.be.a('string')
       }

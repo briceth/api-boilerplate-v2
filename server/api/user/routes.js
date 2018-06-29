@@ -17,6 +17,8 @@ router
 // Controllers de production
 router.put('/:id/iscreated', controller.updateCreated)
 
+router.put('/:id/offers', controller.updateFavoriteOffers)
+
 router.route('/referent/:id').delete(controller.removeReferent)
 router.route('/college/:id').delete(controller.removeCollege)
 

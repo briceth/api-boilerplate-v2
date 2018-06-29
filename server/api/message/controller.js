@@ -24,10 +24,45 @@ exports.findByParam = (req, res, next, id) => {
 //GET CONTROLLERS
 
 // - 1 renvoye TOUS les messages
-exports.getAll = (req, res, next) => {
+exports.getAll = (_, res, next) => {
   return Message.find({})
     .then(doc => res.status(201).json(doc))
     .catch(error => next(error))
+}
+
+exports.getUserMessages = async (req, res, next) => {
+  const { id } = req.params
+  // console.log('id', id)
+
+  const messages = await Message.find({
+    $or: [
+      {
+        recipient: id
+      },
+      {
+        sender: id
+      }
+    ]
+  })
+    // .select('-files -recipient -__v')
+    .populate({
+      path: 'sender'
+      // select:
+      //   '_id email account.color account.picture account.curriculum account.first_name account.last_name account.type account.company',
+      // populate: {
+      //   path: 'account.company',
+      //   select: 'name logo -_id'
+      // }
+    })
+    .populate({ path: 'recipient' })
+
+  // trier les messages par date
+  messages.sort((a, b) => new Date(b.date) - new Date(a.date))
+  //console.log('message', messages)
+
+  // console.timeEnd('message.find');
+
+  res.status(201).json(messages)
 }
 
 // - 1 trouver les élèves du référent
@@ -88,44 +123,6 @@ exports.messagesStudentAndProForReferent = (req, res, next) => {
         .catch(error => next(error))
     })
     .catch(error => next(error))
-
-  // .populate('account.students')
-  // .then(async referent => {
-  //   const { students } = referent.account
-
-  //   const message = await Message.find({
-  //     $or: [
-  //       {
-  //         recipient: {
-  //           $in: students
-  //         }
-  //       },
-  //       {
-  //         sender: {
-  //           $in: students
-  //         }
-  //       }
-  //     ]
-  //   })
-  //     .select('-files -recipient -__v')
-  //     .populate({
-  //       path: 'sender',
-  //       select:
-  //         '_id email account.color account.picture account.curriculum account.first_name account.last_name account.type account.company',
-  //       populate: {
-  //         path: 'account.company',
-  //         select: 'name logo -_id'
-  //       }
-  //     })
-
-  //   //trier les messages par date
-  //   message.sort((a, b) => new Date(b.date) - new Date(a.date))
-
-  //   //console.timeEnd('message.find');
-
-  //   res.status(201).json(message)
-  // })
-  // .catch(error => next(error))
 }
 
 // performance.mark('end')

@@ -16,8 +16,11 @@ const offerSchema = new mongoose.Schema({
     required: true
   },
 
-  //TODO: add loc ?
-  // idem in seed
+  loc: {
+    type: [Number], // Array : longitude et latitude
+    index: '2dsphere',
+    required: [true, 'une géolocalisation est requise']
+  },
 
   starts_at: {
     type: Date,
@@ -42,7 +45,7 @@ const offerSchema = new mongoose.Schema({
 
   is_active: { type: Boolean, default: true, required: true },
 
-  is_favorite: { type: Boolean, default: false, required: true },
+  // is_favorite: { type: Boolean, default: false, required: true },
 
   company: {
     type: mongoose.Schema.Types.ObjectId,

@@ -234,6 +234,38 @@ exports.updateCreated = (req, res, next) => {
     .catch(error => next(error))
 }
 
+exports.updateFavoriteOffers = (req, res, next) => {
+  const { id } = req.params
+  const { action, offer } = req.body
+
+  const query =
+    action === 'add'
+      ? {
+          $push: {
+            'account.favorite_offers': offer
+          }
+        }
+      : {
+          $pull: {
+            'account.favorite_offers': offer
+          }
+        }
+
+  return User.findByIdAndUpdate(id, query, {
+    new: true
+  })
+    .then(user => {
+      return res.status(201).json({
+        message:
+          action === 'add'
+            ? "L'offre a bien été ajoutée !"
+            : "L'offre a bien été enlevée !",
+        user
+      })
+    })
+    .catch(error => next(error))
+}
+
 // DELETE CONTROLLERS
 exports.removeReferent = (req, res, next) => {
   const { id } = req.params
