@@ -1,6 +1,5 @@
 const uid2 = require('uid2')
 const cloudinary = require('cloudinary').v2
-
 const config = require('../../config')
 const {
   avatarConfig,
@@ -10,9 +9,6 @@ const {
   defaultConfig
 } = require('./upload/cloudinary')
 const User = require('../api/user/model')
-const Company = require('../api/company/model')
-// const confirmEmail = require('../emails/confirmationEmail')
-
 const mailgunModule = require('../emails/mailgun')
 
 // cloudinary credentials
@@ -118,17 +114,6 @@ function resLoginAndSignUp(res, next, newUser, status) {
       user
     })
   }
-
-  Company.findById(account.company)
-    .then(doc => {
-      user.account.company = doc
-
-      return res.status(status).json({
-        message: 'User successfully signed up 🤩',
-        user
-      })
-    })
-    .catch(error => next(error))
 }
 
 // UPLOAD controllers
@@ -150,15 +135,25 @@ exports.upload = function(req, res, next) {
     default:
       config = defaultConfig
   }
+  console.log(req.body)
+  console.log(req.files)
 
   const filePath = req.files.file.path
+  console.log('filePath', filePath)
+
+  console.log('config', config)
+
   cloudinary.uploader.upload(filePath, config, function(error, result) {
     if (error) {
+      console.log('error', error)
+
       return res.status(400).json({
         error: `We couldn't upload your file to our database
                 ${error}`
       })
     }
+
+    console.log('result', result)
 
     const image = {
       //version: req.file.version,
@@ -186,43 +181,6 @@ exports.deleteUpload = function(req, res, next) {
       message: 'Fichier supprimé avec succès !'
     })
   })
-}
-
-// COMPANY controllers
-exports.getAllCompanyNames = (req, res, next) => {
-  Company.find({})
-    .select('name')
-    .then(doc => {
-      res.json(doc)
-    })
-    .catch(error => next(error))
-}
-
-exports.createCompany = (req, res, next) => {
-  const { body } = req
-
-  Company.create(body)
-    .then(doc => res.status(201).json(doc))
-    .catch(error => next(error))
-}
-
-// COLLEGE controllers
-exports.getAllCollegeNames = (req, res, next) => {
-  User.aggregate([
-    {
-      $match: { 'account.type': 'college' }
-    },
-    {
-      $group: {
-        _id: '$_id',
-        name: { $first: '$account.college_name' }
-      }
-    }
-  ])
-    .then(doc => {
-      res.json(doc)
-    })
-    .catch(error => next(error))
 }
 
 // PASSWORD controllers
@@ -324,39 +282,3 @@ exports.resetPassword = (req, res, next) => {
     }
   )
 }
-
-// exports.emailCheck = (req, res) => {
-//   const { email, token } = req.query
-
-//   if (!token) return res.status(400).send('No token specified')
-
-//   User.findOne({ 'emailCheck.token': token, email }, (error, user) => {
-//     if (error) return res.status(400).send(error)
-
-//     if (!user) return res.status(400).send('Wrong credentials')
-
-//     if (user.emailCheck.valid) {
-//       return res
-//         .status(206)
-//         .json({ message: 'You have already confirmed your email !' })
-//     }
-
-//     var yesterday = new Date()
-
-//     yesterday.setDate(yesterday.getDate() - 1)
-
-//     if (user.emailCheck.createdAt < yesterday) {
-//       return res.status(400).json({
-//         message:
-//           'This link is outdated (older than 24h), please try to sign up again'
-//       })
-//     }
-
-//     user.emailCheck.valid = true
-
-//     user.save(error => {
-//       if (err) return res.send(err)
-//       res.json({ message: 'Your email has been verified with success' })
-//     })
-//   })
-// }

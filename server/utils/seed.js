@@ -1,13 +1,7 @@
-const mongoose = require('mongoose')
 const chalk = require('chalk')
 const faker = require('faker')
 const { createUser } = require('./modelFactory')
 const User = require('../api/user/model')
-const Class = require('../api/class/model')
-const Application = require('../api/application/model')
-const Offer = require('../api/offer/model')
-const Company = require('../api/company/model')
-const Message = require('../api/message/model')
 const config = require('../../config')
 const { deleteDB } = require('./helpers')
 const { connect, mongooseDisconnect } = require('../db')
@@ -17,7 +11,6 @@ faker.locale = 'fr'
 // seed data
 const seedDataColleges = require('./seedData/seedColleges.json')
 const seedDataStudents = require('./seedData/seedStudents.json')
-const seedDataCompagnies = require('./seedData/seedCompanies.json')
 const seedDataAdministrators = require('./seedData/seedAdministrators.json')
 
 connect()
@@ -27,10 +20,7 @@ log('db url:', config.MONGODB_URI)
 let collegeId
 const collegeIds = []
 const referentIds = []
-const classesIds = []
 const studentIds = []
-const offerIds = []
-const companyIds = []
 const proIds = []
 
 // ADMINISTRATOR
@@ -128,35 +118,6 @@ const seedReferents = async (number = 5) => {
   })
 }
 
-// CLASSES
-const seedClasses = async (number = 5) => {
-  log('creating classes for 1st college...')
-  const promises = []
-
-  for (let i = 0; i < collegeIds.length; i++) {
-    // créer cinq classes (3ème 1, 3ème 2, ...) pour tous les collèges
-    for (let j = 0; j < number; j++) {
-      const newClass = await Class.create({
-        name: `3ème ${j + 1}`,
-        date: '2017-2018',
-        ...(i === 0 && { referent: referentIds[j] }),
-        college: collegeIds[i]
-      })
-
-      //classesIds contient uniquement les classes du 1er collège
-      if (i === 0) promises.push(newClass)
-    }
-  }
-
-  return Promise.all(promises).then(classes => {
-    log(chalk.green(`${classes.length} classes added !! 😁 ❤️`))
-
-    for (let i = 0; i < classes.length; i++) {
-      classesIds.push(classes[i]._id)
-    }
-  })
-}
-
 const createAStudent = async () => {
   const me = await createUser({
     email: 'tessierhuort@gmail.com',
@@ -169,9 +130,7 @@ const createAStudent = async () => {
     diary_picture:
       'https://res.cloudinary.com/djexqgocu/image/upload/v1527068284/container-big_rdwvdp.pdf',
     type: 'student',
-    class: classesIds[8],
-    college: collegeId, //un seul collège pour tous les élèves
-    favorite_offers: [offerIds[0]]
+    college: collegeId //un seul collège pour tous les élèves
   })
   log(`student ${me.email} was created`)
 }
@@ -183,7 +142,7 @@ const seedStudents = async (number = 20) => {
   const promises = []
   const numSeedStudents = seedDataStudents.length
 
-  for (let i = 0; i < classesIds.length; i++) {
+  for (let i = 0; i < 5; i++) {
     for (let j = 0; j < number; j++) {
       // un élève sur deux n'a pas de photo de profil
       const picture =
@@ -197,7 +156,6 @@ const seedStudents = async (number = 20) => {
           ...seedDataStudents[i],
           picture,
           college: collegeId, //un seul collège pour tous les élèves
-          class: classesIds[i],
           type: 'student'
         })
         promises.push(student)
@@ -215,8 +173,7 @@ const seedStudents = async (number = 20) => {
           diary_picture:
             'https://res.cloudinary.com/djexqgocu/image/upload/v1527068284/container-big_rdwvdp.pdf',
           type: 'student',
-          college: collegeId, //un seul collège pour tous les élèves
-          class: classesIds[i]
+          college: collegeId //un seul collège pour tous les élèves
         }
       })
 
@@ -243,30 +200,6 @@ const seedStudents = async (number = 20) => {
   })
 }
 
-// COMPANIES
-const seedCompanies = async () => {
-  log('creating companies...')
-  const promises = []
-
-  for (let i = 0; i < seedDataCompagnies.length; i++) {
-    const company = await Company.create({
-      name: seedDataCompagnies[i].name,
-      industry: seedDataCompagnies[i].industry,
-      logo: seedDataCompagnies[i].logo
-    })
-
-    promises.push(company)
-  }
-
-  return Promise.all(promises).then(companies => {
-    log(chalk.green(`${companies.length} companies added !! 😁 ❤️`))
-
-    for (let i = 0; i < companies.length; i++) {
-      companyIds.push(companies[i]._id)
-    }
-  })
-}
-
 // PROS
 const seedPros = (number = 5) => {
   log('creating pros...')
@@ -282,8 +215,7 @@ const seedPros = (number = 5) => {
         address: faker.address.streetAddress(),
         loc: [faker.address.longitude(), faker.address.latitude()],
         phone: faker.phone.phoneNumber(),
-        type: 'pro',
-        company: companyIds[i] //chaque pro a une company
+        type: 'pro'
       }
     })
 
@@ -299,113 +231,6 @@ const seedPros = (number = 5) => {
   })
 }
 
-// OFFERS
-const seedOffers = (number = 5) => {
-  log('creating offers...')
-  const promises = []
-
-  for (let i = 0; i < number; i++) {
-    const offer = Offer.create({
-      title: faker.name.jobType(),
-      description: faker.lorem.sentences(),
-      address: faker.address.streetAddress(),
-      starts_at: faker.date.recent(),
-      end_at: faker.date.future(),
-      profession: faker.name.jobTitle(),
-      loc: [faker.address.longitude(), faker.address.latitude()],
-      number_application: i,
-      company: companyIds[i],
-      pro: proIds[i]
-    })
-
-    promises.push(offer)
-  }
-
-  return Promise.all(promises).then(offers => {
-    log(chalk.green(`${offers.length} offers added !! 😁 ❤️`))
-
-    for (let i = 0; i < offers.length; i++) {
-      offerIds.push(offers[i]._id)
-    }
-  })
-}
-
-// APPLICATIONS
-const seedApplications = async () => {
-  log('creating applications...')
-  const promises = []
-  const status = ['hiring', 'declined', 'pending']
-  const statusSchema = [
-    ['declined', 'declined', 'hiring', 'declined', 'declined', 'declined'],
-    ['pending', 'pending', 'pending', 'pending'],
-    ['hiring', 'declined', 'declined', 'declined', 'declined']
-  ]
-
-  for (let i = 0; i < studentIds.length; i++) {
-    const schema = statusSchema[Math.floor(Math.random() * status.length)]
-
-    for (let j = 0; j < schema.length; j++) {
-      const application = await Application.create({
-        status: schema[j],
-        starts_at: schema[j] === 'hiring' ? faker.date.recent() : undefined,
-        student: studentIds[i], // une candidature a un étudiant
-        offer: offerIds[Math.floor(Math.random() * offerIds.length)] // lie une candidature a une offre au hazard
-      })
-
-      promises.push(application)
-    }
-  }
-
-  return Promise.all(promises).then(applications => {
-    log(chalk.green(`${applications.length} applications added !! 😁 ❤️`))
-  })
-}
-
-// MESSAGES
-const seedMessages = () => {
-  log('creating messages...')
-  const promises = []
-
-  for (let i = 0; i < studentIds.length; i++) {
-    // chaque élève va échanger entre 0 à 5 messages avec un pro et inversement
-    // attention : tous les pros n'ont donc pas de messages ...
-    const numMessages = Math.floor(Math.random() * 6)
-    const proId = proIds[Math.floor(Math.random() * proIds.length)]
-
-    // messages venant du pro
-    for (let j = 0; j < numMessages; j++) {
-      const message = Message.create({
-        title: `Stage d'assistant ${faker.name.jobTitle().split(' ')[2]}`,
-        content:
-          faker.lorem.paragraph() +
-          'Aut ut quibusdam. Totam possimus pariatur sed. Eaque aut odio accusantium. Temporibus et molestiae voluptas sunt minima sint eum omnis.Sit non culpa similique voluptatem et id eligendi deserunt. Quasi voluptate sed illum officiis velit. Illum quidem et aut iure ipsa pariatur corrupti consequuntur.Aut ut quibusdam. Totam possimus pariatur sed. Eaque aut odio accusantium. Temporibus et molestiae voluptas sunt minima sint eum omnis.Sit non culpa similique voluptatem et id eligendi deserunt. Quasi voluptate sed illum officiis velit. Illum quidem et aut iure ipsa pariatur corrupti consequuntur.Aut ut quibusdam. Totam possimus pariatur sed. Eaque aut odio accusantium. Temporibus et molestiae voluptas sunt minima sint eum omnis.Sit non culpa similique voluptatem et id eligendi deserunt. Quasi voluptate sed illum officiis velit. Illum quidem et aut iure ipsa pariatur corrupti consequuntur.Aut ut quibusdam. Totam possimus pariatur sed. Eaque aut odio accusantium. Temporibus et molestiae voluptas sunt minima sint eum omnis.Sit non culpa similique voluptatem et id eligendi deserunt. Quasi voluptate sed illum officiis velit. Illum quidem et aut iure ipsa pariatur corrupti consequuntur.Aut ut quibusdam. Totam possimus pariatur sed. Eaque aut odio accusantium. Temporibus et molestiae voluptas sunt minima sint eum omnis.Sit non culpa similique voluptatem et id eligendi deserunt. Quasi voluptate sed illum officiis velit. Illum quidem et aut iure ipsa pariatur corrupti consequuntur.Aut ut quibusdam. Totam possimus pariatur sed. Eaque aut odio accusantium. Temporibus et molestiae voluptas sunt minima sint eum omnis.Sit non culpa similique voluptatem et id eligendi deserunt. Quasi voluptate sed illum officiis velit.',
-        date: faker.date.past(),
-        sender: proId,
-        recipient: studentIds[i]
-      })
-
-      promises.push(message)
-    }
-
-    // messages venant du student
-    for (let k = 0; k < numMessages; k++) {
-      const message = Message.create({
-        title: `Stage d'assistant ${faker.name.jobTitle().split(' ')[2]}`,
-        content: faker.lorem.paragraph(),
-        date: faker.date.past(),
-        sender: studentIds[i],
-        recipient: proId
-      })
-
-      promises.push(message)
-    }
-  }
-
-  return Promise.all(promises).then(messages => {
-    log(chalk.green(`${messages.length} messages added !! 😁 ❤️`))
-  })
-}
-
 const printPassword = () => {
   log(chalk.magenta('Password for all accounts: azerty 🤫'))
 }
@@ -414,14 +239,9 @@ deleteDB()
   .then(() => seedAdministrators())
   .then(() => seedColleges(200))
   .then(() => seedReferents())
-  .then(() => seedClasses())
-  .then(() => seedCompanies())
   .then(() => seedPros())
-  .then(() => seedOffers())
   .then(() => createAStudent())
   .then(() => seedStudents())
-  .then(() => seedApplications())
-  .then(() => seedMessages())
   .then(() => printPassword())
   .then(() => mongooseDisconnect())
   .then(() => process.exit(0))

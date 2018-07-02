@@ -11,7 +11,7 @@ exports.errorHandler = (error, req, res, next) => {
  * @return {next()}
  */
 exports.canUser = (req, res, next) => {
-  const Id = req.params.id || req.body.id
+  const Id = req.params.id || req.params.userId || req.body.id
 
   if (new ObjectId(req.user._id).equals(Id)) {
     return next()

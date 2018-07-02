@@ -188,13 +188,13 @@ const UserSchema = new mongoose.Schema({
     // pro, hr
     company: {
       type: mongoose.Schema.Types.ObjectId,
-      ref: 'Company',
-      required: [
-        function() {
-          return ['pro', 'hr'].includes(this.account.type)
-        },
-        'une société est requise'
-      ]
+      ref: 'Company'
+      // required: [
+      //   function() {
+      //     return ['pro', 'hr'].includes(this.account.type)
+      //   },
+      //   'une société est requise'
+      // ]
     }
   }
 })
@@ -250,18 +250,3 @@ UserSchema.statics.authenticateBearer = function() {
 }
 
 module.exports = mongoose.model('User', UserSchema, 'users')
-
-// emailCheck: {
-//   valid: {
-//     type: Boolean,
-//     default: true
-//   }, // change to false to activate emailCheck
-//   token: {
-//     type: String,
-//     default: uid2(20)
-//   },
-//   createdAt: {
-//     type: Date,
-//     default: Date.now
-//   }
-// },

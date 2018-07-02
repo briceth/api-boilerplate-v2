@@ -1,4 +1,3 @@
-const Candidature = require('../application/model')
 const { ObjectId } = require('mongoose').Types
 
 exports.getApplications = async students => {
@@ -13,17 +12,17 @@ exports.getApplications = async students => {
     }).count()
 
     // les candidatures
-    const applications = await Candidature.find({
-      student: new ObjectId(student._id)
-    })
+    // const applications = await Candidature.find({
+    //   student: new ObjectId(student._id)
+    // })
 
-    const statut = applications.find((o, i) => {
-      if (o.status === 'hiring') {
-        return true // stop searching
-      }
-    })
-      ? 'oui'
-      : 'non'
+    // const statut = applications.find((o, i) => {
+    //   if (o.status === 'hiring') {
+    //     return true // stop searching
+    //   }
+    // })
+    //   ? 'oui'
+    //   : 'non'
 
     finalDoc.push({
       account: student.account,

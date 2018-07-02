@@ -1,5 +1,4 @@
 const User = require('./model')
-const Class = require('../class/model')
 const { getApplications } = require('./controller.helpers')
 const { ObjectId } = require('mongoose').Types
 
@@ -112,32 +111,32 @@ exports.getReferentsFromCollege = (req, res, next) => {
  * @param {array} docs.account.students - les élèves du référent
  * @return {array} - [{_id, account, application: { statut, number } }]
  */
-exports.getStudentsFromReferent = (req, res, next) => {
-  const { id } = req.params
-  // 1 - on cherche les classes ayant ce référent
-  // 2 - on cherche les users ayant cette classe
-  // 3 - besoin du nom de la classe pour chaque élève
-  Class.find({ referent: id })
-    .then(classes => {
-      if (classes.length < 1) {
-        return res.status(201).json({
-          message: 'Aucune classe ne vous a été attribuée'
-        })
-      }
+// exports.getStudentsFromReferent = (req, res, next) => {
+//   const { id } = req.params
+//   // 1 - on cherche les classes ayant ce référent
+//   // 2 - on cherche les users ayant cette classe
+//   // 3 - besoin du nom de la classe pour chaque élève
+//   Class.find({ referent: id })
+//     .then(classes => {
+//       if (classes.length < 1) {
+//         return res.status(201).json({
+//           message: 'Aucune classe ne vous a été attribuée'
+//         })
+//       }
 
-      User.find({ 'account.class': { $in: classes } })
-        .populate({
-          path: 'account.class',
-          select: 'name -_id'
-        })
-        .then(async students => {
-          const result = await getApplications(students)
-          return res.status(201).json(result)
-        })
-        .catch(error => next(error))
-    })
-    .catch(error => next(error))
-}
+//       User.find({ 'account.class': { $in: classes } })
+//         .populate({
+//           path: 'account.class',
+//           select: 'name -_id'
+//         })
+//         .then(async students => {
+//           const result = await getApplications(students)
+//           return res.status(201).json(result)
+//         })
+//         .catch(error => next(error))
+//     })
+//     .catch(error => next(error))
+// }
 
 // POST CONTROLLERS
 exports.create = (req, res, next) => {
@@ -234,40 +233,6 @@ exports.updateCreated = (req, res, next) => {
     .catch(error => next(error))
 }
 
-// DELETE CONTROLLERS
-exports.removeReferent = (req, res, next) => {
-  const { id } = req.params
-
-  return User.findByIdAndRemove(id)
-    .then(referent => {
-      // on enlève le référent à sa classe
-      return Class.findByIdAndUpdate(
-        new ObjectId(referent.account.class),
-        {
-          $unset: {
-            referent: 1
-          }
-        },
-        {
-          new: true
-        }
-      )
-        .then(doc => {
-          const { first_name, last_name } = referent.account
-
-          return res.status(201).json({
-            message: 'le référent a été supprimé avec succès!',
-            referent: {
-              first_name,
-              last_name
-            }
-          })
-        })
-        .catch(error => next(error))
-    })
-    .catch(error => next(error))
-}
-
 exports.removeCollege = (req, res, next) => {
   const { id } = req.params
 
@@ -292,26 +257,3 @@ exports.removeCollege = (req, res, next) => {
     })
     .catch(error => next(error))
 }
-
-// exports.initial_get_user = function(req, res, next) {
-//   const { currentUser } = req
-//   User.findById(req.params.id)
-//     .select('account')
-//     // .populate("account")
-//     .exec()
-//     .then(user => {
-//       const { _id, account } = user
-
-//       if (!user) {
-//         res.status(404)
-//         return next('User not found')
-//       }
-
-//       return res.json({ _id, account })
-//     })
-//     .catch(err => {
-//       console.error(err.message)
-//       res.status(400)
-//       return next(err.message)
-//     })
-// }

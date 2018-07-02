@@ -17,9 +17,6 @@ router
 // Controllers de production
 router.put('/:id/iscreated', controller.updateCreated)
 
-router.route('/referent/:id').delete(controller.removeReferent)
-router.route('/college/:id').delete(controller.removeCollege)
-
 router.route('/type/:type').get(controller.getAllByType)
 
 router.route('/:id').put(canUser, controller.update)
@@ -31,11 +28,5 @@ router
 router
   .route('/college/:id/referents')
   .get(canUser, controller.getReferentsFromCollege)
-
-router.get(
-  '/referent/:id/students',
-  canUser,
-  controller.getStudentsFromReferent
-)
 
 module.exports = router

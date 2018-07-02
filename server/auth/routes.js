@@ -46,14 +46,4 @@ router.route('/reset_password').post(controller.resetPassword)
 router.post('/upload', multipartMiddleware, controller.upload)
 router.delete('/upload', controller.deleteUpload)
 
-router.post('/upload', multipartMiddleware, controller.upload)
-router.delete('/upload', controller.deleteUpload)
-
-// others
-router.route('/companies/all').get(controller.getAllCompanyNames)
-router.route('/companies/add').post(controller.createCompany)
-
-router.route('/colleges/all').get(controller.getAllCollegeNames)
-//router.route('/email_check').get(controller.emailCheck)
-
 module.exports = router
